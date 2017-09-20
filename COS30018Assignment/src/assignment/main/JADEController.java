@@ -1,5 +1,6 @@
 package assignment.main;
 
+import assignment.agents.Agent_MasterScheduling;
 import jade.core.Agent;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
@@ -56,13 +57,16 @@ public class JADEController {
 	}
 	
 	/**
-	 * Adds an agent to the main container
+	 * Creates the Master Scheduling Agent
+	 * @param ctrl
 	 * @param name
-	 * @param agent
+	 * @return
 	 * @throws StaleProxyException
 	 */
-	public void AddAgent(String name, Agent agent) throws StaleProxyException {
-		AddAgent(mainCtrl, name, agent);
+	public AgentController CreateMasterAgent(ContainerController ctrl, String name) throws StaleProxyException {
+		ContainerController c = (ctrl!=null)?ctrl:mainCtrl; //If null, create in main container
+		
+		return c.createNewAgent(name, Agent_MasterScheduling.class.getName(), new Object[0]);
 	}
 	
 	/**
