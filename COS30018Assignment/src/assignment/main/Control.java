@@ -12,14 +12,18 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import jade.content.onto.annotations.Result;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.Profile;
+import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.FIPANames;
 import jade.lang.acl.ACLMessage;
+import jade.proto.AchieveREInitiator;
 import jade.util.leap.Properties;
 import jade.wrapper.AgentController;
+import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
 import jade.wrapper.gateway.JadeGateway;
 
@@ -32,25 +36,28 @@ public class Control implements ActionListener{
 	private boolean simulating = false;
 	private String systemout = "";
 	
-	private void Begin() throws StaleProxyException {
+	private void Begin() throws ControllerException, InterruptedException {
 		InitializeJadeGateway(); //Sets up Jade Gateway
 
 		//Creates Master Scheduling Agent
-		controller.CreateMasterAgent(null, "Master");
+		AgentController master = controller.CreateMasterAgent("Master");
 		
 		//Create Stations
 		controller.CreateContainer("Station 1");
 		
+		//TestGetMessages gmm = new TestGetMessages();
 		
+		LastMasterMessage(GetInteractionInterface(master).GetLastMessage()); //Update UI with the latest message from the master scheduler
+
+		//(test) JadeGateway.execute(gmm);
 		
 		//***Change buttons***
 		startSimulation.setText("Stop Simulation!");
-		LastMasterMessage("");
 		simulation.setVisible(true);
 		simulating = true;
 		//********************
 	}
-	
+	//***********************************************************************
 
 	//****************************
 	//Control functions/procedures
@@ -75,8 +82,8 @@ public class Control implements ActionListener{
 		
 		JPanel display = new JPanel();
 		
-		buttons.add(startJADE);
-		buttons.add(startSimulation, BorderLayout.CENTER);
+		buttons.add(startJADE, BorderLayout.WEST);
+		buttons.add(startSimulation, BorderLayout.EAST);
 		display.add(buttons, BorderLayout.NORTH);
 		
 		//Display interface
@@ -84,8 +91,8 @@ public class Control implements ActionListener{
 		lastMasterMessage = new JLabel("Latest Message from Master:");
 		systemout = "SystemOut:";
 		systemOut = new JLabel("<html>SystemOut:</html>");
-		simulation.add(lastMasterMessage);
-		simulation.add(systemOut);
+		simulation.add(lastMasterMessage, BorderLayout.NORTH);
+		simulation.add(systemOut, BorderLayout.SOUTH);
 		simulation.setVisible(false);
 		display.add(simulation, BorderLayout.SOUTH);
 		
@@ -105,7 +112,7 @@ public class Control implements ActionListener{
 	}
 	
 	private void LastMasterMessage(String message) {
-		lastMasterMessage.setText("Latest Message from Master: " + message);
+		lastMasterMessage.setText("<html>Latest Message from Master<br/>\"" + message + "\"</html>");
 	}
 	
 	private void InitializeJadeGateway() {
@@ -115,6 +122,10 @@ public class Control implements ActionListener{
 		JadeGateway.init(null, gatewayProperties);
 		
 		System.out.println("Gateway Established");
+	}
+	
+	public AgentInteraction GetInteractionInterface(AgentController a) throws StaleProxyException {
+		return a.getO2AInterface(AgentInteraction.class);
 	}
 	
 	@Override
@@ -137,19 +148,27 @@ public class Control implements ActionListener{
 				} catch (StaleProxyException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+				} catch (ControllerException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 		}
 	}
 	
-	private class GetMastersMessages extends CyclicBehaviour{
-		public ACLMessage masterMessage = null;
+	public class TestGetMessages extends Behaviour{
+		private ACLMessage masterACLMessage = null;
+		private boolean messageReceived = false;
+		public String masterMessage = "";
 		ACLMessage msg;
 		
-		/*
-		GetMastersMessages(){
+		private String GetMessage(){
+			messageReceived = true;
+			return masterMessage;
 		}
-		*/
 		
 		@Override
 		public void action() {
@@ -158,6 +177,21 @@ public class Control implements ActionListener{
 			msg.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
 			msg.setReplyByDate(new Date(System.currentTimeMillis() + 10000));
 			msg.setContent("What is your latest message?");
+			
+			//AchieveREInitiator test;
+		}
+		
+		private void updateMasterMessage() {
+			try {
+				Result result = (Result)myAgent.getContentManager().extractContent(masterACLMessage);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public boolean done() {
+			return messageReceived;
 		}
 		
 	} 
