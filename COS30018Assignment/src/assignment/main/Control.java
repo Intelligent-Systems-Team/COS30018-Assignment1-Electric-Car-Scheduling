@@ -42,6 +42,9 @@ public class Control implements ActionListener{
 		//Creates Master Scheduling Agent
 		AgentController master = controller.CreateMasterAgent("Master");
 		
+		// TODO Change this to a button to add car
+		AgentController car1 = controller.CreatCarAgent(controller.CreateContainer("Enviroment"), "Car1");
+		
 		//Create Stations
 		controller.CreateContainer("Station 1");
 		
