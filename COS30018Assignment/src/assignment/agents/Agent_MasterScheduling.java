@@ -49,7 +49,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						+ message.getSender().getLocalName());
 				
 				switch(message.getContent()) {
-				case "Register me": //Car is registering itself to the master scheduler
+				case "register me": //Car is registering itself to the master scheduler
 					
 					String car = message.getSender().getLocalName();
 					if (!CarExist(car)){ 
@@ -57,8 +57,19 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						PrintToSystem(getLocalName() + ": " + car + " has been registered");
 						
 						ACLMessage reply = message.createReply();
-						reply.setPerformative(ACLMessage.REQUEST);
-						reply.setContent("What is your preference?");
+						reply.setPerformative(ACLMessage.AGREE);
+						reply.setContent("do you want to charge?");
+						
+						//Send reply
+						send(reply); 
+						PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
+								+ message.getAllReceiver().next());
+					}
+					else 
+					{
+						ACLMessage reply = message.createReply();
+						reply.setPerformative(ACLMessage.REFUSE);
+						reply.setContent("you are all ready registered");
 						
 						//Send reply
 						send(reply); 

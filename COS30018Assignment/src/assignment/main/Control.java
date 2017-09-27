@@ -23,6 +23,7 @@ import jade.lang.acl.ACLMessage;
 import jade.proto.AchieveREInitiator;
 import jade.util.leap.Properties;
 import jade.wrapper.AgentController;
+import jade.wrapper.ContainerController;
 import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
 import jade.wrapper.gateway.JadeGateway;
@@ -31,22 +32,23 @@ public class Control implements ActionListener{
 
 	private JADEController controller;
 	private JLabel lastMasterMessage, systemOut;
-	private JButton startJADE, startSimulation;
+	private JButton startJADE, startSimulation, addCar;
 	private JPanel simulation;
 	private boolean simulating = false;
 	private String systemout = "";
+	private ContainerController enviro;
+	private int CarNumber;
 	
 	private void Begin() throws ControllerException, InterruptedException {
 		InitializeJadeGateway(); //Sets up Jade Gateway
 
 		//Creates Master Scheduling Agent
 		AgentController master = controller.CreateMasterAgent("Master");
-		
-		// TODO Change this to a button to add car
-		AgentController car1 = controller.CreatCarAgent(controller.CreateContainer("Enviroment"), "Car1");
-		
+				
 		//Create Stations
+		enviro = controller.CreateContainer("Enviroment");
 		controller.CreateContainer("Station 1");
+		
 		
 		//TestGetMessages gmm = new TestGetMessages();
 		
@@ -81,12 +83,18 @@ public class Control implements ActionListener{
 		startSimulation.setActionCommand("startSimulation");
 		startSimulation.addActionListener(this);
 		startSimulation.setEnabled(false);
+		
+		addCar = new JButton("Add Car to Simulation");
+		addCar.setActionCommand("addCar");
+		addCar.addActionListener(this);
+		addCar.setEnabled(false);
 		//********************************
 		
 		JPanel display = new JPanel();
 		
 		buttons.add(startJADE, BorderLayout.WEST);
 		buttons.add(startSimulation, BorderLayout.EAST);
+		buttons.add(addCar,BorderLayout.NORTH);
 		display.add(buttons, BorderLayout.NORTH);
 		
 		//Display interface
@@ -148,6 +156,7 @@ public class Control implements ActionListener{
 				System.out.println("StartSimulation called");
 				try {
 					Begin();
+					addCar.setEnabled(true);
 				} catch (StaleProxyException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -158,6 +167,17 @@ public class Control implements ActionListener{
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+			}
+		}
+		if("addCar".equals(e.getActionCommand()) && controller != null)
+		{
+			try 
+			{
+				controller.CreatCarAgent(enviro, "Car"+String.valueOf(CarNumber));
+				CarNumber++;
+			} catch (StaleProxyException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 		}
 	}
