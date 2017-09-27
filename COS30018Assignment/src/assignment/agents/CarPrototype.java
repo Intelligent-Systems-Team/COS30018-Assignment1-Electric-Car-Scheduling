@@ -1,6 +1,7 @@
 package assignment.agents;
 
 import assignment.main.AgentInteraction;
+import assignment.main.Control;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
@@ -12,11 +13,12 @@ import jade.proto.AchieveREInitiator;
 import jade.proto.AchieveREResponder;
 
 public class CarPrototype extends Agent implements AgentInteraction {
+	
+	private Control control = null;
 	private String name;
-	private String LastMessage = "";
 
 	protected void setup() {
-		System.out.println("Car Has been Made");
+		PrintToSystem(this.getLocalName() + ": New Car Has Been Made");
 		Object[] args = getArguments();
 		name = args.toString();
 		ACLMessage registerRequest = new ACLMessage(ACLMessage.REQUEST);
@@ -28,11 +30,6 @@ public class CarPrototype extends Agent implements AgentInteraction {
 	}
 
 	@Override
-	public String GetLastMessage() {
-		return LastMessage;
-	}
-
-	@Override
 	public void AddBehaviour(Behaviour b) {
 		addBehaviour(b);
 	}
@@ -40,14 +37,9 @@ public class CarPrototype extends Agent implements AgentInteraction {
 	@Override
 	public void PrintToSystem(String s) {
 		System.out.println(s);
-		LastMessage = s;
+		control.AddLastMessage(s);
 	}
-
-	/**
-	 * 
-	 *
-	 *
-	 */
+	
 	private class SendMessageBehaviour extends AchieveREInitiator {
 
 		public SendMessageBehaviour(Agent a, ACLMessage msg) {
@@ -56,24 +48,29 @@ public class CarPrototype extends Agent implements AgentInteraction {
 		}
 
 		protected void handleAgree(ACLMessage agree) {
-			System.out.println(getLocalName() + ": " + agree.getSender().getName() + " has agreed to the request");
+			PrintToSystem(getLocalName() + ": " + agree.getSender().getName() + " has agreed to the request");
 		}
 
 		protected void handleInform(ACLMessage inform) {
-			System.out.println(inform.getContent());
+			PrintToSystem(inform.getContent());
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
-			System.out.println(getLocalName() + ": " + refuse.getSender().getName() + " refused request");
+			PrintToSystem(getLocalName() + ": " + refuse.getSender().getName() + " refused request");
 		}
 
 		protected void handleFailure(ACLMessage failure) {
 			if (failure.getSender().equals(myAgent.getAMS())) {
-				System.out.println(getLocalName() + ": " + "Responder does not exist");
+				PrintToSystem(getLocalName() + ": " + "Responder does not exist");
 			} else {
-				System.out.println(getLocalName() + ": " + failure.getSender().getName()
+				PrintToSystem(getLocalName() + ": " + failure.getSender().getName()
 						+ " failed to perform the requested action");
 			}
 		}
+	}
+
+	@Override
+	public void RegisterControl(Control c) {
+		control = c;		
 	}
 }

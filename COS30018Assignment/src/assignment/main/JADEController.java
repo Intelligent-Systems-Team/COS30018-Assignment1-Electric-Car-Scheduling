@@ -12,9 +12,11 @@ public class JADEController {
 	
 	private ContainerController mainCtrl; //Main Container
 	private Runtime rt;
+	private Control c;
 	
-	public JADEController() throws StaleProxyException, InterruptedException {
+	public JADEController(Control c) throws StaleProxyException, InterruptedException {
 		
+		this.c = c; //Sets reference to Control
 		rt = Runtime.instance(); // The JADE runtime
 		
 		// Launch the Main Container (with the administration GUI on top) listening on
@@ -28,11 +30,7 @@ public class JADEController {
 		//Thread.sleep(3000);
 	}
 	
-	/**
-	 * Returns the 'AgentInteraction' Interface of the Agent, so it can be interacted with by code
-	 * @param agent
-	 * @return
-	 */
+	/*
 	public AgentInteraction GetAgentInterface(Agent agent) {
 		AgentInteraction o2a_interface;
 		
@@ -45,6 +43,7 @@ public class JADEController {
 		
 		return o2a_interface;
 	}
+	*/
 	
 	/**
 	 * Creates a container with a name
@@ -68,17 +67,19 @@ public class JADEController {
 	public AgentController CreateMasterAgent(String name) throws StaleProxyException {
 		AgentController a = mainCtrl.createNewAgent(name, Agent_MasterScheduling.class.getName(), new Object[0]);
 		a.start();
+		
+		c.GetInteractionInterface(a).RegisterControl(c); //Registers reference to Control on the agent
 		return a;
 	}
 	
 	public AgentController CreatCarAgent(ContainerController ctrl, String name) throws StaleProxyException {
-		ContainerController c = (ctrl!=null)?ctrl:mainCtrl; //If null, create in main container
+		ContainerController ctr = (ctrl!=null)?ctrl:mainCtrl; //If null, create in main container
 		
-		AgentController a = c.createNewAgent(name, CarPrototype.class.getName(), new Object[0]);
-		a.start();
-		//AgentController a = c.createNewAgent(name, /*Agent_MasterScheduling.class.getName()*/, new Object[0]);
-		//a.start();
-		return a;
+		AgentController car = ctr.createNewAgent(name, CarPrototype.class.getName(), new Object[0]);
+		car.start();
+		
+		c.GetInteractionInterface(car).RegisterControl(c); //Registers reference to Control on the agent
+		return car;
 	}
 	
 	/**

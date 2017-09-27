@@ -31,11 +31,11 @@ import jade.wrapper.gateway.JadeGateway;
 public class Control implements ActionListener{
 
 	private JADEController controller;
-	private JLabel lastMasterMessage, systemOut;
+	private JLabel latestMessages;
 	private JButton startJADE, startSimulation, addCar;
 	private JPanel simulation;
 	private boolean simulating = false;
-	private String systemout = "";
+	private String[] latestMessagesArray = new String[10];
 	private ContainerController enviro;
 	private int CarNumber;
 	
@@ -49,10 +49,7 @@ public class Control implements ActionListener{
 		enviro = controller.CreateContainer("Enviroment");
 		controller.CreateContainer("Station 1");
 		
-		
-		//TestGetMessages gmm = new TestGetMessages();
-		
-		LastMasterMessage(GetInteractionInterface(master).GetLastMessage()); //Update UI with the latest message from the master scheduler
+		ResetLatestMessagesList();
 
 		//(test) JadeGateway.execute(gmm);
 		
@@ -99,12 +96,9 @@ public class Control implements ActionListener{
 		
 		//Display interface
 		simulation = new JPanel();
-		lastMasterMessage = new JLabel("Latest Message from Master:");
-		systemout = "SystemOut:";
-		systemOut = new JLabel("<html>SystemOut:</html>");
-		simulation.add(lastMasterMessage, BorderLayout.NORTH);
-		simulation.add(systemOut, BorderLayout.SOUTH);
-		simulation.setVisible(false);
+		latestMessages = new JLabel("<html>SystemOut:</html>");
+		simulation.add(latestMessages, BorderLayout.SOUTH);
+		simulation.setVisible(true);
 		display.add(simulation, BorderLayout.SOUTH);
 		
 		content.add(display, BorderLayout.CENTER);
@@ -117,13 +111,24 @@ public class Control implements ActionListener{
 		frame.setVisible(true);
 	}
 	
-	private void SystemOutAdd(String s) {
-		systemout += "<br/>" + s;
-		systemOut.setText("<html>"+systemout+"</html>");
+	public void AddLastMessage(String newMessage) {
+		String displayString = "";
+		
+		for (int i = 0; i < latestMessagesArray.length-1; i++) {
+			latestMessagesArray[i] = latestMessagesArray[i+1]; //Bumps messages up
+			displayString += "* " + latestMessagesArray[i] + "<br/>";
+		}
+		
+		latestMessagesArray[latestMessagesArray.length] = newMessage; //Adds latest message
+		displayString += latestMessagesArray[latestMessagesArray.length] + "<br/>";
+		
+		latestMessages.setText("<html>Latest Messages from agents:<br/>\"" + displayString + "\"</html>");
 	}
 	
-	private void LastMasterMessage(String message) {
-		lastMasterMessage.setText("<html>Latest Message from Master<br/>\"" + message + "\"</html>");
+	private void ResetLatestMessagesList() {
+		for (int i = 0; i < latestMessagesArray.length; i++) {
+			latestMessagesArray[i] = " ";
+		}
 	}
 	
 	private void InitializeJadeGateway() {
@@ -144,7 +149,7 @@ public class Control implements ActionListener{
 		if ("startJADE".equals(e.getActionCommand()) && controller == null){
 			System.out.println("StartJADE called");
 			try {
-				controller = new JADEController();
+				controller = new JADEController(this);
 				startJADE.setEnabled(false);
 				startSimulation.setEnabled(true);
 			} 

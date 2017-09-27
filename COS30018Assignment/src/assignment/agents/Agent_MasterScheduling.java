@@ -2,14 +2,19 @@ package assignment.agents;
 
 import java.util.LinkedList;
 
+import assignment.geneticAlgorithm.GA_Control;
 import assignment.main.*;
 import jade.core.Agent;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
 
 public class Agent_MasterScheduling extends Agent implements AgentInteraction{
-	private String LastMessage = "";
+	
+	private Control control;
+	
 	private LinkedList<CarPreferenceData> carNameList = new LinkedList<CarPreferenceData>();
+	private GA_Control ga = new GA_Control();
+	
 	
 	public Agent_MasterScheduling() {
 		registerO2AInterface(AgentInteraction.class, this);
@@ -18,22 +23,20 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 	protected void setup() {
 		PrintToSystem(getLocalName() + ": has been created");
 		addBehaviour(new ReceiveMessageBehaviour()); //Adds message receiver behaviour
+		
+		//Sets up the Genetic Algorithm with the list it needs to reference
+		PrintToSystem(getLocalName() + ": " + ga.Setup(carNameList)); 
 	}
 
 	@Override
 	public void AddBehaviour(Behaviour b) {
 		addBehaviour(b);
 	}
-	
-	@Override
-	public String GetLastMessage() {
-		return LastMessage;
-	}
 
 	@Override
 	public void PrintToSystem(String s) {
 		System.out.println(s);
-		LastMessage = s;
+		control.AddLastMessage(s);
 	}
 	
 	//Behaviour for receiving messages from the cars/stations
@@ -131,5 +134,10 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 			return d != null; //Returns true if the car was found and removed
 		}
 		
+	}
+
+	@Override
+	public void RegisterControl(Control c) {
+		control = c;
 	}
 }

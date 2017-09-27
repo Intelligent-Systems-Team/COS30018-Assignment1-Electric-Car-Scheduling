@@ -18,7 +18,7 @@ public class Schedule implements Comparable<Schedule>{
 	@Override
 	public int compareTo(Schedule s) {
 		float comparedSize = s.fitness;
-		if (this.fitness > comparedSize) {
+		if (this.fitness < comparedSize) {
 			return 1;
 		} else if (this.fitness == comparedSize) {
 			return 0;

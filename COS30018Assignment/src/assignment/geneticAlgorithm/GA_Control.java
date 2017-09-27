@@ -12,7 +12,7 @@ public class GA_Control {
 	//***********************
 	//***********************
 	//***********************
-	//NEEDS CONFIGURATION FILE
+	//NEEDS CONFIGURATION FILE??
 	//***********************
 	//***********************
 	//***********************
@@ -21,14 +21,15 @@ public class GA_Control {
 	
 	//Constants
 	private final int SAMPLE_SIZE = 100;
-	private final float CROSSOVER_CHANCE = 0.8f;
+	private final float CROSSOVER_AMOUNT = 0.8f;
 	private final float MUTATION_CHANCE = 0.05f;
 	
 	private LinkedList<CarPreferenceData> list;
 	private LinkedList<Schedule> population;
 	
-	public void Setup(LinkedList<CarPreferenceData> list) {
+	public String Setup(LinkedList<CarPreferenceData> list) {
 		this.list = list;
+		return "Genetic Algorithm Created";
 	}
 	
 	public Schedule Generate() {
@@ -40,19 +41,31 @@ public class GA_Control {
 	private void GeneratePopulation(LinkedList<Schedule> previous) {
 		if (previous == null) {
 			population = new LinkedList<Schedule>();
+			
+			//Create population
 			for(int i = 0; i<SAMPLE_SIZE; i++) {
 				population.add((CreateASchedule()));
 			}
 			
 		} else {
+			//Sort population, get rid of low fitness members
 			Collections.sort(population);
+			for (int i = population.size(); i > Math.floor((population.size()/2)); i++) {
+				population.remove(i);
+			}
 		}
 	}
 	
-	private Schedule CreateASchedule() {
+	private Schedule CreateASchedule() { return CreateASchedule(null, null); }
+	
+	private Schedule CreateASchedule(Schedule parent1, Schedule parent2) {
 		Schedule s = new Schedule();
 		
-		//Build/Randomize schedule
+		if (parent1 == null || parent2 == null) {
+			// Crossover and mutation
+		} else {
+			// Build/Randomize schedule
+		}
 		
 		return s;
 	}
