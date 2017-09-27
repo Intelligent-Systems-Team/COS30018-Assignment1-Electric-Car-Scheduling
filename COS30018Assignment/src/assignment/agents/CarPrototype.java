@@ -1,5 +1,7 @@
 package assignment.agents;
 
+import java.util.Random;
+
 import assignment.main.AgentInteraction;
 import jade.core.AID;
 import jade.core.Agent;
@@ -14,17 +16,13 @@ import jade.proto.AchieveREResponder;
 public class CarPrototype extends Agent implements AgentInteraction {
 	private String name;
 	private String LastMessage = "";
+	private Random rnd = new Random();
 
 	protected void setup() {
 		System.out.println("Car Has been Made");
 		Object[] args = getArguments();
 		name = args.toString();
-		ACLMessage registerRequest = new ACLMessage(ACLMessage.REQUEST);
-		//TODO fix the hard coded master
-		registerRequest.addReceiver(new AID("Master",AID.ISLOCALNAME) );
-		registerRequest.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-		registerRequest.setContent("register me");
-		addBehaviour(new SendMessageBehaviour(this, registerRequest));
+		SendChargeRequest();
 	}
 
 	@Override
@@ -41,6 +39,16 @@ public class CarPrototype extends Agent implements AgentInteraction {
 	public void PrintToSystem(String s) {
 		System.out.println(s);
 		LastMessage = s;
+	}
+	// TODO get button to do this
+	public void SendChargeRequest()
+	{
+		ACLMessage registerRequest = new ACLMessage(ACLMessage.REQUEST);
+		//TODO fix the hard coded master
+		registerRequest.addReceiver(new AID("Master",AID.ISLOCALNAME) );
+		registerRequest.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
+		registerRequest.setContent("register me");
+		addBehaviour(new SendMessageBehaviour(this, registerRequest));
 	}
 
 	/**
@@ -59,8 +67,27 @@ public class CarPrototype extends Agent implements AgentInteraction {
 			System.out.println(getLocalName() + ": " + agree.getSender().getName() + " has agreed to the request");
 		}
 
-		protected void handleInform(ACLMessage inform) {
+		protected void handleInform(ACLMessage inform) 
+		{
+			//TODO Propt if you what to keep or Change Preference
 			System.out.println(inform.getContent());
+			//Choose yes
+			ACLMessage message = receive();
+			ACLMessage reply = message.createReply();
+			if (rnd.nextBoolean()) 
+			{
+				reply.setPerformative(ACLMessage.CONFIRM);
+				reply.setContent("Yes, Please Change");
+			}
+			//Choose no
+			else
+			{
+				reply.setPerformative(ACLMessage.DISCONFIRM);
+				reply.setContent("No, Don't Change");
+			}
+			send(reply);
+			PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
+					+ message.getAllReceiver().next());
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
