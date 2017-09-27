@@ -7,6 +7,14 @@ public class CarPreferenceData {
 	public String agentName;
 	public int priority;	
 	
+	public CarPreferenceData(String name) {
+		agentName = name;
+	}
+	
+	/**
+	 * Updates its priority (for example, if a car has been removed)
+	 * @param list
+	 */
 	public void updatePriority(LinkedList<CarPreferenceData> list) {
 		for (int i = 0; i < list.size(); i++) {
 			if (list.get(i) == this) { priority = i+1; }
