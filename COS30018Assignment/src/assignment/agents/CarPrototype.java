@@ -23,7 +23,7 @@ public class CarPrototype extends Agent implements AgentInteraction {
 		//TODO fix the hard coded master
 		registerRequest.addReceiver(new AID("Master",AID.ISLOCALNAME) );
 		registerRequest.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-		registerRequest.setContent("Register me");
+		registerRequest.setContent("register me");
 		addBehaviour(new SendMessageBehaviour(this, registerRequest));
 	}
 
@@ -43,6 +43,11 @@ public class CarPrototype extends Agent implements AgentInteraction {
 		LastMessage = s;
 	}
 
+	/**
+	 * 
+	 *
+	 *
+	 */
 	private class SendMessageBehaviour extends AchieveREInitiator {
 
 		public SendMessageBehaviour(Agent a, ACLMessage msg) {
