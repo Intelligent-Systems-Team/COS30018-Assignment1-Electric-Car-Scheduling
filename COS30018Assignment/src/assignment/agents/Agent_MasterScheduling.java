@@ -2,14 +2,14 @@ package assignment.agents;
 
 import java.util.LinkedList;
 
-import assignment.main.AgentInteraction;
+import assignment.main.*;
 import jade.core.Agent;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
 
 public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 	private String LastMessage = "";
-	private LinkedList<String> carNameList = new LinkedList<String>();
+	private LinkedList<CarPreferenceData> carNameList = new LinkedList<CarPreferenceData>();
 	
 	public Agent_MasterScheduling() {
 		registerO2AInterface(AgentInteraction.class, this);
@@ -53,10 +53,9 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					
 					String car = message.getSender().getLocalName();
 					if (!CarExist(car))
-					{ 
-						//TODO add sending content Object with information
-						carNameList.add(car); //Add car to list
-						
+					{
+						//Add car to list
+						if (AddCar(car)) {PrintToSystem(getLocalName() + ": " + car + " has been registered");} 
 						//Check If Can accept the car
 						//True
 						ACLMessage reply = message.createReply();
@@ -110,10 +109,45 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 		 */
 		private boolean CarExist(String car) {
 			for (int i = 0; i < carNameList.size(); i++) {
-				if (carNameList.get(i) == car) { return true; }
+				if (carNameList.get(i).agentName.equalsIgnoreCase(car)) { return true; }
 			}
 			
 			return false;
+		}
+		
+		private boolean AddCar(String name) {
+			CarPreferenceData c = new CarPreferenceData(name);
+			c.priority = carNameList.size()+1;
+			carNameList.add(c);
+			return true;
+		}
+		
+		/**
+		 * Updates car's preferences
+		 * @param name
+		 */
+		private boolean UpdateCar(String name) {
+			if (!RemoveCar(name)) {return false;}
+			
+			
+			for (int i = 0; i < carNameList.size(); i++) {
+				carNameList.get(i).updatePriority(carNameList); //Updates cars' priorities (Bump up each car's priority)
+			}
+			
+			//(needs more parameters/preferences)
+			if (!AddCar(name)) {return false;} //Adds the car with new parameters
+			
+			return true;
+			
+		}
+		
+		private boolean RemoveCar(String name) {
+			CarPreferenceData d = null;
+			for (int i = 0; i < carNameList.size(); i++) {
+				if (carNameList.get(i).agentName.equalsIgnoreCase(name) ) { d = carNameList.get(i); }
+			}
+			
+			return d != null; //Returns true if the car was found and removed
 		}
 		
 	}
