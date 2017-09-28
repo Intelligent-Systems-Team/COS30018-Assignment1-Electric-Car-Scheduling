@@ -65,11 +65,12 @@ public class JADEController {
 	 * @throws StaleProxyException
 	 */
 	public AgentController CreateMasterAgent(String name) throws StaleProxyException {
-		AgentController a = mainCtrl.createNewAgent(name, Agent_MasterScheduling.class.getName(), new Object[0]);
-		a.start();
+		AgentController master = mainCtrl.createNewAgent(name, Agent_MasterScheduling.class.getName(), new Object[0]);
+		master.start();
+		c.GetInteractionInterface(master).RegisterControl(c); //Registers reference to Control on the agent
 		
-		c.GetInteractionInterface(a).RegisterControl(c); //Registers reference to Control on the agent
-		return a;
+		
+		return master;
 	}
 	
 	public AgentController CreatCarAgent(ContainerController ctrl, String name) throws StaleProxyException {
@@ -77,8 +78,8 @@ public class JADEController {
 		
 		AgentController car = ctr.createNewAgent(name, CarPrototype.class.getName(), new Object[0]);
 		car.start();
+		c.GetInteractionInterface(car).RegisterControl(c); //Registers reference to Control on the agent		
 		
-		c.GetInteractionInterface(car).RegisterControl(c); //Registers reference to Control on the agent
 		return car;
 	}
 	

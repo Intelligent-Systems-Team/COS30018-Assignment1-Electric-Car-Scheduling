@@ -49,8 +49,10 @@ public class Control implements ActionListener{
 		enviro = controller.CreateContainer("Enviroment");
 		controller.CreateContainer("Station 1");
 		
+		
 		ResetLatestMessagesList();
-
+		AddLastMessage("test");
+		
 		//(test) JadeGateway.execute(gmm);
 		
 		//***Change buttons***
@@ -119,8 +121,8 @@ public class Control implements ActionListener{
 			displayString += "* " + latestMessagesArray[i] + "<br/>";
 		}
 		
-		latestMessagesArray[latestMessagesArray.length] = newMessage; //Adds latest message
-		displayString += latestMessagesArray[latestMessagesArray.length] + "<br/>";
+		latestMessagesArray[latestMessagesArray.length - 1] = newMessage; //Adds latest message
+		displayString += "* " + latestMessagesArray[latestMessagesArray.length-1] + "<br/>";
 		
 		latestMessages.setText("<html>Latest Messages from agents:<br/>\"" + displayString + "\"</html>");
 	}
@@ -187,6 +189,7 @@ public class Control implements ActionListener{
 		}
 	}
 	
+	//TODO: REMOVE THIS??
 	public class TestGetMessages extends Behaviour{
 		private ACLMessage masterACLMessage = null;
 		private boolean messageReceived = false;

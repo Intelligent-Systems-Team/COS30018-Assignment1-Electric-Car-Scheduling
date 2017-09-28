@@ -1,5 +1,6 @@
 package assignment.agents;
 
+import java.util.LinkedList;
 import java.util.Random;
 
 import assignment.main.AgentInteraction;
@@ -20,9 +21,10 @@ public class CarPrototype extends Agent implements AgentInteraction {
 	private String name;
 	private String LastMessage = "";
 	private Random rnd = new Random();
+	
+	private LinkedList<String> printBuffer = new LinkedList<String>();
 
 	protected void setup() {
-		PrintToSystem(this.getLocalName() + ": New Car Has Been Made");
 		Object[] args = getArguments();
 		name = args.toString();
 		ACLMessage registerRequest = new ACLMessage(ACLMessage.REQUEST);
@@ -42,7 +44,18 @@ public class CarPrototype extends Agent implements AgentInteraction {
 	@Override
 	public void PrintToSystem(String s) {
 		System.out.println(s);
-		control.AddLastMessage(s);
+		if (control ==null) {
+			printBuffer.add(s);
+		} else {
+			//Adds any buffered messages first
+			for (int count = 0; count < printBuffer.size(); count++) {
+				control.AddLastMessage(printBuffer.get(count));
+			}
+			printBuffer.clear();
+			
+			//Adds latest message
+			control.AddLastMessage(s);
+		}
 	}
 	
 	// TODO get button to do this
@@ -69,7 +82,7 @@ public class CarPrototype extends Agent implements AgentInteraction {
 		}
 
 		protected void handleAgree(ACLMessage agree) {
-			PrintToSystem(getLocalName() + ": " + agree.getSender().getName() + " has agreed to the request");
+			PrintToSystem(getLocalName() + ": " + agree.getSender().getLocalName() + " has agreed to the request");
 		}
 		
 		protected void handleInform(ACLMessage inform) 
@@ -78,25 +91,27 @@ public class CarPrototype extends Agent implements AgentInteraction {
 			System.out.println(inform.getContent());
 			//Choose yes
 			ACLMessage message = receive();
-			ACLMessage reply = message.createReply();
-			if (rnd.nextBoolean()) 
-			{
-				reply.setPerformative(ACLMessage.CONFIRM);
-				reply.setContent("Yes, Please Change");
+			if (message != null) {
+				ACLMessage reply = message.createReply();
+				if (rnd.nextBoolean()) 
+				{
+					reply.setPerformative(ACLMessage.CONFIRM);
+					reply.setContent("Yes, Please Change");
+				}
+				//Choose no
+				else
+				{
+					reply.setPerformative(ACLMessage.DISCONFIRM);
+					reply.setContent("No, Don't Change");
+				}
+				send(reply);
+				PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
+						+ message.getAllReceiver().next());
 			}
-			//Choose no
-			else
-			{
-				reply.setPerformative(ACLMessage.DISCONFIRM);
-				reply.setContent("No, Don't Change");
-			}
-			send(reply);
-			PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
-					+ message.getAllReceiver().next());
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
-			PrintToSystem(getLocalName() + ": " + refuse.getSender().getName() + " refused request");
+			PrintToSystem(getLocalName() + ": " + refuse.getSender().getLocalName() + " refused request");
 		}
 
 		protected void handleFailure(ACLMessage failure) {
@@ -111,6 +126,6 @@ public class CarPrototype extends Agent implements AgentInteraction {
 
 	@Override
 	public void RegisterControl(Control c) {
-		control = c;		
+		control = c;
 	}
 }

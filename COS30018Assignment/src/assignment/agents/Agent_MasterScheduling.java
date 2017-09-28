@@ -11,6 +11,7 @@ import jade.lang.acl.ACLMessage;
 public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 	
 	private Control control;
+	private LinkedList<String> printBuffer = new LinkedList<String>();
 	
 	private LinkedList<CarPreferenceData> carNameList = new LinkedList<CarPreferenceData>();
 	private GA_Control ga = new GA_Control();
@@ -36,7 +37,18 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 	@Override
 	public void PrintToSystem(String s) {
 		System.out.println(s);
-		control.AddLastMessage(s);
+		if (control == null) {
+			printBuffer.add(s);
+		} else {
+			//Adds any buffered messages first
+			for (int count = 0; count < printBuffer.size(); count++) {
+				control.AddLastMessage(printBuffer.get(count));
+			}
+			printBuffer.clear();
+			
+			//Adds latest message
+			control.AddLastMessage(s);
+		}
 	}
 	
 	//Behaviour for receiving messages from the cars/stations
@@ -59,6 +71,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					{
 						//Add car to list
 						if (AddCar(car)) {PrintToSystem(getLocalName() + ": " + car + " has been registered");} 
+						
 						//Check If Can accept the car
 						//True
 						ACLMessage reply = message.createReply();
@@ -66,19 +79,19 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						{
 						PrintToSystem(getLocalName() + ": " + car + " has been registered");
 						reply.setPerformative(ACLMessage.AGREE);
-						reply.setContent("You Have Succesfull been registered for Charging");
+						reply.setContent("you have succesfull been registered for charging");
 						}
 						//False
 						else
 						{
 							PrintToSystem(getLocalName() + ": " + car + " refused ");
 							reply.setPerformative(ACLMessage.REFUSE);
-							reply.setContent("Can't Schedle you your deviced prefference");
+							reply.setContent("can't schedle you or your deviced preference");
 						}
 						//Send reply
 						send(reply); 
 						PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
-								+ message.getAllReceiver().next());
+								+ reply.getAllReceiver().next());
 					}
 					else 
 					{
@@ -89,7 +102,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						//Send reply
 						send(reply); 
 						PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
-								+ message.getAllReceiver().next());
+								+ reply.getAllReceiver().next());
 					}
 					
 					break;
