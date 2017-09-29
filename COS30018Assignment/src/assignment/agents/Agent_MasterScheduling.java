@@ -4,14 +4,17 @@ import java.util.LinkedList;
 
 import assignment.geneticAlgorithm.GA_Control;
 import assignment.main.*;
+import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
+import jade.wrapper.AgentController;
 
 public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 	
 	private Control control;
 	private LinkedList<String> printBuffer = new LinkedList<String>();
+	private LinkedList<ACLMessage> messageBuffer = new LinkedList<ACLMessage>();
 	
 	private LinkedList<CarPreferenceData> carNameList = new LinkedList<CarPreferenceData>();
 	private GA_Control ga = new GA_Control();
@@ -57,9 +60,19 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 		@Override
 		public void action() {
 			PrintToSystem(getLocalName() + ": Listening for message");
-			ACLMessage message = receive();
+			ACLMessage m = receive();
 			
-			if (message != null) {
+			if (m != null) {
+				messageBuffer.add(m); //Stores up messages so it only has to process one at a time
+										//Especially if it has to do the genetic algorithm to calculate
+										//the current schedule
+			}
+			
+			if (messageBuffer.size() > 0) {
+				
+				ACLMessage message = messageBuffer.get(0);
+				messageBuffer.remove(message);
+				
 				PrintToSystem(getLocalName() + ": Received message [\"" + message.getContent() + "\"] from "
 						+ message.getSender().getLocalName());
 				
@@ -72,9 +85,11 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						//Add car to list
 						if (AddCar(car)) {PrintToSystem(getLocalName() + ": " + car + " has been registered");} 
 						
+						ACLMessage reply = message.createReply();
+						AID sender = (AID) reply.getAllReceiver().next();
+						
 						//Check If Can accept the car
 						//True
-						ACLMessage reply = message.createReply();
 						if(true)
 						{
 						PrintToSystem(getLocalName() + ": " + car + " has been registered");
@@ -86,32 +101,34 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						{
 							PrintToSystem(getLocalName() + ": " + car + " refused ");
 							reply.setPerformative(ACLMessage.REFUSE);
-							reply.setContent("can't schedle you or your deviced preference");
+							reply.setContent("can not schedule you or your deviced preference");
 						}
 						//Send reply
-						send(reply); 
+						send(reply);
 						PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
-								+ reply.getAllReceiver().next());
+								+ sender.getLocalName());
 					}
 					else 
 					{
 						ACLMessage reply = message.createReply();
+						AID sender = (AID) reply.getAllReceiver().next();
+						
 						reply.setPerformative(ACLMessage.INFORM);
-						reply.setContent("Do you what to Change you Perfs? WARRING you will Loss your Priority in que");
+						reply.setContent("WARNING changing prefs will lose your priority in que - continue?");
 						
 						//Send reply
 						send(reply); 
 						PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
-								+ reply.getAllReceiver().next());
+								+ sender.getLocalName());
 					}
 					
 					break;
 				case ACLMessage.CONFIRM:
 					//TODO add the how the master updates the car prefs
-					PrintToSystem(getLocalName() + ": " + message.getSender().getName() + " Wants to Change Prefs");
+					PrintToSystem(getLocalName() + ": " + message.getSender().getName() + " wants to change prefs");
 					break;
 				case ACLMessage.DISCONFIRM:
-					PrintToSystem(getLocalName() + ": " + message.getSender().getName() + " Doesn't Want to Change Prefs");
+					PrintToSystem(getLocalName() + ": " + message.getSender().getName() + " does not want to change prefs");
 					break;
 				}				
 			}

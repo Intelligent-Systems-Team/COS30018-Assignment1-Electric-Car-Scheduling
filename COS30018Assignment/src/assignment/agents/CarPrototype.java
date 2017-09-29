@@ -24,6 +24,10 @@ public class CarPrototype extends Agent implements AgentInteraction {
 	
 	private LinkedList<String> printBuffer = new LinkedList<String>();
 
+	public CarPrototype() {
+		registerO2AInterface(AgentInteraction.class, this); //Required to access interface
+	}
+	
 	protected void setup() {
 		Object[] args = getArguments();
 		name = args.toString();

@@ -30,12 +30,12 @@ import jade.wrapper.gateway.JadeGateway;
 
 public class Control implements ActionListener{
 
-	private JADEController controller;
+	private JADEController jController;
 	private JLabel latestMessages;
 	private JButton startJADE, startSimulation, addCar;
 	private JPanel simulation;
 	private boolean simulating = false;
-	private String[] latestMessagesArray = new String[10];
+	private String[] latestMessagesArray = new String[12]; //This number is the number of messages displayed in the UI
 	private ContainerController enviro;
 	private int CarNumber;
 	
@@ -43,15 +43,15 @@ public class Control implements ActionListener{
 		InitializeJadeGateway(); //Sets up Jade Gateway
 
 		//Creates Master Scheduling Agent
-		AgentController master = controller.CreateMasterAgent("Master");
+		AgentController master = jController.CreateMasterAgent("Master");
 				
 		//Create Stations
-		enviro = controller.CreateContainer("Enviroment");
-		controller.CreateContainer("Station 1");
+		enviro = jController.CreateContainer("Enviroment");
+		jController.CreateContainer("Station 1");
 		
 		
 		ResetLatestMessagesList();
-		AddLastMessage("test");
+		//AddLastMessage("test"); //TODO: You can delete this line
 		
 		//(test) JadeGateway.execute(gmm);
 		
@@ -124,7 +124,7 @@ public class Control implements ActionListener{
 		latestMessagesArray[latestMessagesArray.length - 1] = newMessage; //Adds latest message
 		displayString += "* " + latestMessagesArray[latestMessagesArray.length-1] + "<br/>";
 		
-		latestMessages.setText("<html>Latest Messages from agents:<br/>\"" + displayString + "\"</html>");
+		latestMessages.setText("<html>Latest Messages from agents:<br/>" + displayString + "</html>");
 	}
 	
 	private void ResetLatestMessagesList() {
@@ -148,17 +148,17 @@ public class Control implements ActionListener{
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if ("startJADE".equals(e.getActionCommand()) && controller == null){
+		if ("startJADE".equals(e.getActionCommand()) && jController == null){
 			System.out.println("StartJADE called");
 			try {
-				controller = new JADEController(this);
+				jController = new JADEController(this);
 				startJADE.setEnabled(false);
 				startSimulation.setEnabled(true);
 			} 
 			catch (StaleProxyException e1) { e1.printStackTrace();} 
 			catch (InterruptedException e1) {e1.printStackTrace();}
 		}
-		if ("startSimulation".equals(e.getActionCommand()) && controller != null){
+		if ("startSimulation".equals(e.getActionCommand()) && jController != null){
 			if (!simulating) {
 				System.out.println("StartSimulation called");
 				try {
@@ -176,54 +176,16 @@ public class Control implements ActionListener{
 				}
 			}
 		}
-		if("addCar".equals(e.getActionCommand()) && controller != null)
+		if("addCar".equals(e.getActionCommand()) && jController != null)
 		{
 			try 
 			{
-				controller.CreatCarAgent(enviro, "Car"+String.valueOf(CarNumber));
+				jController.CreatCarAgent(enviro, "Car"+String.valueOf(CarNumber));
 				CarNumber++;
 			} catch (StaleProxyException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
-	}
-	
-	//TODO: REMOVE THIS??
-	public class TestGetMessages extends Behaviour{
-		private ACLMessage masterACLMessage = null;
-		private boolean messageReceived = false;
-		public String masterMessage = "";
-		ACLMessage msg;
-		
-		private String GetMessage(){
-			messageReceived = true;
-			return masterMessage;
-		}
-		
-		@Override
-		public void action() {
-			msg = new ACLMessage(ACLMessage.REQUEST);
-			msg.addReceiver(new AID("Master", AID.ISLOCALNAME));
-			msg.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-			msg.setReplyByDate(new Date(System.currentTimeMillis() + 10000));
-			msg.setContent("What is your latest message?");
-			
-			//AchieveREInitiator test;
-		}
-		
-		private void updateMasterMessage() {
-			try {
-				Result result = (Result)myAgent.getContentManager().extractContent(masterACLMessage);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-
-		@Override
-		public boolean done() {
-			return messageReceived;
-		}
-		
 	} 
 }

@@ -27,15 +27,33 @@ public class GA_Control {
 	private LinkedList<CarPreferenceData> list;
 	private LinkedList<Schedule> population;
 	
+	private Schedule currentSchedule = null, previousSchedule = null;
+	private boolean scheduleReady = false;
+	
 	public String Setup(LinkedList<CarPreferenceData> list) {
 		this.list = list;
 		return "Genetic Algorithm Created";
 	}
 	
-	public Schedule Generate() {
-		Schedule schedule = new Schedule();
+	public void Generate() {
+		previousSchedule = currentSchedule;
+		//Calculate
 		
-		return schedule;
+		//if (one type of schedule has majority (50%+)) then set it as schedule
+
+		//currentSchedule = population.get(??);
+		//scheduleReady = true;
+	}
+	
+	/**
+	 * Restores schedule to what is was before the last 'generate' was called
+	 */
+	public void RestoreSchedule() {
+		currentSchedule = previousSchedule;
+	}
+	
+	public Schedule GetCurrentSchedule() { 
+		return scheduleReady?currentSchedule:null; //If the current schedule isn't finished, send a null schedule
 	}
 	
 	private void GeneratePopulation(LinkedList<Schedule> previous) {
