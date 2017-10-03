@@ -109,6 +109,7 @@ public class Control implements ActionListener{
 		//Frame options
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
+		frame.setLocation(frame.getX(), 0);
 		frame.setBackground(Color.GRAY);
 		frame.setVisible(true);
 	}
@@ -182,6 +183,9 @@ public class Control implements ActionListener{
 			{
 				jController.CreatCarAgent(enviro, "Car"+String.valueOf(CarNumber));
 				CarNumber++;
+				
+				//Create jFrame for car with inputs, preferences, etc??
+				
 			} catch (StaleProxyException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();

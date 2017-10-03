@@ -37,6 +37,8 @@ public class GA_Control {
 	
 	public void Generate() {
 		previousSchedule = currentSchedule;
+		
+		GeneratePopulation(null);
 		//Calculate
 		
 		//if (one type of schedule has majority (50%+)) then set it as schedule
@@ -46,7 +48,7 @@ public class GA_Control {
 	}
 	
 	/**
-	 * Restores schedule to what is was before the last 'generate' was called
+	 * Restores schedule to what is was before the last Generate() was called
 	 */
 	public void RestoreSchedule() {
 		currentSchedule = previousSchedule;

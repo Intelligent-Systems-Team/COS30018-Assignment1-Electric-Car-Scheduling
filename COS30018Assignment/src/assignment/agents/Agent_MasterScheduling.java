@@ -41,7 +41,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 	public void PrintToSystem(String s) {
 		System.out.println(s);
 		if (control == null) {
-			printBuffer.add(s);
+			if (s!="") { printBuffer.add(s); }
 		} else {
 			//Adds any buffered messages first
 			for (int count = 0; count < printBuffer.size(); count++) {
@@ -50,7 +50,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 			printBuffer.clear();
 			
 			//Adds latest message
-			control.AddLastMessage(s);
+			if (s!="") { control.AddLastMessage(s); }
 		}
 	}
 	
@@ -188,5 +188,6 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 	@Override
 	public void RegisterControl(Control c) {
 		control = c;
+		PrintToSystem("");
 	}
 }
