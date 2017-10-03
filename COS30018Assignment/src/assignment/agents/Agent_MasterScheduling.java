@@ -79,15 +79,16 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 				switch(message.getPerformative()) {
 				case ACLMessage.REQUEST: //Car is registering itself to the master scheduler
 					
+					
+					ACLMessage reply = message.createReply();
+					AID sender = (AID) reply.getAllReceiver().next();
 					String car = message.getSender().getLocalName();
+					
 					if (!CarExist(car))
 					{
 						//Add car to list
 						if (AddCar(car)) {PrintToSystem(getLocalName() + ": " + car + " has been registered");} 
-						
-						ACLMessage reply = message.createReply();
-						AID sender = (AID) reply.getAllReceiver().next();
-						
+												
 						//Check If Can accept the car
 						//True
 						if(true)
@@ -99,9 +100,9 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						//False
 						else
 						{
-							PrintToSystem(getLocalName() + ": " + car + " refused ");
-							reply.setPerformative(ACLMessage.REFUSE);
-							reply.setContent("can not schedule you or your deviced preference");
+						PrintToSystem(getLocalName() + ": " + car + " refused ");
+						reply.setPerformative(ACLMessage.REFUSE);
+						reply.setContent("can not schedule you or your deviced preference");
 						}
 						//Send reply
 						send(reply);
@@ -110,9 +111,6 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					}
 					else 
 					{
-						ACLMessage reply = message.createReply();
-						AID sender = (AID) reply.getAllReceiver().next();
-						
 						reply.setPerformative(ACLMessage.INFORM);
 						reply.setContent("WARNING changing prefs will lose your priority in que - continue?");
 						

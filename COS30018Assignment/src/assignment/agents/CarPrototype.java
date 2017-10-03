@@ -31,7 +31,7 @@ public class CarPrototype extends Agent implements AgentInteraction {
 	protected void setup() {
 		Object[] args = getArguments();
 		name = args.toString();
-		//addBehaviour(new SendMessageBehaviour(this, registerRequest));
+		//addBehaviour(new SendMessageBehaviour(this, registerRequest)); //TODO: Delete
 		SendRegisterRequest();
 	}
 
