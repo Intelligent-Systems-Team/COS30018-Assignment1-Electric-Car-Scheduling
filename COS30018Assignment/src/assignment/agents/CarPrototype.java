@@ -31,13 +31,8 @@ public class CarPrototype extends Agent implements AgentInteraction {
 	protected void setup() {
 		Object[] args = getArguments();
 		name = args.toString();
-		ACLMessage registerRequest = new ACLMessage(ACLMessage.REQUEST);
-		//TODO fix the hard coded master
-		registerRequest.addReceiver(new AID("Master",AID.ISLOCALNAME) );
-		registerRequest.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-		registerRequest.setContent("register me");
-		addBehaviour(new SendMessageBehaviour(this, registerRequest));
-		SendChargeRequest();
+		//addBehaviour(new SendMessageBehaviour(this, registerRequest));
+		SendRegisterRequest();
 	}
 
 	@Override
@@ -63,7 +58,7 @@ public class CarPrototype extends Agent implements AgentInteraction {
 	}
 	
 	// TODO get button to do this
-	public void SendChargeRequest()
+	public void SendRegisterRequest()
 	{
 		ACLMessage registerRequest = new ACLMessage(ACLMessage.REQUEST);
 		//TODO fix the hard coded master
