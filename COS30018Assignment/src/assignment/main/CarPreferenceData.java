@@ -5,7 +5,8 @@ import java.util.LinkedList;
 public class CarPreferenceData {
 
 	public String agentName;
-	public int priority;	
+	public int priority;
+	public float startTime = 0, finishTime = 0;
 	
 	public CarPreferenceData(String name) {
 		agentName = name;
