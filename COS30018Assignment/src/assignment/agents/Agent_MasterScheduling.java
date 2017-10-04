@@ -87,8 +87,8 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					if (!CarExist(car))
 					{												
 						//Check If Can accept the car
-						//True
-						if()
+						//Add car to list	
+						if(AddCar(car))
 						{
 						PrintToSystem(getLocalName() + ": " + car + " has been registered");
 						reply.setPerformative(ACLMessage.AGREE);
