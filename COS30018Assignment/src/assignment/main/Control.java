@@ -25,9 +25,7 @@ import jade.wrapper.gateway.JadeGateway;
 public class Control implements ActionListener{
 
 	private JADEController jController;
-	private JLabel latestMessages;
-	private JButton startJADE, startSimulation, addCar;
-	private JPanel simulation;
+	private MainInterface main;
 	private boolean simulating = false;
 	private String[] latestMessagesArray = new String[12]; //This number is the number of messages displayed in the UI
 	private int CarNumber;
@@ -48,14 +46,7 @@ public class Control implements ActionListener{
 		station1 = jController.CreateContainer("Station 1");
 		
 		
-		ResetLatestMessagesList();
-		//AddLastMessage("test"); //TODO: You can delete this line
-		
-		//(test) JadeGateway.execute(gmm);
-		
-		//***Change buttons***
-		startSimulation.setText("Stop Simulation!");
-		simulation.setVisible(true);
+		ResetLatestMessagesList();		
 		simulating = true;
 		//********************
 	}
@@ -64,56 +55,8 @@ public class Control implements ActionListener{
 	//****************************
 	//Control functions/procedures
 	//****************************
-	public Control(String name) {
-		/*
-		JFrame frame = new JFrame(name);
-		Container content = frame.getContentPane();
-		content.add(new JLabel(name), BorderLayout.NORTH);
-		
-		JPanel buttons = new JPanel();
-		
-		//*******Create two buttons*******
-		startJADE = new JButton("Activate JADE controller");
-		startJADE.setActionCommand("startJADE");
-		startJADE.addActionListener(this);
-		
-		startSimulation = new JButton("Start Electric Car Scheduling Simulation");
-		startSimulation.setActionCommand("startSimulation");
-		startSimulation.addActionListener(this);
-		startSimulation.setEnabled(false);
-		
-		addCar = new JButton("Add Car to Simulation");
-		addCar.setActionCommand("addCar");
-		addCar.addActionListener(this);
-		addCar.setEnabled(false);
-		//********************************
-		
-		JPanel display = new JPanel();
-		
-		buttons.add(startJADE, BorderLayout.WEST);
-		buttons.add(startSimulation, BorderLayout.EAST);
-		buttons.add(addCar,BorderLayout.NORTH);
-		display.add(buttons, BorderLayout.NORTH);
-		
-		//Display interface
-		simulation = new JPanel();
-		latestMessages = new JLabel("<html>SystemOut:</html>");
-		simulation.add(latestMessages, BorderLayout.SOUTH);
-		simulation.setVisible(true);
-		display.add(simulation, BorderLayout.SOUTH);
-		
-		content.add(display, BorderLayout.CENTER);
-		frame.pack();
-		
-		//Frame options
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);
-		frame.setLocation(frame.getX(), 0);
-		frame.setBackground(Color.GRAY);
-		frame.setVisible(true);
-		*/
-		
-		MainInterface main = new MainInterface(this);
+	public Control(String name) {		
+		main = new MainInterface(this);
 	}
 	
 	public void NewCarInputs(AgentInteraction car) {
@@ -136,13 +79,13 @@ public class Control implements ActionListener{
 		
 		for (int i = 0; i < latestMessagesArray.length-1; i++) {
 			latestMessagesArray[i] = latestMessagesArray[i+1]; //Bumps messages up
-			displayString += "* " + latestMessagesArray[i] + "<br/>";
+			displayString += "* " + latestMessagesArray[i] + "\n";
 		}
 		
 		latestMessagesArray[latestMessagesArray.length - 1] = newMessage; //Adds latest message
-		displayString += "* " + latestMessagesArray[latestMessagesArray.length-1] + "<br/>";
+		displayString += "* " + latestMessagesArray[latestMessagesArray.length-1] + "\n";
 		
-		latestMessages.setText("<html>Latest Messages from agents:<br/>" + displayString + "</html>");
+		main.UpdateSystemOut("Latest Messages from agents:" + displayString);
 	}
 	
 	private void ResetLatestMessagesList() {
@@ -166,22 +109,22 @@ public class Control implements ActionListener{
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if ("startJADE".equals(e.getActionCommand()) && jController == null){
+		System.out.print("Action listener called with: " + e.getActionCommand());
+		if ("StartJADE".equals(e.getActionCommand()) && jController == null){
 			System.out.println("StartJADE called");
 			try {
 				jController = new JADEController(this);
-				startJADE.setEnabled(false);
-				startSimulation.setEnabled(true);
+				main.EnableSimulationButton();
 			} 
 			catch (StaleProxyException e1) { e1.printStackTrace();} 
 			catch (InterruptedException e1) {e1.printStackTrace();}
 		}
-		if ("startSimulation".equals(e.getActionCommand()) && jController != null){
+		if ("StartSimulation".equals(e.getActionCommand()) && jController != null){
 			if (!simulating) {
 				System.out.println("StartSimulation called");
 				try {
 					Begin();
-					addCar.setEnabled(true);
+					main.EnableDisplay();
 				} catch (StaleProxyException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -213,15 +156,13 @@ public class Control implements ActionListener{
 				}
 				
 				//Reset UI
-				addCar.setEnabled(false); 
-				startSimulation.setText("Start Electric Car Scheduling Simulation");
-				simulation.setVisible(false);
+				main.StopDisplay();
 				
 				//Reset Car Number
 				CarNumber=0;
 			}
 		}
-		if("addCar".equals(e.getActionCommand()) && jController != null)
+		if("AddCar".equals(e.getActionCommand()) && jController != null)
 		{
 			try 
 			{

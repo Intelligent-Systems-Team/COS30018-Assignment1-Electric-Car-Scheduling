@@ -22,6 +22,8 @@ import javax.swing.SwingConstants;
 
 public class MainInterface extends JFrame {
 
+	private JButton btnStartJadeController, btnStartSimulation, btnAddCar;
+	private JTextPane mySystemOut;
 	private JPanel contentPane;
 
 	/**
@@ -38,15 +40,15 @@ public class MainInterface extends JFrame {
 		JSplitPane splitPane = new JSplitPane();
 		contentPane.add(splitPane, BorderLayout.NORTH);
 		
-		JButton btnStartJadeController = new JButton("Start JADE Controller");
-		btnStartJadeController.setActionCommand("startJade");
+		btnStartJadeController = new JButton("Start JADE Controller");
+		btnStartJadeController.setActionCommand("StartJADE");
 		btnStartJadeController.addActionListener(controller);
 		
 		btnStartJadeController.setBackground(SystemColor.info);
 		splitPane.setLeftComponent(btnStartJadeController);
 		
-		JButton btnStartSimulation = new JButton("Start Simulation");
-		btnStartSimulation.setActionCommand("startSimulation");
+		btnStartSimulation = new JButton("Start Simulation");
+		btnStartSimulation.setActionCommand("StartSimulation");
 		btnStartSimulation.addActionListener(controller);
 		btnStartSimulation.setBackground(SystemColor.info);
 		btnStartSimulation.setEnabled(false);
@@ -56,7 +58,7 @@ public class MainInterface extends JFrame {
 		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		contentPane.add(splitPane_1, BorderLayout.WEST);
 		
-		JTextPane mySystemOut = new JTextPane();
+		mySystemOut = new JTextPane();
 		splitPane_1.setRightComponent(mySystemOut);
 		mySystemOut.setText("Latest Messages From Agents:");
 		
@@ -64,8 +66,8 @@ public class MainInterface extends JFrame {
 		splitPane_2.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane_1.setLeftComponent(splitPane_2);
 		
-		JButton btnAddCar = new JButton("Add Car");
-		btnAddCar.setActionCommand("startCar");
+		btnAddCar = new JButton("Add Car");
+		btnAddCar.setActionCommand("AddCar");
 		btnAddCar.addActionListener(controller);
 		splitPane_2.setLeftComponent(btnAddCar);
 		
@@ -82,6 +84,25 @@ public class MainInterface extends JFrame {
 		JTextPane myCurrentSchedule = new JTextPane();
 		splitPane_3.setRightComponent(myCurrentSchedule);
 		this.setVisible(true);
+	}
+	
+	public void EnableSimulationButton() {
+		btnStartJadeController.setEnabled(false);
+		btnStartSimulation.setEnabled(true);
+	}
+
+	public void EnableDisplay() {
+		btnAddCar.setEnabled(true);
+		btnStartSimulation.setText("Stop Simulation");
+	}
+	
+	public void StopDisplay() {
+		btnAddCar.setEnabled(false);
+		btnStartSimulation.setText("Start Simulation");
+	}
+
+	public void UpdateSystemOut(String string) {
+		mySystemOut.setText(string);
 	}
 
 }
