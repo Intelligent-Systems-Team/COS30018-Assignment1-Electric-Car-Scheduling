@@ -5,13 +5,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-<<<<<<< HEAD
-import java.util.List;
-=======
-import java.sql.Date;
 import java.util.LinkedList;
-
->>>>>>> d5dc2889663aa4265f2bfbe3fc180b31cbec969a
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
