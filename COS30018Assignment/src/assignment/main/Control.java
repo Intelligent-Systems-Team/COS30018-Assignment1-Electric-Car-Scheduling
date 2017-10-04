@@ -5,24 +5,16 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Date;
 import java.util.LinkedList;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import assignment.ui.MainInterface;
 import jade.content.onto.annotations.Result;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.Profile;
-import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.CyclicBehaviour;
-import jade.domain.FIPANames;
-import jade.lang.acl.ACLMessage;
-import jade.proto.AchieveREInitiator;
 import jade.util.leap.Properties;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
@@ -38,8 +30,10 @@ public class Control implements ActionListener{
 	private JPanel simulation;
 	private boolean simulating = false;
 	private String[] latestMessagesArray = new String[12]; //This number is the number of messages displayed in the UI
-	private ContainerController enviro;
 	private int CarNumber;
+	private AgentController master;
+	private ContainerController enviro;
+	private ContainerController station1;
 	
 	public LinkedList<JFrame> carFrames = new LinkedList<JFrame>();
 	
@@ -47,11 +41,11 @@ public class Control implements ActionListener{
 		InitializeJadeGateway(); //Sets up Jade Gateway
 
 		//Creates Master Scheduling Agent
-		AgentController master = jController.CreateMasterAgent("Master");
+		master = jController.CreateMasterAgent("Master");
 				
 		//Create Stations
 		enviro = jController.CreateContainer("Enviroment");
-		jController.CreateContainer("Station 1");
+		station1 = jController.CreateContainer("Station 1");
 		
 		
 		ResetLatestMessagesList();
@@ -198,6 +192,33 @@ public class Control implements ActionListener{
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+			}
+			else if (simulating)
+			{
+				System.out.println("Simulation Stopped");
+
+				//Toggle simulation boolean
+				simulating = false;
+				
+				//Kill Environment, Stations and thus, Agents
+				System.out.println("Closing Agents and Containers");
+				
+				try {
+					master.kill();
+					enviro.kill();
+					station1.kill();
+				} catch (StaleProxyException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				//Reset UI
+				addCar.setEnabled(false); 
+				startSimulation.setText("Start Electric Car Scheduling Simulation");
+				simulation.setVisible(false);
+				
+				//Reset Car Number
+				CarNumber=0;
 			}
 		}
 		if("addCar".equals(e.getActionCommand()) && jController != null)

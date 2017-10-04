@@ -1,10 +1,12 @@
 package assignment.agents;
 
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
 
 import assignment.main.AgentInteraction;
 import assignment.main.Control;
+import assignment.message.PrefernceMessage;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
@@ -21,6 +23,7 @@ public class Agent_Car extends Agent implements AgentInteraction {
 	private String name;
 	private String LastMessage = "";
 	private Random rnd = new Random();
+	private PrefernceMessage messageContent;
 	
 	private LinkedList<String> printBuffer = new LinkedList<String>();
 
@@ -60,11 +63,17 @@ public class Agent_Car extends Agent implements AgentInteraction {
 	// TODO get button to do this
 	public void SendRegisterRequest()
 	{
+		messageContent = new PrefernceMessage(getLocalName(),3f, 9.5f,17f);
 		ACLMessage registerRequest = new ACLMessage(ACLMessage.REQUEST);
 		//TODO fix the hard coded master
 		registerRequest.addReceiver(new AID("Master",AID.ISLOCALNAME) );
 		registerRequest.setProtocol(FIPANames.InteractionProtocol.FIPA_REQUEST);
-		registerRequest.setContent("register me");
+		try {
+			registerRequest.setContentObject(messageContent);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		addBehaviour(new SendMessageBehaviour(this, registerRequest));
 	}
 
@@ -96,6 +105,12 @@ public class Agent_Car extends Agent implements AgentInteraction {
 				{
 					reply.setPerformative(ACLMessage.CONFIRM);
 					reply.setContent("Yes, Please Change");
+					try {
+						reply.setContentObject(messageContent);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				//Choose no
 				else
