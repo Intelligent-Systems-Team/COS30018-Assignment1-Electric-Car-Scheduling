@@ -34,7 +34,13 @@ public class Agent_Car extends Agent implements AgentInteraction {
 	protected void setup() {
 		Object[] args = getArguments();
 		name = args.toString();
-		//addBehaviour(new SendMessageBehaviour(this, registerRequest)); //TODO: Delete
+		//Cars wait a Random Period of time before sending sending the ChargeRequest.
+		try {
+			Thread.sleep(rnd.nextInt(10000));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		SendRegisterRequest();
 	}
 
@@ -63,7 +69,8 @@ public class Agent_Car extends Agent implements AgentInteraction {
 	// TODO get button to do this
 	public void SendRegisterRequest()
 	{
-		messageContent = new PrefernceMessage(getLocalName(),3f, 9.5f,17f);
+		float randomStart = (float)rnd.nextInt(12);
+		messageContent = new PrefernceMessage(getLocalName(),2f,randomStart,randomStart+2+(float)rnd.nextInt(10));
 		ACLMessage registerRequest = new ACLMessage(ACLMessage.REQUEST);
 		//TODO fix the hard coded master
 		registerRequest.addReceiver(new AID("Master",AID.ISLOCALNAME) );
