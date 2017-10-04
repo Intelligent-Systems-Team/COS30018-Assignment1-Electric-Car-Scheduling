@@ -5,7 +5,13 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+<<<<<<< HEAD
 import java.util.List;
+=======
+import java.sql.Date;
+import java.util.LinkedList;
+
+>>>>>>> d5dc2889663aa4265f2bfbe3fc180b31cbec969a
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -30,6 +36,8 @@ public class Control implements ActionListener{
 	private AgentController master;
 	private ContainerController enviro;
 	private ContainerController station1;
+	
+	public LinkedList<JFrame> carFrames = new LinkedList<JFrame>();
 	
 	private void Begin() throws ControllerException, InterruptedException {
 		InitializeJadeGateway(); //Sets up Jade Gateway
@@ -104,6 +112,21 @@ public class Control implements ActionListener{
 		frame.setLocation(frame.getX(), 0);
 		frame.setBackground(Color.GRAY);
 		frame.setVisible(true);
+	}
+	
+	public void NewCarInputs(AgentInteraction car) {
+		JFrame carFrame = new JFrame(car.AgentName());
+		
+		if (carFrames.size() > 0) {
+			carFrame.setLocationRelativeTo(carFrames.getLast());
+		} else {
+			carFrame.setLocationRelativeTo(null);
+		}
+		
+		//carFrame.add(new InteractionButton(car, 1, this));
+		
+		carFrame.setVisible(true);
+		carFrames.add(carFrame);
 	}
 	
 	public void AddLastMessage(String newMessage) {
@@ -200,7 +223,9 @@ public class Control implements ActionListener{
 		{
 			try 
 			{
-				jController.CreatCarAgent(enviro, "Car"+String.valueOf(CarNumber));
+				AgentController newCar = jController.CreatCarAgent(enviro, "Car"+String.valueOf(CarNumber)); //Create the car agent
+				NewCarInputs(GetInteractionInterface(newCar)); //Create a new jFrame for the car
+				
 				CarNumber++;
 				
 				//Create jFrame for car with inputs, preferences, etc??
