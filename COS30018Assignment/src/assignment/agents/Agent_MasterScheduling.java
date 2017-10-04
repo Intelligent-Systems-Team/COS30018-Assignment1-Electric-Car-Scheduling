@@ -85,13 +85,10 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					String car = message.getSender().getLocalName();
 					
 					if (!CarExist(car))
-					{
-						//Add car to list
-						if (AddCar(car)) {PrintToSystem(getLocalName() + ": " + car + " has been registered");} 
-												
+					{												
 						//Check If Can accept the car
 						//True
-						if(true)
+						if()
 						{
 						PrintToSystem(getLocalName() + ": " + car + " has been registered");
 						reply.setPerformative(ACLMessage.AGREE);
@@ -187,5 +184,10 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 	public void RegisterControl(Control c) {
 		control = c;
 		PrintToSystem("");
+	}
+
+	@Override
+	public String AgentName() {
+		return getLocalName();
 	}
 }

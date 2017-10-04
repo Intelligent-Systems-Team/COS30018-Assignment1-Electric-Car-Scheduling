@@ -15,7 +15,7 @@ import jade.lang.acl.MessageTemplate;
 import jade.proto.AchieveREInitiator;
 import jade.proto.AchieveREResponder;
 
-public class CarPrototype extends Agent implements AgentInteraction {
+public class Agent_Car extends Agent implements AgentInteraction {
 	
 	private Control control = null;
 	private String name;
@@ -24,7 +24,7 @@ public class CarPrototype extends Agent implements AgentInteraction {
 	
 	private LinkedList<String> printBuffer = new LinkedList<String>();
 
-	public CarPrototype() {
+	public Agent_Car() {
 		registerO2AInterface(AgentInteraction.class, this); //Required to access interface
 	}
 	
@@ -127,5 +127,10 @@ public class CarPrototype extends Agent implements AgentInteraction {
 	public void RegisterControl(Control c) {
 		control = c;
 		PrintToSystem("");
+	}
+
+	@Override
+	public String AgentName() {
+		return getLocalName();
 	}
 }

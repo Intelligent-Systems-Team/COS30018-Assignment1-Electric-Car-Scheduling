@@ -1,7 +1,7 @@
 package assignment.main;
 
 import assignment.agents.Agent_MasterScheduling;
-import assignment.agents.CarPrototype;
+import assignment.agents.Agent_Car;
 import jade.core.Agent;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
@@ -76,7 +76,7 @@ public class JADEController {
 	public AgentController CreatCarAgent(ContainerController ctrl, String name) throws StaleProxyException {
 		ContainerController ctr = (ctrl!=null)?ctrl:mainCtrl; //If null, create in main container
 		
-		AgentController car = ctr.createNewAgent(name, CarPrototype.class.getName(), new Object[0]);
+		AgentController car = ctr.createNewAgent(name, Agent_Car.class.getName(), new Object[0]);
 		car.start();
 		c.GetInteractionInterface(car).RegisterControl(c); //Registers reference to Control on the agent		
 		
