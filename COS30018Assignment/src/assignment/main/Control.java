@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import assignment.ui.MainInterface;
 import jade.content.onto.annotations.Result;
 import jade.core.AID;
 import jade.core.Agent;
@@ -70,6 +71,7 @@ public class Control implements ActionListener{
 	//Control functions/procedures
 	//****************************
 	public Control(String name) {
+		/*
 		JFrame frame = new JFrame(name);
 		Container content = frame.getContentPane();
 		content.add(new JLabel(name), BorderLayout.NORTH);
@@ -115,6 +117,9 @@ public class Control implements ActionListener{
 		frame.setLocation(frame.getX(), 0);
 		frame.setBackground(Color.GRAY);
 		frame.setVisible(true);
+		*/
+		
+		MainInterface main = new MainInterface(this);
 	}
 	
 	public void NewCarInputs(AgentInteraction car) {

@@ -144,7 +144,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 		}
 		
 		private boolean AddCar(String name) {
-			CarPreferenceData c = new CarPreferenceData(name);
+			CarPreferenceData c = new CarPreferenceData(name); 
 			c.priority = carNameList.size()+1;
 			carNameList.add(c);
 			return true;
