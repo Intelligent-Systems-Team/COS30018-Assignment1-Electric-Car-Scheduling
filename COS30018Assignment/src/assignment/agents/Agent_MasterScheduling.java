@@ -4,10 +4,12 @@ import java.util.LinkedList;
 
 import assignment.geneticAlgorithm.GA_Control;
 import assignment.main.*;
+import assignment.message.PrefernceMessage;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
 import jade.lang.acl.ACLMessage;
+import jade.lang.acl.UnreadableException;
 import jade.wrapper.AgentController;
 
 public class Agent_MasterScheduling extends Agent implements AgentInteraction{
@@ -73,7 +75,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 				ACLMessage message = messageBuffer.get(0);
 				messageBuffer.remove(message);
 				
-				PrintToSystem(getLocalName() + ": Received message [\"" + message.getContent() + "\"] from "
+				PrintToSystem(getLocalName() + ": Received message [\"" + message.getProtocol() + "\"] from "
 						+ message.getSender().getLocalName());
 				
 				switch(message.getPerformative()) {
@@ -83,12 +85,19 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					ACLMessage reply = message.createReply();
 					AID sender = (AID) reply.getAllReceiver().next();
 					String car = message.getSender().getLocalName();
+					PrefernceMessage prefernceMessage = null;
+					try {
+						prefernceMessage = (PrefernceMessage) message.getContentObject();
+					} catch (UnreadableException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					
 					if (!CarExist(car))
 					{												
 						//Check If Can accept the car
 						//Add car to list	
-						if(AddCar(car))
+						if(AddCar(prefernceMessage))
 						{
 						PrintToSystem(getLocalName() + ": " + car + " has been registered");
 						reply.setPerformative(ACLMessage.AGREE);
@@ -121,6 +130,15 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 				case ACLMessage.CONFIRM:
 					//TODO add the how the master updates the car prefs
 					PrintToSystem(getLocalName() + ": " + message.getSender().getName() + " wants to change prefs");
+					PrefernceMessage UpdatePrefernceMessage;
+					try {
+						UpdatePrefernceMessage = (PrefernceMessage) message.getContentObject();
+						UpdateCar(UpdatePrefernceMessage);
+					} catch (UnreadableException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						PrintToSystem("Reseved no UpdatePrefernce");
+					}
 					break;
 				case ACLMessage.DISCONFIRM:
 					PrintToSystem(getLocalName() + ": " + message.getSender().getName() + " does not want to change prefs");
@@ -143,9 +161,17 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 			return false;
 		}
 		
-		private boolean AddCar(String name) {
-			CarPreferenceData c = new CarPreferenceData(name);
+		private boolean AddCar(PrefernceMessage prefernceMessage) {
+			CarPreferenceData c = new CarPreferenceData(prefernceMessage.name);
+			c.durationRequested = prefernceMessage.duration;
+			c.startTime = prefernceMessage.startRequested;
+			c.finishTime = prefernceMessage.finishRequired;
 			c.priority = carNameList.size()+1;
+			// Remove this later, It was just to test.
+			PrintToSystem("Adding "+ prefernceMessage.name +":"
+					+"\n Start Time Requested:"+prefernceMessage.startRequested
+					+"\n Finish Time Requested:"+prefernceMessage.finishRequired
+					+"\n Duration:"+prefernceMessage.duration);
 			carNameList.add(c);
 			return true;
 		}
@@ -154,8 +180,8 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 		 * Updates car's preferences
 		 * @param name
 		 */
-		private boolean UpdateCar(String name) {
-			if (!RemoveCar(name)) {return false;}
+		private boolean UpdateCar(PrefernceMessage prefernceMessage) {
+			if (!RemoveCar(prefernceMessage.name)) {return false;}
 			
 			
 			for (int i = 0; i < carNameList.size(); i++) {
@@ -163,7 +189,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 			}
 			
 			//(needs more parameters/preferences)
-			if (!AddCar(name)) {return false;} //Adds the car with new parameters
+			if (!AddCar(prefernceMessage)) {return false;} //Adds the car with new parameters
 			
 			return true;
 			
