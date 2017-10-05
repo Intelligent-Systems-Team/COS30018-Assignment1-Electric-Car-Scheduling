@@ -149,7 +149,7 @@ public class GA_Control implements AgentInteraction{
 					for (int c = 0; c < s.registeredCars.size(); c++) {
 						CarSlot other = s.registeredCars.get(c);
 											
-						if (CheckClash(slot, slot.startRequested, other)) {spotTaken = true; break;}
+						if (CheckClash(slot, randomTime, other)) {spotTaken = true; break;}
 					}
 					
 					//If it fits, add it. If it still can't fit it in, leave it
@@ -170,20 +170,20 @@ public class GA_Control implements AgentInteraction{
 		return s;
 	}
 	
-	private boolean CheckClash(CarSlot n, float nStart, CarSlot other) {
+	private boolean CheckClash(CarSlot n, float request, CarSlot other) {
 		
-		float start, duration, otherStart;
-		if (other.startTime >= n.startRequested) {
-			start = nStart;
-			duration = n.duration;
-			otherStart = other.startTime;
+		float start, end, middleTest;
+		if (other.startTime >= request) {
+			start = request;
+			end = request + n.duration;
+			middleTest = other.startTime;
 		} else {
 			start = other.startTime;
-			duration = other.duration;
-			otherStart = nStart;
+			end = other.startTime + other.duration;
+			middleTest = request;
 		}
 		
-		return (otherStart>=start && otherStart<=start+duration);
+		return (middleTest>=start && middleTest<=end);
 		
 	}
 	
