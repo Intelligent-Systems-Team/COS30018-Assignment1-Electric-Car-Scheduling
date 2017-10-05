@@ -60,19 +60,25 @@ public class MainInterface extends JFrame {
 		contentPane.add(splitPane_1, BorderLayout.WEST);
 		
 		mySystemOut = new JTextPane();
-		splitPane_1.setRightComponent(mySystemOut);
 		mySystemOut.setText("Latest Messages From Agents:");
+		mySystemOut.setEnabled(false);
+		mySystemOut.setEditable(false);
+		splitPane_1.setRightComponent(mySystemOut);
 		
 		JSplitPane splitPane_2 = new JSplitPane();
 		splitPane_2.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane_1.setLeftComponent(splitPane_2);
 		
 		btnAddCar = new JButton("Add Car");
+		btnAddCar.setEnabled(false);
 		btnAddCar.setActionCommand("AddCar");
 		btnAddCar.addActionListener(controller);
 		splitPane_2.setLeftComponent(btnAddCar);
 		
 		JButton btnClearMessages = new JButton("[Clear Messages]");
+		btnClearMessages.setActionCommand("ClearMessages");
+		btnClearMessages.addActionListener(controller);
+		btnClearMessages.setEnabled(false);
 		splitPane_2.setRightComponent(btnClearMessages);
 		
 		JSplitPane splitPane_3 = new JSplitPane();
@@ -83,6 +89,8 @@ public class MainInterface extends JFrame {
 		splitPane_3.setLeftComponent(myLabelSchedule);
 		
 		myCurrentSchedule = new JTextPane();
+		myCurrentSchedule.setEnabled(false);
+		myCurrentSchedule.setEditable(false);
 		splitPane_3.setRightComponent(myCurrentSchedule);
 		this.setVisible(true);
 	}
@@ -99,11 +107,16 @@ public class MainInterface extends JFrame {
 	public void EnableDisplay() {
 		btnAddCar.setEnabled(true);
 		btnStartSimulation.setText("Stop Simulation");
+		mySystemOut.setEnabled(true);
+		myCurrentSchedule.setEnabled(true);
 	}
 	
-	public void StopDisplay() {
+	public void StopDisplay(Control control) {
 		btnAddCar.setEnabled(false);
 		btnStartSimulation.setText("Start Simulation");
+		mySystemOut.setEnabled(false);
+		myCurrentSchedule.setEnabled(false);
+		control.ResetLatestMessagesList();
 	}
 
 	public void UpdateSystemOut(String string) {

@@ -57,6 +57,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 	}
 	
 	//Behaviour for receiving messages from the cars/stations
+	@SuppressWarnings("serial")
 	private class ReceiveMessageBehaviour extends CyclicBehaviour{
 		
 		@Override
@@ -168,10 +169,10 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 			c.finishTime = prefernceMessage.finishRequired;
 			c.priority = carNameList.size()+1;
 			// Remove this later, It was just to test.
-			PrintToSystem("Adding/Updating "+ prefernceMessage.name +":"
-					+"\n* Start Time Requested:"+prefernceMessage.startRequested
-					+"\n* Finish Time Requested:"+prefernceMessage.finishRequired
-					+"\n* Duration:"+prefernceMessage.duration);
+			PrintToSystem(getLocalName() + ": Adding/Updating "+ prefernceMessage.name + "..."
+					+"\n ** [Start Time Requested:"+prefernceMessage.startRequested + "]"
+					+"\n ** [Finish Time Requested:"+prefernceMessage.finishRequired + "]"
+					+"\n ** [Duration:"+prefernceMessage.duration + "]");
 			carNameList.add(c);
 			
 			ga.Generate();

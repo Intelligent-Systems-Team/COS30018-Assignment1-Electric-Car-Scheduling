@@ -13,6 +13,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import assignment.agents.AgentInteraction;
+import assignment.agents.Agent_MasterScheduling;
 import assignment.geneticAlgorithm.CarSlot;
 import assignment.geneticAlgorithm.Schedule;
 import assignment.message.PrefernceMessage;
@@ -22,6 +24,7 @@ import jade.content.onto.annotations.Result;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.Profile;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.util.leap.Properties;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
@@ -34,7 +37,8 @@ public class Control implements ActionListener{
 	private JADEController jController;
 	private MainInterface main;
 	private boolean simulating = false;
-	private String[] latestMessagesArray = new String[12]; //This number is the number of messages displayed in the UI
+	private String[] latestMessagesArray = new String[16]; //This number is the number of messages displayed in the UI
+	private LinkedList<String> AllMessages = new LinkedList<String>(); //TODO: Not sure if we need to keep track of all messages?
 	private int CarNumber;
 	private AgentController master;
 	private ContainerController enviro;
@@ -54,6 +58,7 @@ public class Control implements ActionListener{
 		enviro = jController.CreateContainer("Enviroment");
 		station1 = jController.CreateContainer("Station 1");
 		
+
 		//Make Car GUI
 		try {
 			carFrame = new CarsInterface();
@@ -61,7 +66,7 @@ public class Control implements ActionListener{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+		UpdateCurrentSchedule(null);
 		ResetLatestMessagesList();		
 		simulating = true;
 		//********************
@@ -81,45 +86,56 @@ public class Control implements ActionListener{
 	 */
 	public void UpdateCurrentSchedule(Schedule current) {
 		if (current != null && current.registeredCars.size() > 0) {
-			float currentTime = 0;
-			String station1 = "";
+			String schedule = "\n Highest Fitness: "+ current.fitness +"\n";
+			for (int station = 1; station <= 1; station++) {			
 			
-			LinkedList<CarSlot> cars = current.registeredCars;
-			float start = cars.getFirst().startTime;
-			
-			//Adds "-" leading to the first car
-			float loop = start;
-			while (loop > 0) {
-				station1 += "-";
-				loop -= 0.5;
-			}
-			
-			//Displays cars in schedule
-			for (int s = 0; s < cars.size(); s++) {
-				CarSlot car = cars.get(s);
-				station1 += "[" + String.valueOf(car.startTime) + "]";
+				float currentTime = 0;
+				String station1 = "\nStation " + station +" ::";
 				
-				loop = car.duration;
+				LinkedList<CarSlot> cars = current.registeredCars;
+				float start = cars.getFirst().startTime;
+				
+				//Adds "-" leading to the first car
+				float loop = start;
 				while (loop > 0) {
-					station1 += "*";
+					station1 += " -";
 					loop -= 0.5;
 				}
 				
-				float finish = car.startTime+car.duration;
-				station1 += "[" + String.valueOf(finish) + "]";
-				
-				float next = (s == cars.size()-1)?(24-finish):(cars.get(s).startTime-finish);
-				while (next > 0) {
-					station1 += "-";
-					next -= 0.5;
+				//Displays cars in schedule
+				for (int s = 0; s < cars.size(); s++) {
+					CarSlot car = cars.get(s);
+					
+					int hours = (int) Math.floor(car.startTime);
+					int minutes = (int)Math.ceil(60*(car.startTime - hours));
+					station1 += " {"+car.name+")[" + hours + ":" + minutes + "]";
+					
+					loop = car.duration;
+					while (loop > 0) {
+						station1 += " *";
+						loop -= 0.5;
+					}
+					
+					float finish = car.startTime+car.duration;
+					hours = (int) Math.floor(finish);
+					minutes = (int)Math.ceil(60*(finish - hours));
+					station1 += " [" + hours + ":" + minutes + "]";
+					
+					float next = (s == cars.size()-1)?(24-finish):(cars.get(s+1).startTime-finish);
+					while (next > 0) {
+						station1 += " -";
+						next -= 0.5;
+					}
 				}
-			}
+				
+				schedule += station1; //Draw up each station's schedule
+			}	
+			
+			main.UpdateCurrentSchedule(schedule);
 			
 		} else {
-			//Print "null"
+			main.UpdateCurrentSchedule("N/A");
 		}
-		
-		
 	}
 	
 	public void NewCarInputs(AgentInteraction car) {
@@ -142,19 +158,22 @@ public class Control implements ActionListener{
 		
 		for (int i = 0; i < latestMessagesArray.length-1; i++) {
 			latestMessagesArray[i] = latestMessagesArray[i+1]; //Bumps messages up
-			displayString += "* " + latestMessagesArray[i] + "\n";
+			displayString += "\n* " + latestMessagesArray[i];
 		}
 		
 		latestMessagesArray[latestMessagesArray.length - 1] = newMessage; //Adds latest message
-		displayString += "* " + latestMessagesArray[latestMessagesArray.length-1] + "\n";
+		displayString += "\n* " + latestMessagesArray[latestMessagesArray.length-1];
 		
 		main.UpdateSystemOut("Latest Messages from agents:" + displayString);
+		AllMessages.add(newMessage);
 	}
 	
-	private void ResetLatestMessagesList() {
+	public void ResetLatestMessagesList() {
+		System.out.println("Messages reset");
 		for (int i = 0; i < latestMessagesArray.length; i++) {
 			latestMessagesArray[i] = " ";
 		}
+		AddLastMessage("");
 	}
 	
 	private void InitializeJadeGateway() {
@@ -181,8 +200,8 @@ public class Control implements ActionListener{
 			} 
 			catch (StaleProxyException e1) { e1.printStackTrace();} 
 			catch (InterruptedException e1) {e1.printStackTrace();}
-		}
-		if ("StartSimulation".equals(e.getActionCommand()) && jController != null){
+			
+		} else if ("StartSimulation".equals(e.getActionCommand()) && jController != null){
 			if (!simulating) {
 				System.out.println("StartSimulation called");
 				try {
@@ -219,14 +238,13 @@ public class Control implements ActionListener{
 				}
 				
 				//Reset UI
-				main.StopDisplay();
+				main.StopDisplay(this);
+				UpdateCurrentSchedule(null);
 				
 				//Reset Car Number
 				CarNumber=0;
 			}
-		}
-		if("AddCar".equals(e.getActionCommand()) && jController != null)
-		{
+		} else if("AddCar".equals(e.getActionCommand()) && jController != null) {
 			try 
 			{
 				float randomStart = (float)rnd.nextInt(12);
@@ -243,6 +261,8 @@ public class Control implements ActionListener{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		} else if("ClearMessages".equals(e.getActionCommand()) && jController != null) {
+			ResetLatestMessagesList();
 		}
 	} 
 }

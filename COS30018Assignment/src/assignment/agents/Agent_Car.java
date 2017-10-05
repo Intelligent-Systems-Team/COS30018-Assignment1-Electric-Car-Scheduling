@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
 
-import assignment.main.AgentInteraction;
 import assignment.main.Control;
 import assignment.message.PrefernceMessage;
 import jade.core.AID;
