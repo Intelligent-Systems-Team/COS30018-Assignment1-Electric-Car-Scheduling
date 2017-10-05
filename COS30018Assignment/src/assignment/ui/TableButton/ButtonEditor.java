@@ -22,10 +22,15 @@ public class ButtonEditor extends DefaultCellEditor {
 
 	private boolean isPushed;
 	
-	String name; 
-	String duration;
-	String start;
-	String finish;
+	private String name; 
+	private float duration;
+	private float start;
+	private float finish;
+	
+	private JTable currentTable;
+	private int currentrow; 
+	private int currentcolumn;
+	
 
 	public ButtonEditor(JCheckBox checkBox) {
 		super(checkBox);
@@ -46,11 +51,11 @@ public class ButtonEditor extends DefaultCellEditor {
 			button.setForeground(table.getForeground());
 			button.setBackground(table.getBackground());
 		}
-		//
-		name = (String)table.getValueAt(row, 0);
-		duration = (String)table.getValueAt(row, 1);
-		start = (String)table.getValueAt(row, 2);
-		finish = (String)table.getValueAt(row, 3);
+		
+		//Update currentTable Info
+		currentTable = table;
+		currentrow =row; 
+		currentcolumn = column;
 		
 		label = (value == null) ? "" : value.toString();
 		
@@ -62,11 +67,19 @@ public class ButtonEditor extends DefaultCellEditor {
 	public Object getCellEditorValue() {
 		if (isPushed) 
 		{
+			// Get data from Table
+			name = (String)currentTable.getValueAt(currentrow, 0);
+			duration = Float.parseFloat((String) currentTable.getValueAt(currentrow, 1));
+			start = Float.parseFloat((String) currentTable.getValueAt(currentrow, 2));
+			finish = Float.parseFloat((String) currentTable.getValueAt(currentrow, 3));
 			//This is where the car will send it's data
-			JOptionPane.showMessageDialog(button, name +":"
+			JOptionPane.showMessageDialog(button, "NOT SENDING ONLY TEST"+
+					name +":"
 					+"\n Start Time Requested:"+start
 					+"\n Finish Time Requested:"+finish
 					+"\n Duration:"+duration);
+			
+			SendPrefenceData();
 		}
 		isPushed = false;
 		return new String(label);
@@ -80,4 +93,10 @@ public class ButtonEditor extends DefaultCellEditor {
 	protected void fireEditingStopped() {
 		super.fireEditingStopped();
 	}
+	//TODO Some How figure out how to 
+	public void SendPrefenceData()
+	{
+		
+	}
+	
 }

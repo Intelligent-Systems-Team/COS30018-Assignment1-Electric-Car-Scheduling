@@ -1,6 +1,10 @@
 package assignment.main;
 
 import assignment.agents.Agent_MasterScheduling;
+import assignment.message.PrefernceMessage;
+
+import java.util.Random;
+
 import assignment.agents.Agent_Car;
 import jade.core.Agent;
 import jade.core.Profile;
@@ -13,6 +17,7 @@ public class JADEController {
 	private ContainerController mainCtrl; //Main Container
 	private Runtime rt;
 	private Control c;
+	private Random rnd = new Random();
 	
 	public JADEController(Control c) throws StaleProxyException, InterruptedException {
 		
@@ -73,10 +78,11 @@ public class JADEController {
 		return master;
 	}
 	
-	public AgentController CreatCarAgent(ContainerController ctrl, String name) throws StaleProxyException {
+	public AgentController CreatCarAgent(ContainerController ctrl, String name,PrefernceMessage InitPrefernceMessage) throws StaleProxyException {
 		ContainerController ctr = (ctrl!=null)?ctrl:mainCtrl; //If null, create in main container
 		
-		AgentController car = ctr.createNewAgent(name, Agent_Car.class.getName(), new Object[0]);
+		// Make the Car agent
+		AgentController car = ctr.createNewAgent(name, Agent_Car.class.getName(), new Object[]{InitPrefernceMessage});
 		car.start();
 		c.GetInteractionInterface(car).RegisterControl(c); //Registers reference to Control on the agent		
 		

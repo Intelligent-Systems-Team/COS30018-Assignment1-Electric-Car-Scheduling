@@ -33,15 +33,9 @@ public class Agent_Car extends Agent implements AgentInteraction {
 	
 	protected void setup() {
 		Object[] args = getArguments();
-		name = args.toString();
+		messageContent = (PrefernceMessage) args[0];
 		//Cars wait a Random Period of time before sending sending the ChargeRequest.
-		try {
-			Thread.sleep(rnd.nextInt(10000));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		SendRegisterRequest();
+		SendRegisterRequest(messageContent);
 	}
 
 	@Override
@@ -67,10 +61,11 @@ public class Agent_Car extends Agent implements AgentInteraction {
 	}
 	
 	// TODO get button to do this
-	public void SendRegisterRequest()
+	public void SendRegisterRequest(PrefernceMessage sendPrefMessage)
 	{
-		float randomStart = (float)rnd.nextInt(12);
-		messageContent = new PrefernceMessage(getLocalName(),2f,randomStart,randomStart+2+(float)rnd.nextInt(10));
+		//float randomStart = (float)rnd.nextInt(12);
+		//messageContent = new PrefernceMessage(getLocalName(),2f,randomStart,randomStart+2+(float)rnd.nextInt(10));
+		messageContent =sendPrefMessage;
 		ACLMessage registerRequest = new ACLMessage(ACLMessage.REQUEST);
 		//TODO fix the hard coded master
 		registerRequest.addReceiver(new AID("Master",AID.ISLOCALNAME) );

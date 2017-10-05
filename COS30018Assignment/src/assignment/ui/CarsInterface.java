@@ -15,6 +15,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import assignment.message.PrefernceMessage;
 import assignment.ui.TableButton.ButtonEditor;
 import assignment.ui.TableButton.ButtonRenderer;
 
@@ -30,7 +31,6 @@ public class CarsInterface extends JFrame {
 
 	private JPanel contentPane;
 	private JTable table;
-	private JButton btnAddCarTest;
 
 	/**
 	 * Launch the application.
@@ -67,6 +67,7 @@ public class CarsInterface extends JFrame {
 		
 		JScrollPane scrollPane = new JScrollPane();
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		gbc_scrollPane.gridheight = 2;
 		gbc_scrollPane.insets = new Insets(0, 0, 5, 0);
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.gridx = 0;
@@ -79,23 +80,13 @@ public class CarsInterface extends JFrame {
 			new Object[][] {},
 			new String[] {"Car", "Duration", "Start Time Request", "Lastest Finish Time Request","Send Request"}
 		));
+		
+		//Setting the "Send" column to look/act like buttons.
 		table.getColumn("Send Request").setCellRenderer((TableCellRenderer) new ButtonRenderer());
 		table.getColumn("Send Request").setCellEditor(new ButtonEditor(new JCheckBox()));
-		
-		btnAddCarTest = new JButton("Add Car Test");
-		btnAddCarTest.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				AddCarToTable();
-			}
-		});		
-		
-		GridBagConstraints gbc_btnAddCarTest = new GridBagConstraints();
-		gbc_btnAddCarTest.gridx = 0;
-		gbc_btnAddCarTest.gridy = 1;
-		contentPane.add(btnAddCarTest, gbc_btnAddCarTest);
 	}
-	public void AddCarToTable()
+	
+	public void AddCarToTable(PrefernceMessage InitPrefernceMessage)
 	{
 		JButton sendRequest = new JButton();
 		sendRequest.addMouseListener(new MouseAdapter() {
@@ -104,7 +95,11 @@ public class CarsInterface extends JFrame {
 				SendCarChargeRequest();
 			}
 		});		
-		Object[] newdata = {"Carname","Duration","Start","Finish","Send"};
+		Object[] newdata = {InitPrefernceMessage.name,
+							String.valueOf(InitPrefernceMessage.duration),
+							String.valueOf(InitPrefernceMessage.startRequested),
+							String.valueOf(InitPrefernceMessage.finishRequired),
+							"Send"};
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		dtm.addRow(newdata);
 	}

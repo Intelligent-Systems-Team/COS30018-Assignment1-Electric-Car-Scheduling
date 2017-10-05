@@ -6,6 +6,8 @@ import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
+import java.util.Random;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -13,6 +15,8 @@ import javax.swing.JPanel;
 
 import assignment.geneticAlgorithm.CarSlot;
 import assignment.geneticAlgorithm.Schedule;
+import assignment.message.PrefernceMessage;
+import assignment.ui.CarsInterface;
 import assignment.ui.MainInterface;
 import jade.content.onto.annotations.Result;
 import jade.core.AID;
@@ -35,6 +39,8 @@ public class Control implements ActionListener{
 	private AgentController master;
 	private ContainerController enviro;
 	private ContainerController station1;
+	private CarsInterface carFrame;
+	private Random rnd = new Random();
 	
 	public LinkedList<JFrame> carFrames = new LinkedList<JFrame>();
 	
@@ -48,6 +54,13 @@ public class Control implements ActionListener{
 		enviro = jController.CreateContainer("Enviroment");
 		station1 = jController.CreateContainer("Station 1");
 		
+		//Make Car GUI
+		try {
+			carFrame = new CarsInterface();
+			carFrame.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		ResetLatestMessagesList();		
 		simulating = true;
@@ -216,10 +229,13 @@ public class Control implements ActionListener{
 		{
 			try 
 			{
-				AgentController newCar = jController.CreatCarAgent(enviro, "Car"+String.valueOf(CarNumber)); //Create the car agent
-				NewCarInputs(GetInteractionInterface(newCar)); //Create a new jFrame for the car
+				float randomStart = (float)rnd.nextInt(12);
+				String carName = "Car"+String.valueOf(CarNumber);
+				PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName,2f,randomStart,randomStart+2+(float)rnd.nextInt(10));
+				AgentController newCar = jController.CreatCarAgent(enviro, carName,InitPrefernceMessage); //Create the car agent
 				
 				CarNumber++;
+				carFrame.AddCarToTable(InitPrefernceMessage); // Adds the Car to the Car Table
 				
 				//Create jFrame for car with inputs, preferences, etc??
 				
