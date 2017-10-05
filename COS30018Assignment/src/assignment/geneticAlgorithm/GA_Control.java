@@ -25,6 +25,7 @@ public class GA_Control implements AgentInteraction{
 	
 	//Constants
 	private final int SAMPLE_SIZE = 100;
+	private final int NUM_ELITES = 2;
 	private final int CROSSOVER_MINIMUM = 1;
 	private final float MUTATION_CHANCE = 0.05f;
 	private final int MAX_GENERATIONS = 1; //Must be at least 1
@@ -56,7 +57,6 @@ public class GA_Control implements AgentInteraction{
 			
 			GeneratePopulation(null); //Generate first population
 			currentSchedule = population.getFirst(); //Get the highest fitness member as current schedule
-			currentSchedule.OrderCarsByHours();
 			control.UpdateCurrentSchedule(currentSchedule); //Send it to the control to be displayed
 			
 			int generations = 1;
@@ -65,7 +65,6 @@ public class GA_Control implements AgentInteraction{
 				
 				GeneratePopulation(population); //Use existing list
 				currentSchedule = population.getFirst(); //Get the highest fitness member as current schedule
-				currentSchedule.OrderCarsByHours();
 				control.UpdateCurrentSchedule(currentSchedule); //Send it to the control to be displayed
 			}
 			
@@ -99,7 +98,7 @@ public class GA_Control implements AgentInteraction{
 			}
 			
 			//Sort population
-			Collections.sort(population);
+			SortFitness(population);
 			
 		} else {
 			
@@ -107,9 +106,35 @@ public class GA_Control implements AgentInteraction{
 			for (int i = population.size(); i > Math.floor((population.size()/2)); i++) {
 				population.remove(i);
 			}
+			
+			LinkedList<Schedule> newPop = new LinkedList<Schedule>();
+			//Add elites to new population
+			for (int i = 0; i < NUM_ELITES; i++) {
+				Schedule s = population.get(i);
+				if (s.registeredCars.size() > 0) { newPop.add(s); }
+			} 
 
-			//Sort populationSort population
-			Collections.sort(population);
+			//Create new schedules
+			while (newPop.size() < SAMPLE_SIZE) {
+				Schedule[] parents = new Schedule[2];
+				int count = 0;
+				
+				while (count < 2) {
+				int r = random.nextInt(population.size());
+				Schedule a = population.get(r);
+				r = random.nextInt(population.size());
+				Schedule b = population.get(r);
+				
+				float r2 = random.nextFloat();
+				parents[count] = (r2 < 0.7)?((a.fitness>b.fitness)?a:b):((a.fitness>b.fitness)?b:a); //Tournament Selection
+				}
+				
+				newPop.add(CreateASchedule(parents[0],parents[1]));
+				
+			}
+			
+			//Sort population
+			SortFitness(population);
 		}
 	}
 	
@@ -166,6 +191,7 @@ public class GA_Control implements AgentInteraction{
 				
 			}
 		}
+		s.OrderCarsByHours();
 		CalculateFitness(s);
 		return s;
 	}
@@ -193,13 +219,38 @@ public class GA_Control implements AgentInteraction{
 	 * @return
 	 */
 	private void CalculateFitness(Schedule p) {
-		int max = list.size();
-		int numberOfCars = p.registeredCars.size();
-		int unusedHours = p.UnusedHours();
-		int wastedFromRequestedStart = p.TimeFromRequested();
+		float max = list.size();
+		float numberOfCars = p.registeredCars.size();
+		float unusedHours = p.UnusedHours();
+		float wastedFromRequestedStart = p.TimeFromRequested();
 		
 		//Fitness function
-		p.fitness = (numberOfCars - unusedHours - wastedFromRequestedStart)/max;
+		float fit = (numberOfCars - unusedHours - wastedFromRequestedStart)/max;
+		if (fit > 1) {System.out.println(max + ", " + numberOfCars + ", " + unusedHours + ", " + wastedFromRequestedStart);}
+		p.fitness = fit;
+	}
+	
+	public void SortFitness(LinkedList<Schedule> pop) {
+			int count = pop.size()-1;
+			while (count > 0) {
+				
+				for (int i = 0; i < count; i++) {
+					Schedule test1 = pop.get(i);
+					Schedule test2 = pop.get(i+1);
+					
+					//Swap
+					if (test1.fitness > test2.fitness) {
+						Schedule swap = test1;
+						test1 = test2;
+						test2 = swap;
+					}
+					
+					pop.set(i, test1);
+					pop.set(i+1, test2);
+				}
+				
+				count--;
+			}
 	}
 
 	@Override

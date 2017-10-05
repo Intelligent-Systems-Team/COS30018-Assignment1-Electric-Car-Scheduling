@@ -115,7 +115,7 @@ public class Control implements ActionListener {
 
 					loop = car.duration;
 					while (loop > 0) {
-						station1 += " *";
+						station1 += " ~";
 						loop -= 0.5;
 					}
 

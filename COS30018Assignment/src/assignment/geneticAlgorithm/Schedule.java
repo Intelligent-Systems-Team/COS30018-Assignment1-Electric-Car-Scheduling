@@ -3,7 +3,7 @@ package assignment.geneticAlgorithm;
 import java.util.Collections;
 import java.util.LinkedList;
 
-public class Schedule implements Comparable<Schedule>{
+public class Schedule{
 
 	public LinkedList<CarSlot> registeredCars = new LinkedList<CarSlot>();
 	public float fitness = 0;
@@ -31,9 +31,16 @@ public class Schedule implements Comparable<Schedule>{
 		}
 	}
 	
-	public int UnusedHours() {
-		// 
-		return 0;
+	public float UnusedHours() {
+		float hours = 0;
+		
+		for (int i = 0; i < registeredCars.size()-1; i++) {
+			CarSlot car1 = registeredCars.get(i);
+			CarSlot car2 = registeredCars.get(i+1);
+			hours += (car2.startTime - (car1.startTime+car1.duration));
+		}
+			
+		return hours;
 	}
 	
 	/**
@@ -49,23 +56,15 @@ public class Schedule implements Comparable<Schedule>{
 		return false;
 	}
 	
-	//Code from:
-	//https://www.programcreek.com/2013/01/sort-linkedlist-of-user-defined-objects-in-java/
-	@Override
-	public int compareTo(Schedule s) {
-		float comparedSize = s.fitness;
-		if (this.fitness < comparedSize) {
-			return 1;
-		} else if (this.fitness == comparedSize) {
-			return 0;
-		} else {
-			return -1;
+	public float TimeFromRequested() {
+		float hours = 0;
+		
+		for (int i = 0; i < registeredCars.size(); i++) {
+			CarSlot car = registeredCars.get(i);
+			hours += (car.startTime-car.startRequested);
 		}
-	}
-	
-	public int TimeFromRequested() {
-
-		return 0;
+		
+		return hours;
 	}
 	
 }
