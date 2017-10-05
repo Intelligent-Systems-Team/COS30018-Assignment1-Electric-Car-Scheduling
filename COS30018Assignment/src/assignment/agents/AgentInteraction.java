@@ -1,8 +1,8 @@
-package assignment.main;
+package assignment.agents;
 
 import java.awt.GraphicsConfiguration;
 
-import assignment.agents.Agent_MasterScheduling;
+import assignment.main.Control;
 import jade.core.behaviours.Behaviour;
 
 public interface AgentInteraction {

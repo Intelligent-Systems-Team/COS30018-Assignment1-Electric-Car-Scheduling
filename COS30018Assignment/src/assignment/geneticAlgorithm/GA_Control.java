@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Random;
 
-import assignment.main.AgentInteraction;
+import assignment.agents.AgentInteraction;
 import assignment.main.CarPreferenceData;
 import assignment.main.Control;
 import jade.core.behaviours.Behaviour;
@@ -48,12 +48,15 @@ public class GA_Control implements AgentInteraction{
 	
 	public void Generate() {
 		
+		PrintToSystem("Genetic Algorithm: Generate Called");
+		
 		if (list.size() > 0) {
 			previousSchedule = currentSchedule;
 			scheduleReady = false; //Lets master scheduler know schedule is being calcualted
 			
 			GeneratePopulation(null); //Generate first population
 			currentSchedule = population.getFirst(); //Get the highest fitness member as current schedule
+			currentSchedule.OrderCarsByHours();
 			control.UpdateCurrentSchedule(currentSchedule); //Send it to the control to be displayed
 			
 			int generations = 1;
@@ -62,15 +65,16 @@ public class GA_Control implements AgentInteraction{
 				
 				GeneratePopulation(population); //Use existing list
 				currentSchedule = population.getFirst(); //Get the highest fitness member as current schedule
+				currentSchedule.OrderCarsByHours();
 				control.UpdateCurrentSchedule(currentSchedule); //Send it to the control to be displayed
 			}
 			
+			PrintToSystem("Genetic Algorithm: Schedule Ready To Use");
 			scheduleReady = true; //Schedule ready to be used
 			
 		} else {
-			
-			currentSchedule = null;
-			
+			PrintToSystem("Genetic Algorithm: Unable to Create List - No Cars");
+			currentSchedule = null;	
 		}
 	}
 	
@@ -94,10 +98,6 @@ public class GA_Control implements AgentInteraction{
 				population.add((CreateASchedule()));
 			}
 			
-			for (int g = 0; g < population.size(); g++) {
-				CalculateFitness(population.get(g));
-			}
-			
 			//Sort population
 			Collections.sort(population);
 			
@@ -106,10 +106,6 @@ public class GA_Control implements AgentInteraction{
 			//Get rid of low fitness members
 			for (int i = population.size(); i > Math.floor((population.size()/2)); i++) {
 				population.remove(i);
-			}
-			
-			for (int g = 0; g < population.size(); g++) {
-				CalculateFitness(population.get(g));
 			}
 
 			//Sort populationSort population
@@ -122,7 +118,7 @@ public class GA_Control implements AgentInteraction{
 	private Schedule CreateASchedule(Schedule parent1, Schedule parent2) {
 		Schedule s = new Schedule();
 		
-		if (parent1 == null || parent2 == null) {
+		if (parent1 != null || parent2 != null) {
 			// Crossover and mutation
 		} else {
 			for (int i = 0; i < list.size(); i++) {
@@ -131,20 +127,22 @@ public class GA_Control implements AgentInteraction{
 				CarSlot slot = new CarSlot();
 				slot.name = car.agentName;
 				slot.priority = i+1;
-				slot.duration = 1; //TODO: Change this depending on car, charge left, etc
+				slot.duration = car.durationRequested; //TODO: Change this depending on car, charge left, etc
 				slot.startRequested = car.startTime;
 				slot.finishRequired = car.finishTime;
 				
 				boolean spotTaken = false;
-				for (int c = 0; c < s.registeredCars.size(); c++) {
-					CarSlot other = s.registeredCars.get(c);
-										
-					if (CheckClash(slot, slot.startRequested, other)) {spotTaken = true; break;}
+				if (list.size() == 1) {
+					for (int c = 0; c < s.registeredCars.size(); c++) {
+						CarSlot other = s.registeredCars.get(c);
+											
+						if (CheckClash(slot, slot.startRequested, other)) {spotTaken = true; break;}
+					}
 				}
 				
 				
 				//If it can't fit at requested start, randomize the location
-				if (spotTaken) {
+				if (spotTaken || list.size() > 1) {
 				
 					spotTaken = false;
 					float randomTime = (random.nextFloat() * (slot.finishRequired-slot.duration-slot.startRequested)) + slot.startRequested;
@@ -168,7 +166,7 @@ public class GA_Control implements AgentInteraction{
 				
 			}
 		}
-		
+		CalculateFitness(s);
 		return s;
 	}
 	
@@ -194,14 +192,14 @@ public class GA_Control implements AgentInteraction{
 	 * @param p
 	 * @return
 	 */
-	private float CalculateFitness(Schedule p) {
+	private void CalculateFitness(Schedule p) {
 		int max = list.size();
 		int numberOfCars = p.registeredCars.size();
 		int unusedHours = p.UnusedHours();
 		int wastedFromRequestedStart = p.TimeFromRequested();
 		
 		//Fitness function
-		return (numberOfCars - unusedHours - wastedFromRequestedStart)/max;
+		p.fitness = (numberOfCars - unusedHours - wastedFromRequestedStart)/max;
 	}
 
 	@Override

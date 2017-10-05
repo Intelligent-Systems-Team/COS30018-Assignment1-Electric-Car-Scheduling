@@ -4,6 +4,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
+import assignment.agents.AgentInteraction;
+
 public class InteractionButton extends JButton{
 
 	private AgentInteraction myCar;
