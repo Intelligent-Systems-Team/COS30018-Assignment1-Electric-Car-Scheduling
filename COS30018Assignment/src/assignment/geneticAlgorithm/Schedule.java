@@ -4,7 +4,7 @@ import java.util.LinkedList;
 
 public class Schedule implements Comparable<Schedule>{
 
-	public LinkedList<CarSlot> registeredCars;
+	public LinkedList<CarSlot> registeredCars = new LinkedList<CarSlot>();
 	public float fitness = 0;
 	
 	

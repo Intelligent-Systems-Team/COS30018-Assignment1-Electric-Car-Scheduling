@@ -10,6 +10,9 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import assignment.geneticAlgorithm.CarSlot;
+import assignment.geneticAlgorithm.Schedule;
 import assignment.ui.MainInterface;
 import jade.content.onto.annotations.Result;
 import jade.core.AID;
@@ -57,6 +60,53 @@ public class Control implements ActionListener{
 	//****************************
 	public Control(String name) {		
 		main = new MainInterface(this);
+	}
+	
+	/**
+	 * Prints the current schedule to the UI
+	 * @param current
+	 */
+	public void UpdateCurrentSchedule(Schedule current) {
+		if (current != null && current.registeredCars.size() > 0) {
+			float currentTime = 0;
+			String station1 = "";
+			
+			LinkedList<CarSlot> cars = current.registeredCars;
+			float start = cars.getFirst().startTime;
+			
+			//Adds "-" leading to the first car
+			float loop = start;
+			while (loop > 0) {
+				station1 += "-";
+				loop -= 0.5;
+			}
+			
+			//Displays cars in schedule
+			for (int s = 0; s < cars.size(); s++) {
+				CarSlot car = cars.get(s);
+				station1 += "[" + String.valueOf(car.startTime) + "]";
+				
+				loop = car.duration;
+				while (loop > 0) {
+					station1 += "*";
+					loop -= 0.5;
+				}
+				
+				float finish = car.startTime+car.duration;
+				station1 += "[" + String.valueOf(finish) + "]";
+				
+				float next = (s == cars.size()-1)?(24-finish):(cars.get(s).startTime-finish);
+				while (next > 0) {
+					station1 += "-";
+					next -= 0.5;
+				}
+			}
+			
+		} else {
+			//Print "null"
+		}
+		
+		
 	}
 	
 	public void NewCarInputs(AgentInteraction car) {

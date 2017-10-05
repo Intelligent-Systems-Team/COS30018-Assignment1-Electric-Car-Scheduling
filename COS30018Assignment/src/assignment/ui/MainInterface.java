@@ -23,7 +23,7 @@ import javax.swing.SwingConstants;
 public class MainInterface extends JFrame {
 
 	private JButton btnStartJadeController, btnStartSimulation, btnAddCar;
-	private JTextPane mySystemOut;
+	private JTextPane mySystemOut, myCurrentSchedule;
 	private JPanel contentPane;
 
 	/**
@@ -33,6 +33,7 @@ public class MainInterface extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 660, 397);
 		contentPane = new JPanel();
+		contentPane.setLocation(0, 0);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
@@ -81,9 +82,13 @@ public class MainInterface extends JFrame {
 		JLabel myLabelSchedule = new JLabel("Current Schedule");
 		splitPane_3.setLeftComponent(myLabelSchedule);
 		
-		JTextPane myCurrentSchedule = new JTextPane();
+		myCurrentSchedule = new JTextPane();
 		splitPane_3.setRightComponent(myCurrentSchedule);
 		this.setVisible(true);
+	}
+	
+	public void UpdateCurrentSchedule(String s) {
+		myCurrentSchedule.setText(s);
 	}
 	
 	public void EnableSimulationButton() {

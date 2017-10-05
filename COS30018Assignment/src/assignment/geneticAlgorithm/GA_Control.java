@@ -4,9 +4,12 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Random;
 
+import assignment.main.AgentInteraction;
 import assignment.main.CarPreferenceData;
+import assignment.main.Control;
+import jade.core.behaviours.Behaviour;
 
-public class GA_Control {
+public class GA_Control implements AgentInteraction{
 
 	//***********************
 	//***********************
@@ -22,16 +25,20 @@ public class GA_Control {
 	
 	//Constants
 	private final int SAMPLE_SIZE = 100;
-	private final float CROSSOVER_AMOUNT = 0.8f;
+	private final int CROSSOVER_MINIMUM = 1;
 	private final float MUTATION_CHANCE = 0.05f;
+	private final int MAX_GENERATIONS = 1; //Must be at least 1
+	private final float FITNESS_THRESHOLD = 100;
 	
 	private LinkedList<CarPreferenceData> list;
 	private LinkedList<Schedule> population;
+	private LinkedList<String> printBuffer = new LinkedList<String>();
 	
 	private Schedule currentSchedule = null, previousSchedule = null;
 	private boolean scheduleReady = false;
 	
 	private Random random = new Random();
+	private Control control;
 	
 	public String Setup(LinkedList<CarPreferenceData> list) {
 		this.list = list;
@@ -40,15 +47,31 @@ public class GA_Control {
 	}
 	
 	public void Generate() {
-		previousSchedule = currentSchedule;
 		
-		GeneratePopulation(null);
-		//Calculate
-		
-		//if (one type of schedule has majority (50%+)) then set it as schedule
-
-		//currentSchedule = population.get(??);
-		//scheduleReady = true;
+		if (list.size() > 0) {
+			previousSchedule = currentSchedule;
+			scheduleReady = false; //Lets master scheduler know schedule is being calcualted
+			
+			GeneratePopulation(null); //Generate first population
+			currentSchedule = population.getFirst(); //Get the highest fitness member as current schedule
+			control.UpdateCurrentSchedule(currentSchedule); //Send it to the control to be displayed
+			
+			int generations = 1;
+			while (generations < MAX_GENERATIONS) { //TODO: Make function for below comment
+				if (population.getFirst().fitness > FITNESS_THRESHOLD /* || more than half have converged on same schedule*/) { break;}
+				
+				GeneratePopulation(population); //Use existing list
+				currentSchedule = population.getFirst(); //Get the highest fitness member as current schedule
+				control.UpdateCurrentSchedule(currentSchedule); //Send it to the control to be displayed
+			}
+			
+			scheduleReady = true; //Schedule ready to be used
+			
+		} else {
+			
+			currentSchedule = null;
+			
+		}
 	}
 	
 	/**
@@ -71,12 +94,26 @@ public class GA_Control {
 				population.add((CreateASchedule()));
 			}
 			
-		} else {
-			//Sort population, get rid of low fitness members
+			for (int g = 0; g < population.size(); g++) {
+				CalculateFitness(population.get(g));
+			}
+			
+			//Sort population
 			Collections.sort(population);
+			
+		} else {
+			
+			//Get rid of low fitness members
 			for (int i = population.size(); i > Math.floor((population.size()/2)); i++) {
 				population.remove(i);
 			}
+			
+			for (int g = 0; g < population.size(); g++) {
+				CalculateFitness(population.get(g));
+			}
+
+			//Sort populationSort population
+			Collections.sort(population);
 		}
 	}
 	
@@ -165,5 +202,36 @@ public class GA_Control {
 		
 		//Fitness function
 		return (numberOfCars - unusedHours - wastedFromRequestedStart)/max;
+	}
+
+	@Override
+	public void RegisterControl(Control c) {
+		control = c;
+		PrintToSystem("");
+	}
+
+	@Override
+	public void AddBehaviour(Behaviour b) {}
+
+	@Override
+	public void PrintToSystem(String s) {
+		System.out.println(s);
+		if (control == null) {
+			if (s!="") { printBuffer.add(s); }
+		} else {
+			//Adds any buffered messages first
+			for (int count = 0; count < printBuffer.size(); count++) {
+				control.AddLastMessage(printBuffer.get(count));
+			}
+			printBuffer.clear();
+			
+			//Adds latest message
+			if (s!="") { control.AddLastMessage(s); }
+		}
+	}
+
+	@Override
+	public String AgentName() {
+		return "Genetic Algorithm";
 	}
 }
