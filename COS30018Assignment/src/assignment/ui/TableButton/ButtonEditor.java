@@ -11,16 +11,20 @@ import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
+import assignment.message.PrefernceMessage;
+import assignment.ui.CarsInterface;
+import jade.wrapper.ControllerException;
+
 /**
  * @version 1.0 11/09/98
  */
 
 public class ButtonEditor extends DefaultCellEditor {
 	protected JButton button;
-
 	private String label;
-
 	private boolean isPushed;
+	
+	private CarsInterface carFrame;
 	
 	private String name; 
 	private float duration;
@@ -32,8 +36,9 @@ public class ButtonEditor extends DefaultCellEditor {
 	private int currentcolumn;
 	
 
-	public ButtonEditor(JCheckBox checkBox) {
+	public ButtonEditor(JCheckBox checkBox, CarsInterface carframe) {
 		super(checkBox);
+		carFrame = carframe;
 		button = new JButton();
 		button.setOpaque(true);
 		button.addActionListener(new ActionListener() {
@@ -96,7 +101,13 @@ public class ButtonEditor extends DefaultCellEditor {
 	//TODO Some How figure out how to 
 	public void SendPrefenceData()
 	{
-		
+		PrefernceMessage PMdata =new PrefernceMessage(name,duration,start,finish);
+		try {
+			carFrame.SendCarChargeRequest(PMdata);
+		} catch (ControllerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }

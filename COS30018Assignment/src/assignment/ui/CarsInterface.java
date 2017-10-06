@@ -15,9 +15,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import assignment.main.Control;
 import assignment.message.PrefernceMessage;
 import assignment.ui.TableButton.ButtonEditor;
 import assignment.ui.TableButton.ButtonRenderer;
+import jade.wrapper.ControllerException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -31,28 +33,15 @@ public class CarsInterface extends JFrame {
 
 	private JPanel contentPane;
 	private JTable table;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					CarsInterface frame = new CarsInterface();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	private Control controller;
 
 	/**
 	 * Create the frame.
 	 */
-	public CarsInterface() 
+	public CarsInterface(Control _controller) 
 	{
+		controller =_controller;
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -82,19 +71,13 @@ public class CarsInterface extends JFrame {
 		));
 		
 		//Setting the "Send" column to look/act like buttons.
+		ButtonEditor sendButton = new ButtonEditor(new JCheckBox(),this);
 		table.getColumn("Send Request").setCellRenderer((TableCellRenderer) new ButtonRenderer());
-		table.getColumn("Send Request").setCellEditor(new ButtonEditor(new JCheckBox()));
+		table.getColumn("Send Request").setCellEditor(sendButton);
 	}
 	
 	public void AddCarToTable(PrefernceMessage InitPrefernceMessage)
-	{
-		JButton sendRequest = new JButton();
-		sendRequest.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				SendCarChargeRequest();
-			}
-		});		
+	{		
 		Object[] newdata = {InitPrefernceMessage.name,
 							String.valueOf(InitPrefernceMessage.duration),
 							String.valueOf(InitPrefernceMessage.startRequested),
@@ -104,9 +87,9 @@ public class CarsInterface extends JFrame {
 		dtm.addRow(newdata);
 	}
 	
-	public void SendCarChargeRequest()
+	public void SendCarChargeRequest(PrefernceMessage sendMessage) throws ControllerException
 	{
-		
+		controller.SendPefernceToCarAgent(sendMessage);
 	}
 
 	private class SwingAction extends AbstractAction {

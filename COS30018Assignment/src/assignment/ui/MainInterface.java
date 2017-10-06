@@ -122,5 +122,6 @@ public class MainInterface extends JFrame {
 	public void UpdateSystemOut(String string) {
 		mySystemOut.setText(string);
 	}
+	
 
 }

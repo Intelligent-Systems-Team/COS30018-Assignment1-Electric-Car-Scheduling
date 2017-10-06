@@ -16,7 +16,7 @@ import jade.lang.acl.MessageTemplate;
 import jade.proto.AchieveREInitiator;
 import jade.proto.AchieveREResponder;
 
-public class Agent_Car extends Agent implements AgentInteraction {
+public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAgentIneraction {
 	
 	private Control control = null;
 	private String name;
@@ -33,7 +33,6 @@ public class Agent_Car extends Agent implements AgentInteraction {
 	protected void setup() {
 		Object[] args = getArguments();
 		messageContent = (PrefernceMessage) args[0];
-		//Cars wait a Random Period of time before sending sending the ChargeRequest.
 		SendRegisterRequest(messageContent);
 	}
 
@@ -58,13 +57,12 @@ public class Agent_Car extends Agent implements AgentInteraction {
 			if (s!="") { control.AddLastMessage(s); }
 		}
 	}
-	
-	// TODO get button to do this
+	@Override
 	public void SendRegisterRequest(PrefernceMessage sendPrefMessage)
 	{
 		//float randomStart = (float)rnd.nextInt(12);
 		//messageContent = new PrefernceMessage(getLocalName(),2f,randomStart,randomStart+2+(float)rnd.nextInt(10));
-		messageContent =sendPrefMessage;
+		messageContent = sendPrefMessage;
 		ACLMessage registerRequest = new ACLMessage(ACLMessage.REQUEST);
 		//TODO fix the hard coded master
 		registerRequest.addReceiver(new AID("Master",AID.ISLOCALNAME) );
