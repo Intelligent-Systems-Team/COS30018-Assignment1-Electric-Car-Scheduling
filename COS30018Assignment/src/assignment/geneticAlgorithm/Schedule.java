@@ -8,6 +8,17 @@ public class Schedule{
 	public LinkedList<CarSlot> registeredCars = new LinkedList<CarSlot>();
 	public float fitness = 0;
 	
+	public CarSlot GetCar(String name) {
+		for(int i = 0; i < registeredCars.size(); i++) {
+			CarSlot car = registeredCars.get(i);
+			if (car.name.equalsIgnoreCase(name)) {
+				return car;
+			}
+		}
+		
+		return null;
+	}
+	
 	public void OrderCarsByHours() {
 		int count = registeredCars.size()-1;
 		while (count > 0) {
@@ -37,7 +48,19 @@ public class Schedule{
 		for (int i = 0; i < registeredCars.size()-1; i++) {
 			CarSlot car1 = registeredCars.get(i);
 			CarSlot car2 = registeredCars.get(i+1);
-			hours += (car2.startTime - (car1.startTime+car1.duration));
+			float unused = (car2.startTime - (car1.startTime+car1.duration));
+			if (unused > 0) {
+				hours += unused;
+			} else if (unused < 0){
+				System.out.println("--DEBUG--");
+				System.out.println("car2.startTime = " + car2.startTime);
+				System.out.println("car1.startTime = " + car1.startTime);
+				System.out.println("car1.duration = " + car1.duration);
+				System.out.println(car2.startTime + "-" + "(" + car1.startTime + "+" + car1.duration + ")");
+				System.out.println("Whaa?");
+				
+				hours -= unused;
+			}
 		}
 			
 		return hours;
@@ -61,7 +84,13 @@ public class Schedule{
 		
 		for (int i = 0; i < registeredCars.size(); i++) {
 			CarSlot car = registeredCars.get(i);
-			hours += (car.startTime-car.startRequested);
+			
+			if (car.startTime >= car.startRequested) {
+				hours += (car.startTime-car.startRequested);
+			} else {
+				System.out.println("error");
+			}
+			
 		}
 		
 		return hours;
