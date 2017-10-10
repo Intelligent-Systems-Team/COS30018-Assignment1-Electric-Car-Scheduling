@@ -78,7 +78,7 @@ public class ButtonEditor extends DefaultCellEditor {
 			start = Float.parseFloat((String) currentTable.getValueAt(currentrow, 2));
 			finish = Float.parseFloat((String) currentTable.getValueAt(currentrow, 3));
 			//This is where the car will send it's data
-			JOptionPane.showMessageDialog(button, "NOT SENDING ONLY TEST \n"+
+			JOptionPane.showMessageDialog(button, "Sending Data to CarAgent \n"+
 					name +":"
 					+"\n Start Time Requested:"+start
 					+"\n Finish Time Requested:"+finish
@@ -101,7 +101,7 @@ public class ButtonEditor extends DefaultCellEditor {
 	//TODO Some How figure out how to 
 	public void SendPrefenceData()
 	{
-		PrefernceMessage PMdata =new PrefernceMessage(name,duration,start,finish);
+		PrefernceMessage PMdata = new PrefernceMessage(name,duration,start,finish);
 		try {
 			carFrame.SendCarChargeRequest(PMdata);
 		} catch (ControllerException e) {

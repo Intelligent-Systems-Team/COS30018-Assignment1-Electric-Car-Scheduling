@@ -65,12 +65,19 @@ public class CarsInterface extends JFrame {
 		contentPane.add(scrollPane, gbc_scrollPane);
 		
 		table = new JTable();
+		table.setCellSelectionEnabled(true);
 		scrollPane.setViewportView(table);
-		table.setModel(new DefaultTableModel(
-			new Object[][] {},
-			new String[] {"Car", "Duration", "Start Time Request", "Lastest Finish Time Request","Send Request"}
-		));
-		
+		DefaultTableModel tableModel = new DefaultTableModel(new Object[][] {},
+			new String[] {"Car", "Duration", "Start Time Request", "Lastest Finish Time Request","Send Request"})
+		{
+			 @Override
+		        public boolean isCellEditable(int row, int column)
+		        {
+		            // Makes The Car Column Read only
+		            return !(column == 0);
+		        }
+		};
+		table.setModel(tableModel);
 		//Setting the "Send" column to look/act like buttons.
 		ButtonEditor sendButton = new ButtonEditor(new JCheckBox(),this);
 		table.getColumn("Send Request").setCellRenderer((TableCellRenderer) new ButtonRenderer());
