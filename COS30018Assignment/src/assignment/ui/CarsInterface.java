@@ -40,6 +40,7 @@ public class CarsInterface extends JFrame {
 	 */
 	public CarsInterface(Control _controller) 
 	{
+		setTitle("Car Agent Message Data");
 		controller =_controller;
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

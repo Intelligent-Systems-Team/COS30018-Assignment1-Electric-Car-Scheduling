@@ -28,12 +28,13 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 
 	public Agent_Car() {
 		registerO2AInterface(AgentInteraction.class, this); //Required to access interface
+		registerO2AInterface(CarTableCarAgentIneraction.class, this);
 	}
 	
 	protected void setup() {
 		Object[] args = getArguments();
 		messageContent = (PrefernceMessage) args[0];
-		SendRegisterRequest(messageContent);
+		//SendRegisterRequest(messageContent);
 	}
 
 	@Override
@@ -60,8 +61,6 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 	@Override
 	public void SendRegisterRequest(PrefernceMessage sendPrefMessage)
 	{
-		//float randomStart = (float)rnd.nextInt(12);
-		//messageContent = new PrefernceMessage(getLocalName(),2f,randomStart,randomStart+2+(float)rnd.nextInt(10));
 		messageContent = sendPrefMessage;
 		ACLMessage registerRequest = new ACLMessage(ACLMessage.REQUEST);
 		//TODO fix the hard coded master

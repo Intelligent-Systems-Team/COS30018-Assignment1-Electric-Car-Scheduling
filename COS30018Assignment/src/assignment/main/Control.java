@@ -239,6 +239,7 @@ public class Control implements ActionListener {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+				carFrame.dispose();
 
 				// Reset UI
 				main.StopDisplay(this);
@@ -275,15 +276,10 @@ public class Control implements ActionListener {
 		System.out.println("Looking for " + sendMessage.name);
 		AgentController carAgent = enviro.getAgent(sendMessage.name);
 		if (carAgent != null) {
-			System.out.println("Found: " + carAgent.getName());
-			System.out.println("with Class" + carAgent.getClass().toString());
-			CarTableCarAgentIneraction oCar = null;
+			// System.out.println("Found: " + carAgent.getName());
+			// System.out.println("with Class" + carAgent.getClass().toString());
 			try {
-				// TODO I Can't seem to call the the .SendRegisterRequest() or anything,
-				// without me getting a java.lang.NullPointerException.
-				// @MATT
-				oCar = carAgent.getO2AInterface(CarTableCarAgentIneraction.class); // TODO fix. This Is returning null?
-				oCar.SendRegisterRequest(sendMessage);
+				carAgent.getO2AInterface(CarTableCarAgentIneraction.class).SendRegisterRequest(sendMessage);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
