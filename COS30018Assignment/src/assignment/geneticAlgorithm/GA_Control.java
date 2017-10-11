@@ -466,7 +466,7 @@ public class GA_Control implements AgentInteraction{
 		float wastedFromRequestedStart = p.TimeFromRequested();
 		
 		//Fitness function
-		float fit = ((numberOfCars - wastedFromRequestedStart)/max);
+		float fit = ((numberOfCars - unusedHours - wastedFromRequestedStart)/max);
 		
 		if (fit > 1) {
 			System.out.println(max + ", " + numberOfCars + ", " + unusedHours + ", " + wastedFromRequestedStart);
