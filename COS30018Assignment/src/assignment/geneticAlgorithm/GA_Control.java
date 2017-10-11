@@ -265,7 +265,7 @@ public class GA_Control implements AgentInteraction{
 			
 			//Adds cars from parent 1 to new schedule
 			for (int i = 0; i < parent1.registeredCars.size(); i++) {
-				schedule.registeredCars.add(parent1.registeredCars.get(i));
+				schedule.registeredCars.add(parent1.registeredCars.get(i).Clone());
 			}
 			
 			//Adds cars from parent 2 (if they don't already exist in the schedule, and can fit)
@@ -282,7 +282,7 @@ public class GA_Control implements AgentInteraction{
 				}
 				
 				if (canFit) {
-					schedule.registeredCars.add(car);
+					schedule.registeredCars.add(car.Clone());
 				}
 			}
 			
