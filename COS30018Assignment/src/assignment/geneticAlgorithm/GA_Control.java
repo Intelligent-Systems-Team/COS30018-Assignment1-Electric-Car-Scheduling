@@ -27,8 +27,8 @@ public class GA_Control implements AgentInteraction{
 	private final int INTERVAL_SNAP = 30; //Interval time to snap to (e.g. 30 = 30 minute interval)
 	private final int SAMPLE_SIZE = 1000;
 	private final int NUM_ELITES = 2;
-	private final float MUTATION_CHANCE = 0.1f;
-	private final int MAX_GENERATIONS = 10; //Must be at least 1
+	private final float MUTATION_CHANCE = 0.14f;
+	private final int MAX_GENERATIONS = 11; //Must be at least 1
 	private final float FITNESS_THRESHOLD = 0.95f;
 	
 	private LinkedList<CarPreferenceData> listOfCarPrefData;
@@ -303,14 +303,6 @@ public class GA_Control implements AgentInteraction{
 					if ((moveHours < 0 && (car.startTime+moveHours >= car.startRequested))
 							|| (moveHours > 0 && (car.startTime+car.duration+moveHours <= car.finishRequired))) {
 						
-						/*
-						System.out.println("car.startTime = " + car.startTime + "moveHours = " + moveHours);
-						if ((moveHours < 0 && (car.startTime+moveHours >= car.startRequested))){
-							System.out.println("moveHours < 0");
-							System.out.println(car.startTime+moveHours + ">=" + car.startRequested);
-						}
-						*/
-						
 						boolean spotTaken = true;
 						while(spotTaken) {
 							
@@ -346,9 +338,8 @@ public class GA_Control implements AgentInteraction{
 			s = schedule; //schedule is the returned schedule
 			
 			
-		//*************
+			
 		//New Schedule
-		//*************
 		} else {
 			for (int i = 0; i < listOfCarPrefData.size(); i++) {
 				CarSlot slot = CarSlotFromData(i);
@@ -376,7 +367,10 @@ public class GA_Control implements AgentInteraction{
 					}
 					else //If clash, register at random time
 					{
-						TryAddCarToSchedule(s, slot);
+						int count = 0;
+						while(!TryAddCarToSchedule(s, slot) && count ==10) {
+							count++;
+						}
 					}
 				} 
 				else
@@ -407,22 +401,39 @@ public class GA_Control implements AgentInteraction{
 						}
 					}
 					
-
 					if (check) {
 						//Try to add the car to a random location
-						TryAddCarToSchedule(s, slot);
+						int count = 0;
+						while(!TryAddCarToSchedule(s, slot) && count ==10) {
+							count++;
+						}
 					}
 				}
 			}
 		}
 		
 		s.OrderCarsByHours();
-		//System.out.println("1a - Calculating Fitness");
+		CheckErrorWithOrder(s);
 		CalculateFitness(s);
 		//System.out.println("1b - Fitness Calculated");
 		return s;
 	}
 	
+	private void CheckErrorWithOrder(Schedule s) {
+		System.out.println("Calculating order");
+		float current = 0;
+		for (int i = 0; i < s.registeredCars.size(); i++) {
+			CarSlot test = s.registeredCars.get(i);
+			
+			if (test.startTime >= current) {
+				current = test.startTime;
+			} else {
+				System.out.println("Incorrect order");
+			}
+		}
+		
+	}
+
 	private CarSlot CarSlotFromData(int i) {
 		CarPreferenceData data = listOfCarPrefData.get(i);
 		CarSlot slot = new CarSlot();
@@ -438,9 +449,16 @@ public class GA_Control implements AgentInteraction{
 	
 	//Checks if a car lies within the duration of another car
 	private boolean CheckClash(CarSlot n, float request, CarSlot other) {
+		
+		System.out.println("===Check Clash===");
+		System.out.println("n = " + n);
+		System.out.println("request = " + request);
+		System.out.println("other = " + other);
+		
 		// TODO CheckClash Needs Work
 		float start, end, middleTest;
 		if (other.startTime >= request) {
+			System.out.println("other.startTime >= request");
 			start = request;
 			end = request + n.duration;
 			middleTest = other.startTime;
@@ -466,7 +484,8 @@ public class GA_Control implements AgentInteraction{
 		float wastedFromRequestedStart = p.TimeFromRequested();
 		
 		//Fitness function
-		float fit = ((numberOfCars - unusedHours - wastedFromRequestedStart)/max);
+		//float fit = ((numberOfCars - unusedHours - wastedFromRequestedStart)/max);
+		float fit = (numberOfCars - 0.1f*unusedHours - 0.5f*wastedFromRequestedStart)/max;
 		
 		if (fit > 1) {
 			System.out.println(max + ", " + numberOfCars + ", " + unusedHours + ", " + wastedFromRequestedStart);
@@ -475,7 +494,7 @@ public class GA_Control implements AgentInteraction{
 		p.fitness = fit;
 	}
 	
-	private void TryAddCarToSchedule(Schedule s, CarSlot c) {
+	private boolean TryAddCarToSchedule(Schedule s, CarSlot c) {
 		float randomTime = (random.nextFloat() * (c.finishRequired-c.duration-c.startRequested)) + c.startRequested;
 		boolean spotTaken = false;
 		
@@ -486,6 +505,7 @@ public class GA_Control implements AgentInteraction{
 		}
 		
 		//Time intervals are in 30mins atm
+		System.out.println("TryAddCarToSchedule: randomTime = " + randomTime);
 		randomTime = SnapToTime(randomTime);
 		
 		for (int i = 0; i < s.registeredCars.size(); i++) {
@@ -502,11 +522,22 @@ public class GA_Control implements AgentInteraction{
 			c.startTime = randomTime;
 			s.registeredCars.add(c);
 		}
+		
+		return !spotTaken;
 	}
 	
 	private float SnapToTime(float num) {
 		int val = (int) Math.floor(60/INTERVAL_SNAP);
-		return Math.round((num*(val)))/(val);
+		float newNum =Math.round((num*val));
+		
+		//System.out.println("num = " + num);
+		//System.out.println("val = " + val);
+		//System.out.println("Math.round((num*val) = " + newNum);
+		
+		newNum = newNum/val;
+		//System.out.println("newNum/val = " + newNum);
+		
+		return newNum;
 	}
 	
 	@Override
