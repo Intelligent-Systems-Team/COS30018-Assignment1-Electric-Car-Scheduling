@@ -24,6 +24,7 @@ public class GA_Control implements AgentInteraction{
 	//***********************
 	
 	//Constants
+	private final int INTERVAL_SNAP = 30; //Interval time to snap to (e.g. 30 = 30 minute interval)
 	private final int SAMPLE_SIZE = 1000;
 	private final int NUM_ELITES = 2;
 	private final float MUTATION_CHANCE = 0.1f;
@@ -247,50 +248,38 @@ public class GA_Control implements AgentInteraction{
 	private Schedule CreateASchedule(Schedule parent1, Schedule parent2) {
 		Schedule s = new Schedule();
 		
-		//Cross-over schedule
+		//Schedule with parents
 		if (parent1 != null && parent2 != null) {
+
+			//****************
+			//'Crossover'
+			//****************
+			
 			System.out.println("2a-Crossover schedule with parents");
 			
-			Schedule a = new Schedule();
-			Schedule b = new Schedule();
-			a.registeredCars = (LinkedList<CarSlot>) parent1.registeredCars.clone();
-			b.registeredCars =  (LinkedList<CarSlot>) parent2.registeredCars.clone();		
+			Schedule schedule = new Schedule();
 			
-			int amount = random.nextInt((a.registeredCars.size()>1)?(a.registeredCars.size()-1):1) + 1;			
-			CarSlot lastA = a.registeredCars.get(amount-1);
-			float timeCross = lastA.startTime+lastA.duration;
-			
-			//Removes cars from A that are passed amount
-			for (int i = a.registeredCars.size()-1; i >= amount; i--) {
-				a.registeredCars.remove(i);
+			//Adds cars from parent 1 to new schedule
+			for (int i = 0; i < parent1.registeredCars.size(); i++) {
+				schedule.registeredCars.add(parent1.registeredCars.get(i));
 			}
 			
-			System.out.println("3a- Removing wrong b cars");
-			//Removes cars from B that are on wrong side of time cross
-			for (int i = b.registeredCars.size()-1; i >= 0; i--) {
-				CarSlot carB = b.registeredCars.get(i);
-				if (carB.startTime <= timeCross) {
-					b.registeredCars.remove(i);
-				}
-			}
-			System.out.println("3b- Wrong b cars removed");
-			
-			System.out.println("3a- Removing duplicates");
-			//Removes duplicates with a from b 
-			for (int i = 0; i < amount; i++) {
-				CarSlot c = a.registeredCars.get(i);
+			//Adds cars from parent 2 (if they don't already exist in the schedule, and can fit)
+			for (int i = 0; i < parent2.registeredCars.size(); i++) {
+				CarSlot car = parent2.registeredCars.get(i);
+				boolean canFit = true;
 				
-				CarSlot test = b.GetCar(c.name); 
-				if (test != null) {b.registeredCars.remove(test);}
-			}
-			System.out.println("3b- Duplicates removed");
-			
-			//****************
-			//Actual Crossover
-			//****************
-			
-			for (int i = 0; i<b.registeredCars.size();i++) {
-				a.registeredCars.add(b.registeredCars.get(i));
+				for (int c = 0; c < schedule.registeredCars.size(); c++) {
+					CarSlot other = schedule.registeredCars.get(c);
+					if (schedule.registeredCars.contains(other) || CheckClash(car, car.startTime, other)) {
+						carFit = false;
+						break;
+					}
+				}
+				
+				if (canFit) {
+					schedule.registeredCars.add(car);
+				}
 			}
 			
 			//****************
@@ -304,7 +293,7 @@ public class GA_Control implements AgentInteraction{
 				
 				if (r<=chance) {
 					System.out.println("3a- Schedule mutating");
-					CarSlot car = a.registeredCars.get(i);
+					CarSlot car = schedule.registeredCars.get(i);
 					float moveHours = ((float)(random.nextInt(6)));
 					
 					if ((moveHours < 0 && (car.startTime+moveHours >= car.startRequested))
@@ -322,8 +311,8 @@ public class GA_Control implements AgentInteraction{
 						while(spotTaken) {
 							
 							spotTaken = false;
-							for (int t = 0; t < a.registeredCars.size(); t++) {
-								CarSlot test = a.registeredCars.get(t);
+							for (int t = 0; t < schedule.registeredCars.size(); t++) {
+								CarSlot test = schedule.registeredCars.get(t);
 								if (car!=test && CheckClash(car, car.startTime+moveHours, test)) {
 									spotTaken = true;
 									break;
@@ -335,7 +324,7 @@ public class GA_Control implements AgentInteraction{
 						}
 						
 						if (!spotTaken) {
-							car.startTime = TwoDecimals(car.startTime+moveHours); //Mutate start time
+							car.startTime = SnapToTime(car.startTime+moveHours); //Mutate start time
 						}
 						
 						
@@ -350,7 +339,7 @@ public class GA_Control implements AgentInteraction{
 			}
 			
 			System.out.println("2b- Schedule crossedover");
-			s = a; //A is the returned schedule
+			s = schedule; //schedule is the returned schedule
 			
 			
 		//*************
@@ -463,10 +452,9 @@ public class GA_Control implements AgentInteraction{
 		if (randomTime < c.startRequested) {
 			randomTime = (random.nextFloat() * (c.finishRequired-c.duration-c.startRequested)) + c.startRequested;
 		}
-		//randomTime = TwoDecimals(randomTime); //Rounds random time
+		
 		//Time intervals are in 30mins atm
-		int interval = 30;
-		randomTime = Math.round((randomTime*(60/interval)))/(60/interval);
+		randomTime = SnapToTime(randomTime);
 		
 		for (int i = 0; i < s.registeredCars.size(); i++) {
 			CarSlot other = s.registeredCars.get(i);
@@ -484,11 +472,9 @@ public class GA_Control implements AgentInteraction{
 		}
 	}
 	
-	private float TwoDecimals(float num) {
-		num = num * 100;
-		num = (float)Math.floor(num);
-		num = num/100;
-		return num;
+	private float SnapToTime(float num) {
+		int val = (int) Math.floor(60/INTERVAL_SNAP);
+		return Math.round((num*(val)))/(val);
 	}
 	
 	@Override
