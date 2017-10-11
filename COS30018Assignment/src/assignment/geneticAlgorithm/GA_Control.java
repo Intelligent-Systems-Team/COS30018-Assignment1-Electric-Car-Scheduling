@@ -27,9 +27,11 @@ public class GA_Control implements AgentInteraction{
 	private final int INTERVAL_SNAP = 30; //Interval time to snap to (e.g. 30 = 30 minute interval)
 	private final int SAMPLE_SIZE = 1000;
 	private final int NUM_ELITES = 2;
-	private final float MUTATION_CHANCE = 0.14f;
-	private final int MAX_GENERATIONS = 11; //Must be at least 1
+	private final float MUTATION_CHANCE = 0.21f;
+	private final int MAX_GENERATIONS = 12; //Must be at least 1
 	private final float FITNESS_THRESHOLD = 0.95f;
+	private final int NUMBER_OF_STATIONS = 4;
+	
 	
 	private LinkedList<CarPreferenceData> listOfCarPrefData;
 	private LinkedList<Schedule> population;
@@ -41,7 +43,7 @@ public class GA_Control implements AgentInteraction{
 	private Random random = new Random();
 	private Control control;
 
-	private boolean startTimeExists = false;
+	private boolean firstAtStartRequested = false;
 
 	public String Setup(LinkedList<CarPreferenceData> list) {
 		this.listOfCarPrefData = list;
@@ -176,7 +178,7 @@ public class GA_Control implements AgentInteraction{
 			
 			//Get rid of schedules with no cars
 			for (int i = population.size()-1; i >= 0; i--) {
-				if (population.get(i).registeredCars.size() <= 0) {
+				if (population.get(i).NumberOfCars() <= 0) {
 					population.remove(i);
 				}	
 			}	
@@ -196,12 +198,13 @@ public class GA_Control implements AgentInteraction{
 			}
 			
 			LinkedList<Schedule> newPop = new LinkedList<Schedule>();
+			
 			//Add elites to new population
 			for (int i = 0; i < NUM_ELITES; i++) {
 				if (i >= population.size()) {break;}
 				
 				Schedule s = population.get(i);
-				if (s.registeredCars.size() > 0) { 
+				if (s.NumberOfCars() > 0) { 
 					newPop.add(s);
 					//System.out.println("Debug -- Elite added with fitness of: " + s.fitness);
 				}
@@ -250,7 +253,7 @@ public class GA_Control implements AgentInteraction{
 	private Schedule CreateASchedule() { return CreateASchedule(null, null); }
 	
 	private Schedule CreateASchedule(Schedule parent1, Schedule parent2) {
-		Schedule s = new Schedule();
+		Schedule s = new Schedule(NUMBER_OF_STATIONS);
 		
 		//Schedule with parents
 		if (parent1 != null && parent2 != null) {
@@ -261,97 +264,105 @@ public class GA_Control implements AgentInteraction{
 			
 			System.out.println("2a-Crossover schedule with parents");
 			
-			Schedule schedule = new Schedule();
+			Schedule schedule = new Schedule(NUMBER_OF_STATIONS);
 			
-			//Adds cars from parent 1 to new schedule
-			for (int i = 0; i < parent1.registeredCars.size(); i++) {
-				schedule.registeredCars.add(parent1.registeredCars.get(i).Clone());
-			}
-			
-			//Adds cars from parent 2 (if they don't already exist in the schedule, and can fit)
-			for (int i = 0; i < parent2.registeredCars.size(); i++) {
-				CarSlot car = parent2.registeredCars.get(i);
-				boolean canFit = true;
+			for (int t = 0; t < NUMBER_OF_STATIONS; t++) {
+				StationSlot stationA = parent1.stations.get(t);
+				StationSlot stationB = parent2.stations.get(t);
+				StationSlot newScheduleStation = schedule.stations.get(t);
 				
-				for (int c = 0; c < schedule.registeredCars.size(); c++) {
-					CarSlot other = schedule.registeredCars.get(c);
-					if (schedule.registeredCars.contains(other) || CheckClash(car, car.startTime, other)) {
-						canFit = false;
-						break;
+				//Adds cars from parent 1 to new schedule
+				for (int i = 0; i < stationA.registeredCars.size(); i++) {
+					newScheduleStation.registeredCars.add(stationA.registeredCars.get(i).Clone());
+				}
+				
+				//Adds cars from parent 2 (if they don't already exist in the schedule, and can fit)
+				for (int i = 0; i < stationB.registeredCars.size(); i++) {
+					CarSlot car = stationB.registeredCars.get(i);
+					boolean canFit = true;
+					
+				
+					for (int c = 0; c < schedule.stations.get(t).registeredCars.size(); c++) {
+						CarSlot other = newScheduleStation.registeredCars.get(c);
+						if (newScheduleStation.registeredCars.contains(other) || CheckClash(car, car.startTime, other)) {
+							canFit = false;
+							break;
+						}
+					}
+					
+					if (canFit) {
+						newScheduleStation.registeredCars.add(car.Clone());
 					}
 				}
 				
-				if (canFit) {
-					schedule.registeredCars.add(car.Clone());
-				}
-			}
-			
-			//****************
-			//Mutation Next
-			//****************
-			
-			float chance = MUTATION_CHANCE*100;
-			
-			for (int i = 0; i < schedule.registeredCars.size(); i++) {
-				int r = random.nextInt(100);
+				//****************
+				//Mutation Next
+				//****************
 				
-				if (r<=chance) {
-					System.out.println("3a- Schedule mutating");
-					CarSlot car = schedule.registeredCars.get(i);
-					float moveHours = ((float)(random.nextInt(6)));
+				float chance = MUTATION_CHANCE*100;
+				
+				for (int i = 0; i < newScheduleStation.registeredCars.size(); i++) {
+					int r = random.nextInt(100);
 					
-					if ((moveHours < 0 && (car.startTime+moveHours >= car.startRequested))
-							|| (moveHours > 0 && (car.startTime+car.duration+moveHours <= car.finishRequired))) {
+					if (r<=chance) {
+						System.out.println("3a- Schedule mutating");
+						CarSlot car = newScheduleStation.registeredCars.get(i);
+						float moveHours = ((float)(random.nextInt(6)));
 						
-						boolean spotTaken = true;
-						while(spotTaken) {
+						if ((moveHours < 0 && (car.startTime+moveHours >= car.startRequested))
+								|| (moveHours > 0 && (car.startTime+car.duration+moveHours <= car.finishRequired))) {
 							
-							spotTaken = false;
-							for (int t = 0; t < schedule.registeredCars.size(); t++) {
-								CarSlot test = schedule.registeredCars.get(t);
-								if (car!=test && CheckClash(car, car.startTime+moveHours, test)) {
-									spotTaken = true;
-									break;
+							boolean spotTaken = true;
+							while(spotTaken) {
+								
+								spotTaken = false;
+								for (int t2 = 0; t2 < newScheduleStation.registeredCars.size(); t2++) {
+									CarSlot test = newScheduleStation.registeredCars.get(t2);
+									if (car!=test && CheckClash(car, car.startTime+moveHours, test)) {
+										spotTaken = true;
+										break;
+									}
 								}
+								
+								if (spotTaken) {moveHours *= 0.5;} //Half move hours if jump was too big
+								if (Math.abs(moveHours) <0.1) {break;} //Break when moveHours gets too close to 0
 							}
 							
-							if (spotTaken) {moveHours *= 0.5;} //Half move hours if jump was too big
-							if (Math.abs(moveHours) <0.1) {break;} //Break when moveHours gets too close to 0
+							if (!spotTaken) {
+								car.startTime = SnapToTime(car.startTime+moveHours); //Mutate start time
+							}
+							
+							
+							if (car.startTime < car.startRequested) {
+								System.out.println("Mutation error");
+							}
+							
 						}
 						
-						if (!spotTaken) {
-							car.startTime = SnapToTime(car.startTime+moveHours); //Mutate start time
-						}
-						
-						
-						if (car.startTime < car.startRequested) {
-							System.out.println("Mutation error");
-						}
-						
+						System.out.println("3b- Schedule mutated");
 					}
-					
-					System.out.println("3b- Schedule mutated");
 				}
+				
+				System.out.println("2b- Schedule crossedover");
+				s = schedule; //schedule is the returned schedule
+			
 			}
-			
-			System.out.println("2b- Schedule crossedover");
-			s = schedule; //schedule is the returned schedule
-			
-			
 			
 		//New Schedule
 		} else {
 			for (int i = 0; i < listOfCarPrefData.size(); i++) {
 				CarSlot slot = CarSlotFromData(i);
 				
-				if (startTimeExists == false) 
+				StationSlot station = s.stations.get(0);
+				
+				if (firstAtStartRequested == false) 
 				{
-					startTimeExists = true;
+					firstAtStartRequested = true;
 
 					boolean check = false;
-					for (int e = 0; e < s.registeredCars.size(); e++) 
+					for (int e = 0; e < station.registeredCars.size(); e++) 
 					{
-						CarSlot other = s.registeredCars.get(e);
+						CarSlot other = station.registeredCars.get(e);
 											
 						if (CheckClash(slot, slot.startRequested, other)) 
 						{
@@ -363,7 +374,7 @@ public class GA_Control implements AgentInteraction{
 					if (!check) // If no clash, register at startRequested
 					{
 						slot.startTime = slot.startRequested;
-						s.registeredCars.add(slot);
+						station.registeredCars.add(slot);
 					}
 					else //If clash, register at random time
 					{
@@ -383,9 +394,9 @@ public class GA_Control implements AgentInteraction{
 					{
 						//Check if clash will occur
 						check = false;
-						for (int e = 0; e < s.registeredCars.size(); e++) 
+						for (int e = 0; e < station.registeredCars.size(); e++) 
 						{
-							CarSlot other = s.registeredCars.get(e);
+							CarSlot other = station.registeredCars.get(e);
 												
 							if (CheckClash(slot, slot.startRequested, other)) 
 							{
@@ -397,7 +408,7 @@ public class GA_Control implements AgentInteraction{
 						if (!check) //If no clash, register at startTime
 						{
 							slot.startTime = slot.startRequested;
-							s.registeredCars.add(slot);
+							station.registeredCars.add(slot);
 						}
 					}
 					
@@ -413,27 +424,11 @@ public class GA_Control implements AgentInteraction{
 		}
 		
 		s.OrderCarsByHours();
-		CheckErrorWithOrder(s);
 		CalculateFitness(s);
 		//System.out.println("1b - Fitness Calculated");
 		return s;
 	}
 	
-	private void CheckErrorWithOrder(Schedule s) {
-		System.out.println("Calculating order");
-		float current = 0;
-		for (int i = 0; i < s.registeredCars.size(); i++) {
-			CarSlot test = s.registeredCars.get(i);
-			
-			if (test.startTime >= current) {
-				current = test.startTime;
-			} else {
-				System.out.println("Incorrect order");
-			}
-		}
-		
-	}
-
 	private CarSlot CarSlotFromData(int i) {
 		CarPreferenceData data = listOfCarPrefData.get(i);
 		CarSlot slot = new CarSlot();
@@ -450,15 +445,10 @@ public class GA_Control implements AgentInteraction{
 	//Checks if a car lies within the duration of another car
 	private boolean CheckClash(CarSlot n, float request, CarSlot other) {
 		
-		System.out.println("===Check Clash===");
-		System.out.println("n = " + n);
-		System.out.println("request = " + request);
-		System.out.println("other = " + other);
+		float padding = 0; //Minimum space between cars
 		
-		// TODO CheckClash Needs Work
 		float start, end, middleTest;
 		if (other.startTime >= request) {
-			System.out.println("other.startTime >= request");
 			start = request;
 			end = request + n.duration;
 			middleTest = other.startTime;
@@ -468,7 +458,7 @@ public class GA_Control implements AgentInteraction{
 			middleTest = request;
 		}
 		
-		return (middleTest>=(start-0.1) && middleTest<=(end+0.1));
+		return (middleTest>=(start-padding) && middleTest<=(end+padding));
 		
 	}
 	
@@ -479,7 +469,7 @@ public class GA_Control implements AgentInteraction{
 	 */
 	private void CalculateFitness(Schedule p) {
 		float max = listOfCarPrefData.size();
-		float numberOfCars = p.registeredCars.size();
+		float numberOfCars = p.NumberOfCars();
 		float unusedHours = p.UnusedHours();
 		float wastedFromRequestedStart = p.TimeFromRequested();
 		
@@ -508,21 +498,30 @@ public class GA_Control implements AgentInteraction{
 		System.out.println("TryAddCarToSchedule: randomTime = " + randomTime);
 		randomTime = SnapToTime(randomTime);
 		
-		for (int i = 0; i < s.registeredCars.size(); i++) {
-			CarSlot other = s.registeredCars.get(i);
-								
-			if (CheckClash(c, randomTime, other)) {
-				spotTaken = true; 
-				break;
+		spotTaken = true;
+		int count = 0;
+		
+		//Checks if the car can fit into any of the stations, starting with station 1
+		while(spotTaken && count < NUMBER_OF_STATIONS) {
+			StationSlot currentStation = s.stations.get(count);
+			
+			for (int i = 0; i < currentStation.registeredCars.size(); i++) {
+				CarSlot other = currentStation.registeredCars.get(i);
+									
+				if (CheckClash(c, randomTime, other)) {
+					spotTaken = true; 
+					break;
+				}
+			}
+			
+			//If it fits, add it. If it still can't fit it in, leave it
+			if (!spotTaken) {
+				c.startTime = randomTime;
+				currentStation.registeredCars.add(c);
+			} else {
+				count++;
 			}
 		}
-		
-		//If it fits, add it. If it still can't fit it in, leave it
-		if (!spotTaken) {
-			c.startTime = randomTime;
-			s.registeredCars.add(c);
-		}
-		
 		return !spotTaken;
 	}
 	

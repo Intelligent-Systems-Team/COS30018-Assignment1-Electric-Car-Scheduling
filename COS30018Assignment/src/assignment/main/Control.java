@@ -19,6 +19,7 @@ import assignment.agents.Agent_MasterScheduling;
 import assignment.agents.CarTableCarAgentIneraction;
 import assignment.geneticAlgorithm.CarSlot;
 import assignment.geneticAlgorithm.Schedule;
+import assignment.geneticAlgorithm.StationSlot;
 import assignment.message.PrefernceMessage;
 import assignment.ui.CarsInterface;
 import assignment.ui.MainInterface;
@@ -88,50 +89,56 @@ public class Control implements ActionListener {
 	 * @param current
 	 */
 	public void UpdateCurrentSchedule(Schedule current) {
-		if (current != null && current.registeredCars.size() > 0) {
+		if (current != null && current.NumberOfCars() > 0) {
 			String schedule = "\n Highest Fitness: " + current.fitness + "\n";
-			for (int station = 1; station <= 1; station++) {
-
-				float currentTime = 0;
-				String station1 = "\nStation " + station + " ::";
-
-				LinkedList<CarSlot> cars = current.registeredCars;
+			
+			for (int station = 1; station <= current.stations.size(); station++) {
+				StationSlot currentStation = current.stations.get(station-1);
+				
+				String s = "\nStation " + station + " ::";
+				
+				if (currentStation.registeredCars.size() == 0) {
+					schedule += s + "\n";
+					continue;
+				}
+				
+				LinkedList<CarSlot> cars = currentStation.registeredCars;
 				float start = cars.getFirst().startTime;
 
 				// Adds "-" leading to the first car
 				float loop = start;
 				while (loop > 0) {
-					station1 += " -";
+					s += " -";
 					loop -= 0.5;
 				}
 
 				// Displays cars in schedule
-				for (int s = 0; s < cars.size(); s++) {
-					CarSlot car = cars.get(s);
+				for (int c = 0; c < cars.size(); c++) {
+					CarSlot car = cars.get(c);
 
 					int hours = (int) Math.floor(car.startTime);
 					int minutes = (int) Math.ceil(60 * (car.startTime - hours));
-					station1 += " {" + car.name + ")[" + hours + ":" + minutes + "]";
+					s += " {" + car.name + ")[" + hours + ":" + minutes + "]";
 
 					loop = car.duration;
 					while (loop > 0) {
-						station1 += " ~";
+						s += " ~";
 						loop -= 0.5;
 					}
 
 					float finish = car.startTime + car.duration;
 					hours = (int) Math.floor(finish);
 					minutes = (int) Math.ceil(60 * (finish - hours));
-					station1 += " [" + hours + ":" + minutes + "]";
+					s += " [" + hours + ":" + minutes + "]";
 
-					float next = (s == cars.size() - 1) ? (24 - finish) : (cars.get(s + 1).startTime - finish);
+					float next = (c == cars.size() - 1) ? (24 - finish) : (cars.get(c + 1).startTime - finish);
 					while (next > 0) {
-						station1 += " -";
+						s += " -";
 						next -= 0.5;
 					}
 				}
 
-				schedule += station1; // Draw up each station's schedule
+				schedule += s + "\n"; // Draw up each station's schedule
 			}
 
 			main.UpdateCurrentSchedule(schedule);
