@@ -30,7 +30,7 @@ public class GA_Control implements AgentInteraction{
 	private final int MAX_GENERATIONS = 10; //Must be at least 1
 	private final float FITNESS_THRESHOLD = 0.5f;
 	
-	private LinkedList<CarPreferenceData> list;
+	private LinkedList<CarPreferenceData> listOfCarPrefData;
 	private LinkedList<Schedule> population;
 	private LinkedList<String> printBuffer = new LinkedList<String>();
 	
@@ -41,7 +41,7 @@ public class GA_Control implements AgentInteraction{
 	private Control control;
 	
 	public String Setup(LinkedList<CarPreferenceData> list) {
-		this.list = list;
+		this.listOfCarPrefData = list;
 		//random.randomize()??
 		return "Genetic Algorithm Created";
 	}
@@ -50,7 +50,7 @@ public class GA_Control implements AgentInteraction{
 		
 		PrintToSystem("Genetic Algorithm: Generate Called");
 		
-		if (list.size() > 0) {
+		if (listOfCarPrefData.size() > 0) {
 			previousSchedule = currentSchedule;
 			scheduleReady = false; //Lets master scheduler know schedule is being calcualted
 			
@@ -181,7 +181,7 @@ public class GA_Control implements AgentInteraction{
 			for (int i = 0; i < population.size(); i++) {
 				Schedule secondChance = population.get(i);
 				
-				for (int c = 0; c < list.size(); c++) {
+				for (int c = 0; c < listOfCarPrefData.size(); c++) {
 					CarSlot test = CarSlotFromData(c);
 					
 					if (secondChance.CarExist(test.name) == false) {
@@ -305,7 +305,7 @@ public class GA_Control implements AgentInteraction{
 				if (r<=chance) {
 					System.out.println("3a- Schedule mutating");
 					CarSlot car = a.registeredCars.get(i);
-					float moveHours = ((float)(random.nextInt(600)-300))/100;
+					float moveHours = ((float)(random.nextInt(6)));
 					
 					if ((moveHours < 0 && (car.startTime+moveHours >= car.startRequested))
 							|| (moveHours > 0 && (car.startTime+car.duration+moveHours <= car.finishRequired))) {
@@ -357,15 +357,15 @@ public class GA_Control implements AgentInteraction{
 		//New Schedule
 		//*************
 		} else {
-			for (int i = 0; i < list.size(); i++) {
+			for (int i = 0; i < listOfCarPrefData.size(); i++) {
 				CarSlot slot = CarSlotFromData(i);
 				
-				if (list.size() == 1) {
+				if (listOfCarPrefData.size() == 1) {
 					
 					slot.startTime = slot.startRequested;
 					s.registeredCars.add(slot);
 					
-				} else if (list.size() > 1) {
+				} else if (listOfCarPrefData.size() > 1) {
 					
 					int chance = random.nextInt(5);
 					boolean check = true;
@@ -403,7 +403,7 @@ public class GA_Control implements AgentInteraction{
 	}
 	
 	private CarSlot CarSlotFromData(int i) {
-		CarPreferenceData data = list.get(i);
+		CarPreferenceData data = listOfCarPrefData.get(i);
 		CarSlot slot = new CarSlot();
 		
 		slot.name = data.agentName;
@@ -417,7 +417,7 @@ public class GA_Control implements AgentInteraction{
 	
 	//Checks if a car lies within the duration of another car
 	private boolean CheckClash(CarSlot n, float request, CarSlot other) {
-		
+		// TODO CheckClash Needs Work
 		float start, end, middleTest;
 		if (other.startTime >= request) {
 			start = request;
@@ -439,13 +439,13 @@ public class GA_Control implements AgentInteraction{
 	 * @return
 	 */
 	private void CalculateFitness(Schedule p) {
-		float max = list.size();
+		float max = listOfCarPrefData.size();
 		float numberOfCars = p.registeredCars.size();
 		float unusedHours = p.UnusedHours();
 		float wastedFromRequestedStart = p.TimeFromRequested();
 		
 		//Fitness function
-		float fit = (numberOfCars - unusedHours - wastedFromRequestedStart)/max;
+		float fit = (numberOfCars - unusedHours - 0.1f*wastedFromRequestedStart)/max;
 		
 		if (fit > 1) {
 			System.out.println(max + ", " + numberOfCars + ", " + unusedHours + ", " + wastedFromRequestedStart);
@@ -463,7 +463,10 @@ public class GA_Control implements AgentInteraction{
 		if (randomTime < c.startRequested) {
 			randomTime = (random.nextFloat() * (c.finishRequired-c.duration-c.startRequested)) + c.startRequested;
 		}
-		randomTime = TwoDecimals(randomTime); //Rounds random time
+		//randomTime = TwoDecimals(randomTime); //Rounds random time
+		//Time intervals are in 30mins atm
+		int interval = 30;
+		randomTime = Math.round((randomTime*(60/interval)))/(60/interval);
 		
 		for (int i = 0; i < s.registeredCars.size(); i++) {
 			CarSlot other = s.registeredCars.get(i);
