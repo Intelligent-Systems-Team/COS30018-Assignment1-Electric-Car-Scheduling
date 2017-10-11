@@ -44,6 +44,7 @@ public class Schedule{
 	
 	public float UnusedHours() {
 		float hours = 0;
+		OrderCarsByHours();
 		
 		for (int i = 0; i < registeredCars.size()-1; i++) {
 			CarSlot car1 = registeredCars.get(i);
