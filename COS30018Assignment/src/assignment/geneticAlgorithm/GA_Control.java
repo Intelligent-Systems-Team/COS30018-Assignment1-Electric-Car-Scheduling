@@ -272,7 +272,7 @@ public class GA_Control implements AgentInteraction{
 				for (int c = 0; c < schedule.registeredCars.size(); c++) {
 					CarSlot other = schedule.registeredCars.get(c);
 					if (schedule.registeredCars.contains(other) || CheckClash(car, car.startTime, other)) {
-						carFit = false;
+						canFit = false;
 						break;
 					}
 				}
@@ -288,7 +288,7 @@ public class GA_Control implements AgentInteraction{
 			
 			float chance = MUTATION_CHANCE*100;
 			
-			for (int i = 0; i < a.registeredCars.size(); i++) {
+			for (int i = 0; i < schedule.registeredCars.size(); i++) {
 				int r = random.nextInt(100);
 				
 				if (r<=chance) {
