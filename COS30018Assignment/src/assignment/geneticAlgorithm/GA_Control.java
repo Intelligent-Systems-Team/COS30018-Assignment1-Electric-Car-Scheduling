@@ -29,7 +29,7 @@ public class GA_Control implements AgentInteraction{
 	private final int NUM_ELITES = 2;
 	private final float MUTATION_CHANCE = 0.1f;
 	private final int MAX_GENERATIONS = 10; //Must be at least 1
-	private final float FITNESS_THRESHOLD = 0.5f;
+	private final float FITNESS_THRESHOLD = 0.95f;
 	
 	private LinkedList<CarPreferenceData> listOfCarPrefData;
 	private LinkedList<Schedule> population;
@@ -40,7 +40,9 @@ public class GA_Control implements AgentInteraction{
 	
 	private Random random = new Random();
 	private Control control;
-	
+
+	private boolean startTimeExists = false;
+
 	public String Setup(LinkedList<CarPreferenceData> list) {
 		this.listOfCarPrefData = list;
 		//random.randomize()??
@@ -56,7 +58,7 @@ public class GA_Control implements AgentInteraction{
 			scheduleReady = false; //Lets master scheduler know schedule is being calcualted
 			
 			GeneratePopulation(null); //Generate first population
-			currentSchedule = population.getFirst(); //Get the highest fitness member as current schedule
+			currentSchedule = GetHighestSchedule(population); //Get the highest fitness member as current schedule
 			control.UpdateCurrentSchedule(currentSchedule); //Send it to the control to be displayed
 			
 			int generations = 1;
@@ -64,11 +66,13 @@ public class GA_Control implements AgentInteraction{
 				System.out.println("***********************************");
 				System.out.println("Debug -- current generation: " + generations);
 				System.out.println("***********************************");
-				if (population.getFirst().fitness > FITNESS_THRESHOLD /* || more than half have converged on same schedule*/) { break;}
 				
 				GeneratePopulation(population); //Use existing list
 				currentSchedule = GetHighestSchedule(population); //Get the highest fitness member as current schedule
 				control.UpdateCurrentSchedule(currentSchedule); //Send it to the control to be displayed
+				System.out.println("currentSchedule.TimeFromRequested: " + currentSchedule.TimeFromRequested());
+				
+				if (currentSchedule.fitness > FITNESS_THRESHOLD /* || more than half have converged on same schedule*/) { break;}
 				
 				generations++;
 			}
@@ -272,7 +276,7 @@ public class GA_Control implements AgentInteraction{
 				for (int c = 0; c < schedule.registeredCars.size(); c++) {
 					CarSlot other = schedule.registeredCars.get(c);
 					if (schedule.registeredCars.contains(other) || CheckClash(car, car.startTime, other)) {
-						carFit = false;
+						canFit = false;
 						break;
 					}
 				}
@@ -288,7 +292,7 @@ public class GA_Control implements AgentInteraction{
 			
 			float chance = MUTATION_CHANCE*100;
 			
-			for (int i = 0; i < a.registeredCars.size(); i++) {
+			for (int i = 0; i < schedule.registeredCars.size(); i++) {
 				int r = random.nextInt(100);
 				
 				if (r<=chance) {
@@ -349,33 +353,61 @@ public class GA_Control implements AgentInteraction{
 			for (int i = 0; i < listOfCarPrefData.size(); i++) {
 				CarSlot slot = CarSlotFromData(i);
 				
-				if (listOfCarPrefData.size() == 1) {
-					
-					slot.startTime = slot.startRequested;
-					s.registeredCars.add(slot);
-					
-				} else if (listOfCarPrefData.size() > 1) {
-					
+				if (startTimeExists == false) 
+				{
+					startTimeExists = true;
+
+					boolean check = false;
+					for (int e = 0; e < s.registeredCars.size(); e++) 
+					{
+						CarSlot other = s.registeredCars.get(e);
+											
+						if (CheckClash(slot, slot.startRequested, other)) 
+						{
+							check = true; 
+							break;
+						}
+					}
+
+					if (!check) // If no clash, register at startRequested
+					{
+						slot.startTime = slot.startRequested;
+						s.registeredCars.add(slot);
+					}
+					else //If clash, register at random time
+					{
+						TryAddCarToSchedule(s, slot);
+					}
+				} 
+				else
+				{
 					int chance = random.nextInt(5);
 					boolean check = true;
 					
 					//Chance it'll try the earliest time instead of random time
-					if (chance == 1) {
+					if (chance == 1) 
+					{
+						//Check if clash will occur
 						check = false;
-						for (int e = 0; e < s.registeredCars.size(); e++) {
+						for (int e = 0; e < s.registeredCars.size(); e++) 
+						{
 							CarSlot other = s.registeredCars.get(e);
 												
-							if (CheckClash(slot, slot.startRequested, other)) {
+							if (CheckClash(slot, slot.startRequested, other)) 
+							{
 								check = true; 
 								break;
 							}
 						}
-						if (!check) {
+
+						if (!check) //If no clash, register at startTime
+						{
 							slot.startTime = slot.startRequested;
 							s.registeredCars.add(slot);
 						}
 					}
 					
+
 					if (check) {
 						//Try to add the car to a random location
 						TryAddCarToSchedule(s, slot);
@@ -434,7 +466,7 @@ public class GA_Control implements AgentInteraction{
 		float wastedFromRequestedStart = p.TimeFromRequested();
 		
 		//Fitness function
-		float fit = (numberOfCars - unusedHours - 0.1f*wastedFromRequestedStart)/max;
+		float fit = ((numberOfCars - wastedFromRequestedStart)/max);
 		
 		if (fit > 1) {
 			System.out.println(max + ", " + numberOfCars + ", " + unusedHours + ", " + wastedFromRequestedStart);
