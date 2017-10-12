@@ -282,7 +282,7 @@ public class Control implements ActionListener {
 
 	public void SendPefernceToCarAgent(PrefernceMessage sendMessage) throws ControllerException {
 		// get An Agent Controller for the required car
-		System.out.println("Looking for " + sendMessage.name);
+		// System.out.println("Looking for " + sendMessage.name);
 		AgentController carAgent = enviro.getAgent(sendMessage.name);
 		if (carAgent != null) {
 			// System.out.println("Found: " + carAgent.getName());

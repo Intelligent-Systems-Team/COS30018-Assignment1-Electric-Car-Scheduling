@@ -65,14 +65,14 @@ public class GA_Control implements AgentInteraction{
 			
 			int generations = 1;
 			while (generations < MAX_GENERATIONS) { //TODO: Make function for below comment
-				System.out.println("***********************************");
-				System.out.println("Debug -- current generation: " + generations);
-				System.out.println("***********************************");
+				// @Debug System.out.println("***********************************");
+				// @Debug System.out.println("Debug -- current generation: " + generations);
+				// @Debug System.out.println("***********************************");
 				
 				GeneratePopulation(population); //Use existing list
 				currentSchedule = GetHighestSchedule(population); //Get the highest fitness member as current schedule
 				control.UpdateCurrentSchedule(currentSchedule); //Send it to the control to be displayed
-				System.out.println("currentSchedule.TimeFromRequested: " + currentSchedule.TimeFromRequested());
+				// @Debug System.out.println("currentSchedule.TimeFromRequested: " + currentSchedule.TimeFromRequested());
 				
 				if (currentSchedule.fitness > FITNESS_THRESHOLD /* || more than half have converged on same schedule*/) { break;}
 				
@@ -80,7 +80,7 @@ public class GA_Control implements AgentInteraction{
 			}
 			
 			for (int i = 0; i < population.size(); i++) {
-				System.out.println("element " + i + ": " + population.get(i).fitness);
+				// @Debug System.out.println("element " + i + ": " + population.get(i).fitness);
 				
 				if (i != population.size()-1) {
 					Schedule a = population.get(i);
@@ -183,7 +183,7 @@ public class GA_Control implements AgentInteraction{
 				}	
 			}	
 			
-			System.out.println("1- population.size() = " + population.size());
+			// @Debug System.out.println("1- population.size() = " + population.size());
 			
 			for (int i = 0; i < population.size(); i++) {
 				Schedule secondChance = population.get(i);
@@ -213,7 +213,7 @@ public class GA_Control implements AgentInteraction{
 			//System.out.println("Debug -- Elites added, creating new schedules");
 			
 			//Create new schedules
-			System.out.println("1a - Creating new schedules");
+			// @Debug System.out.println("1a - Creating new schedules");
 			while (newPop.size() < SAMPLE_SIZE) {
 				Schedule[] parents = new Schedule[2];
 				int count = 0;
@@ -229,7 +229,7 @@ public class GA_Control implements AgentInteraction{
 						b = population.get(r);
 					}
 					
-					System.out.println("count:" + count + ", values = " + a + " | " + b);
+					// @Debug System.out.println("count:" + count + ", values = " + a + " | " + b);
 					
 					float r2 = random.nextFloat();
 					parents[count] = (r2 < 0.7)?((a.fitness>b.fitness)?a:b):((a.fitness>b.fitness)?b:a); //Tournament Selection
@@ -245,7 +245,7 @@ public class GA_Control implements AgentInteraction{
 				
 			}
 			
-			System.out.println("Population generated for this generation");
+			// @Debug System.out.println("Population generated for this generation");
 			population = newPop;
 		}
 	}
@@ -262,7 +262,7 @@ public class GA_Control implements AgentInteraction{
 			//'Crossover'
 			//****************
 			
-			System.out.println("2a-Crossover schedule with parents");
+			// @Debug System.out.println("2a-Crossover schedule with parents");
 			
 			Schedule schedule = new Schedule(NUMBER_OF_STATIONS);
 			
@@ -305,7 +305,7 @@ public class GA_Control implements AgentInteraction{
 					int r = random.nextInt(100);
 					
 					if (r<=chance) {
-						System.out.println("3a- Schedule mutating");
+						// @Debug System.out.println("3a- Schedule mutating");
 						CarSlot car = newScheduleStation.registeredCars.get(i);
 						float moveHours = ((float)(random.nextInt(6)));
 						
@@ -334,16 +334,16 @@ public class GA_Control implements AgentInteraction{
 							
 							
 							if (car.startTime < car.startRequested) {
-								System.out.println("Mutation error");
+								// @Debug System.out.println("Mutation error");
 							}
 							
 						}
 						
-						System.out.println("3b- Schedule mutated");
+						// @Debug System.out.println("3b- Schedule mutated");
 					}
 				}
 				
-				System.out.println("2b- Schedule crossedover");
+				// @Debug System.out.println("2b- Schedule crossedover");
 				s = schedule; //schedule is the returned schedule
 			
 			}
@@ -425,7 +425,7 @@ public class GA_Control implements AgentInteraction{
 		
 		s.OrderCarsByHours();
 		CalculateFitness(s);
-		//System.out.println("1b - Fitness Calculated");
+		// @Debug System.out.println("1b - Fitness Calculated");
 		return s;
 	}
 	
@@ -478,7 +478,7 @@ public class GA_Control implements AgentInteraction{
 		float fit = (numberOfCars - 0.1f*unusedHours - 0.5f*wastedFromRequestedStart)/max;
 		
 		if (fit > 1) {
-			System.out.println(max + ", " + numberOfCars + ", " + unusedHours + ", " + wastedFromRequestedStart);
+			// @Debug System.out.println(max + ", " + numberOfCars + ", " + unusedHours + ", " + wastedFromRequestedStart);
 		}
 		
 		p.fitness = fit;
@@ -488,14 +488,14 @@ public class GA_Control implements AgentInteraction{
 		float randomTime = (random.nextFloat() * (c.finishRequired-c.duration-c.startRequested)) + c.startRequested;
 		boolean spotTaken = false;
 		
-		//System.out.println("c"+c.priority + " randomTime = " + randomTime);
+		// @Debug System.out.println("c"+c.priority + " randomTime = " + randomTime);
 		
 		if (randomTime < c.startRequested) {
 			randomTime = (random.nextFloat() * (c.finishRequired-c.duration-c.startRequested)) + c.startRequested;
 		}
 		
 		//Time intervals are in 30mins atm
-		System.out.println("TryAddCarToSchedule: randomTime = " + randomTime);
+		// @Debug  System.out.println("TryAddCarToSchedule: randomTime = " + randomTime);
 		randomTime = SnapToTime(randomTime);
 		
 		spotTaken = true;

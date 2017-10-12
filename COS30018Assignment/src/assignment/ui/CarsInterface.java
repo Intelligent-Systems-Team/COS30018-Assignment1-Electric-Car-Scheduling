@@ -28,12 +28,16 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.ActionListener;
 
 public class CarsInterface extends JFrame {
 
 	private JPanel contentPane;
 	private JTable table;
 	private Control controller;
+	private JPanel panel;
+	private JButton btnSendAllRequests;
+	private DefaultTableModel tableModel;
 
 	/**
 	 * Create the frame.
@@ -50,9 +54,9 @@ public class CarsInterface extends JFrame {
 		setContentPane(contentPane);
 		GridBagLayout gbl_contentPane = new GridBagLayout();
 		gbl_contentPane.columnWidths = new int[]{0, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0};
+		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0};
 		gbl_contentPane.columnWeights = new double[]{1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{1.0, 1.0, Double.MIN_VALUE};
+		gbl_contentPane.rowWeights = new double[]{1.0, 1.0, 0.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
 		
 		JScrollPane scrollPane = new JScrollPane();
@@ -67,7 +71,7 @@ public class CarsInterface extends JFrame {
 		table = new JTable();
 		table.setCellSelectionEnabled(true);
 		scrollPane.setViewportView(table);
-		DefaultTableModel tableModel = new DefaultTableModel(new Object[][] {},
+		tableModel = new DefaultTableModel(new Object[][] {},
 			new String[] {"Car", "Duration", "Start Time Request", "Lastest Finish Time Request","Send Request"})
 		{
 			 @Override
@@ -78,6 +82,26 @@ public class CarsInterface extends JFrame {
 		        }
 		};
 		table.setModel(tableModel);
+		
+		panel = new JPanel();
+		GridBagConstraints gbc_panel = new GridBagConstraints();
+		gbc_panel.fill = GridBagConstraints.BOTH;
+		gbc_panel.gridx = 0;
+		gbc_panel.gridy = 2;
+		contentPane.add(panel, gbc_panel);
+		
+		btnSendAllRequests = new JButton("Send All Requests");
+		btnSendAllRequests.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				SendAllCarChargeRequest();
+			}
+		});
+		btnSendAllRequests.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		panel.add(btnSendAllRequests);
 		//Setting the "Send" column to look/act like buttons.
 		ButtonEditor sendButton = new ButtonEditor(new JCheckBox(),this);
 		table.getColumn("Send Request").setCellRenderer((TableCellRenderer) new ButtonRenderer());
@@ -99,6 +123,7 @@ public class CarsInterface extends JFrame {
 	{
 		controller.SendPefernceToCarAgent(sendMessage);
 	}
+	
 
 	private class SwingAction extends AbstractAction {
 		public SwingAction() {
@@ -106,6 +131,25 @@ public class CarsInterface extends JFrame {
 			putValue(SHORT_DESCRIPTION, "Some short description");
 		}
 		public void actionPerformed(ActionEvent e) {
+		}
+	}
+	private void SendAllCarChargeRequest()
+	{
+		System.out.println("Send All Car Charge Request");
+		for(int i =0; i < tableModel.getRowCount(); i++)
+		{
+			String name = (String)table.getValueAt(i, 0);
+			float duration = Float.parseFloat((String) table.getValueAt(i, 1));
+			float start = Float.parseFloat((String) table.getValueAt(i, 2));
+			float finish = Float.parseFloat((String) table.getValueAt(i, 3));
+			PrefernceMessage PMdata = new PrefernceMessage(name,duration,start,finish);
+			try {
+				System.out.println("Sending Request for: " + name);
+				SendCarChargeRequest(PMdata);
+			} catch (ControllerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 }

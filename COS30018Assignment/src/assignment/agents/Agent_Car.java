@@ -84,6 +84,7 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 
 		public SendMessageBehaviour(Agent a, ACLMessage msg) {
 			super(a, msg);
+			PrintToSystem(messageContent.name +": sent Request to Master");
 			// TODO Auto-generated constructor stub
 		}
 
