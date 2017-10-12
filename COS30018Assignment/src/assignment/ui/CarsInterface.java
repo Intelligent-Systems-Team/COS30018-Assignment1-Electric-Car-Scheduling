@@ -90,7 +90,7 @@ public class CarsInterface extends JFrame {
 		gbc_panel.gridy = 2;
 		contentPane.add(panel, gbc_panel);
 		
-		btnSendAllRequests = new JButton("Send All Requests");
+		btnSendAllRequests = new JButton("Send All Requests (Buggy)");
 		btnSendAllRequests.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {

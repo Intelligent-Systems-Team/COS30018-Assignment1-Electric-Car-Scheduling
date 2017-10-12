@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
 
+import javax.swing.JOptionPane;
+
 import assignment.main.Control;
 import assignment.message.PrefernceMessage;
 import jade.core.AID;
@@ -97,11 +99,13 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 			//TODO Propt if you what to keep or Change Preference
 			System.out.println(inform.getContent());
 			//Choose yes
-			ACLMessage message = receive();
-			if (message != null) {
-				ACLMessage reply = message.createReply();
-				if (rnd.nextBoolean()) 
+			int update = JOptionPane.showConfirmDialog(null, getLocalName()+"\n"+inform.getContent(),"",JOptionPane.YES_NO_OPTION);
+			//ACLMessage message = receive();
+			if (inform != null) {
+				ACLMessage reply = inform.createReply();
+				if (update!=1) 
 				{
+					PrintToSystem(getLocalName() +": sent CONFIRM to Master");
 					reply.setPerformative(ACLMessage.CONFIRM);
 					reply.setContent("Yes, Please Change");
 					try {
@@ -114,12 +118,11 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 				//Choose no
 				else
 				{
+					PrintToSystem(getLocalName() +": sent DISCONFIRM to Master");
 					reply.setPerformative(ACLMessage.DISCONFIRM);
 					reply.setContent("No, Don't Change");
 				}
 				send(reply);
-				PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
-						+ message.getAllReceiver().next());
 			}
 		}
 
