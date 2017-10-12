@@ -89,10 +89,12 @@ public class Control implements ActionListener {
 	 * @param current
 	 */
 	public void UpdateCurrentSchedule(Schedule current) {
+		main.UpdateTableSchedule(current);
 		if (current != null && current.NumberOfCars() > 0) {
 			String schedule = "\n Highest Fitness: " + current.fitness + "\n";
 			
-			for (int station = 1; station <= current.stations.size(); station++) {
+			for (int station = 1; station <= current.stations.size(); station++) 
+			{
 				StationSlot currentStation = current.stations.get(station-1);
 				
 				String s = "\nStation " + station + " ::";

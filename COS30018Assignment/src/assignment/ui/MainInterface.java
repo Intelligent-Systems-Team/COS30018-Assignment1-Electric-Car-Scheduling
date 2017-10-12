@@ -7,12 +7,17 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import assignment.geneticAlgorithm.CarSlot;
+import assignment.geneticAlgorithm.Schedule;
+import assignment.geneticAlgorithm.StationSlot;
 import assignment.main.Control;
 
 import javax.swing.JSplitPane;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Vector;
 import java.awt.event.ActionEvent;
 import java.awt.SystemColor;
 import javax.swing.JTextField;
@@ -34,6 +39,8 @@ public class MainInterface extends JFrame {
 	private JSplitPane splitPane_4;
 	private JScrollPane scrollPane;
 	private JTable table;
+	private DefaultTableModel dtm;
+	private int interval = 30;
 
 	/**
 	 * Create the frame.
@@ -101,14 +108,10 @@ public class MainInterface extends JFrame {
 		splitPane_3.setBottomComponent(scrollPane);
 		
 		// Make Table
-		Object[][] TabeleData = MakeTableTime(30);
+		Object[][] TabeleData = MakeTableTime(interval);
 		table = new JTable();
-		table.setModel(new DefaultTableModel(
-				TabeleData,
-			new String[] {
-				"Time", "Station 1"
-			}
-		));
+		dtm = new DefaultTableModel(TabeleData,new String[] {"Time", "Station 1","Station 2","Station 3","Station 4"});
+		table.setModel(dtm);
 		table.getColumn("Time").setPreferredWidth(30);
 		scrollPane.setViewportView(table);
 		
@@ -140,10 +143,44 @@ public class MainInterface extends JFrame {
 			timeSlots.add(timeSlot);
 		}
 		
-		
 		return (Object[][])timeSlots.toArray(new Object[timeSlots.size()][]);
 	}
 
+	public void UpdateTableSchedule(Schedule current)
+	{
+		for(int i= 0; i < dtm.getRowCount();i++) 
+		{
+		dtm.setValueAt("", i, 1);
+		}
+		if(current == null)return;
+		for (int station = 1; station <= current.stations.size(); station++) 
+		{
+			// System.out.println("TableLength: "+tableLength);
+			StationSlot currentStation = current.stations.get(station-1);
+			if (currentStation.registeredCars.size() == 0) {
+				continue;
+			}
+			else 
+			{
+			LinkedList<CarSlot> cars = currentStation.registeredCars;
+			for(int i = 0; i < cars.size(); i++)
+				{
+					CarSlot car = cars.get(i);
+					float start = car.startTime;
+					float duration = car.duration;
+					int rowNum = (int) (start*(60/interval));
+					// System.out.println("ColumNum: "+rowNum);
+					while(duration > 0) 
+					{
+						dtm.setValueAt(car.name, rowNum, station);
+						rowNum++;
+						duration = (float) (duration - interval/60f);
+					}
+					
+				}
+			}
+		}
+	}
 	public void UpdateCurrentSchedule(String s) {
 		myCurrentSchedule.setText(s);
 	}
