@@ -20,18 +20,20 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 	
 	private LinkedList<CarPreferenceData> carNameList = new LinkedList<CarPreferenceData>();
 	private GA_Control ga = new GA_Control();
-	
-	
+
 	public Agent_MasterScheduling() {
 		registerO2AInterface(AgentInteraction.class, this);
 	}
-	
+
 	protected void setup() {
 		PrintToSystem(getLocalName() + ": has been created");
-		addBehaviour(new ReceiveMessageBehaviour()); //Adds message receiver behaviour
-		
-		//Sets up the Genetic Algorithm with the list it needs to reference
-		PrintToSystem(getLocalName() + ": " + ga.Setup(carNameList)); 
+		ParallelBehaviour Pb = new ParallelBehaviour();
+		Pb.addSubBehaviour(new ReceiveMessageBehaviour());
+		Pb.addSubBehaviour(new HandleMessageBehaviour());
+		addBehaviour(Pb); // Adds message receiver behaviour
+
+		// Sets up the Genetic Algorithm with the list it needs to reference
+		PrintToSystem(getLocalName() + ": " + ga.Setup(carNameList));
 	}
 
 	@Override
@@ -43,46 +45,61 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 	public void PrintToSystem(String s) {
 		System.out.println(s);
 		if (control == null) {
-			if (s!="") { printBuffer.add(s); }
+			if (s != "") {
+				printBuffer.add(s);
+			}
 		} else {
-			//Adds any buffered messages first
+			// Adds any buffered messages first
 			for (int count = 0; count < printBuffer.size(); count++) {
 				control.AddLastMessage(printBuffer.get(count));
 			}
 			printBuffer.clear();
-			
-			//Adds latest message
-			if (s!="") { control.AddLastMessage(s); }
+
+			// Adds latest message
+			if (s != "") {
+				control.AddLastMessage(s);
+			}
 		}
 	}
+
 	
-	//Behaviour for receiving messages from the cars/stations
+	// Behaviour for receiving messages from the cars/stations
 	@SuppressWarnings("serial")
-	private class ReceiveMessageBehaviour extends CyclicBehaviour{
-		
+	private class ReceiveMessageBehaviour extends CyclicBehaviour {
+
 		@Override
 		public void action() {
+			System.out.println("ReceiveMessage Run");
 			PrintToSystem(getLocalName() + ": Listening for message");
 			ACLMessage m = blockingReceive();
-			
+
 			if (m != null) {
-				messageBuffer.add(m); //Stores up messages so it only has to process one at a time
-										//Especially if it has to do the genetic algorithm to calculate
-										//the current schedule
+				messageBuffer.add(m); // Stores up messages so it only has to process one at a time
+										// Especially if it has to do the genetic algorithm to calculate
+										// the current schedule
+				System.out.println("Message Buffer size: "+messageBuffer.size());
 			}
-			
+			// block();
+		}
+
+	}
+
+	private class HandleMessageBehaviour extends CyclicBehaviour {
+
+		@Override
+		public void action() {
+			System.out.println("HandleMessage Run");
 			if (messageBuffer.size() > 0) {
-				
+
 				ACLMessage message = messageBuffer.get(0);
 				messageBuffer.remove(message);
-				
+
 				PrintToSystem(getLocalName() + ": Received message [\"" + message.getProtocol() + "\"] from "
 						+ message.getSender().getLocalName());
-				
-				switch(message.getPerformative()) {
-				case ACLMessage.REQUEST: //Car is registering itself to the master scheduler
-					
-					
+
+				switch (message.getPerformative()) {
+				case ACLMessage.REQUEST: // Car is registering itself to the master scheduler
+
 					ACLMessage reply = message.createReply();
 					AID sender = (AID) reply.getAllReceiver().next();
 					String car = message.getSender().getLocalName();
@@ -93,43 +110,38 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-					
-					if (!CarExist(car))
-					{												
-						//Check If Can accept the car
-						//Add car to list	
-						if(AddCar(prefernceMessage))
-						{
-						PrintToSystem(getLocalName() + ": " + car + " has been registered");
-						reply.setPerformative(ACLMessage.AGREE);
-						reply.setContent("you have succesfull been registered for charging");
+
+					if (!CarExist(car)) {
+						// Check If Can accept the car
+						// Add car to list
+						if (AddCar(prefernceMessage)) {
+							PrintToSystem(getLocalName() + ": " + car + " has been registered");
+							reply.setPerformative(ACLMessage.AGREE);
+							reply.setContent("you have succesfull been registered for charging");
 						}
-						//False
-						else
-						{
-						PrintToSystem(getLocalName() + ": " + car + " refused ");
-						reply.setPerformative(ACLMessage.REFUSE);
-						reply.setContent("can not schedule you or your deviced preference");
+						// False
+						else {
+							PrintToSystem(getLocalName() + ": " + car + " refused ");
+							reply.setPerformative(ACLMessage.REFUSE);
+							reply.setContent("can not schedule you or your deviced preference");
 						}
-						//Send reply
+						// Send reply
+						send(reply);
+						PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
+								+ sender.getLocalName());
+					} else {
+						reply.setPerformative(ACLMessage.INFORM);
+						reply.setContent("WARNING changing prefs will lose your priority in que - continue?");
+
+						// Send reply
 						send(reply);
 						PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
 								+ sender.getLocalName());
 					}
-					else 
-					{
-						reply.setPerformative(ACLMessage.INFORM);
-						reply.setContent("WARNING changing prefs will lose your priority in que - continue?");
-						
-						//Send reply
-						send(reply); 
-						PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
-								+ sender.getLocalName());
-					}
-					
+
 					break;
 				case ACLMessage.CONFIRM:
-					//TODO add the how the master updates the car prefs
+					// TODO add the how the master updates the car prefs
 					PrintToSystem(getLocalName() + ": " + message.getSender().getName() + " wants to change prefs");
 					PrefernceMessage UpdatePrefernceMessage;
 					try {
@@ -142,71 +154,81 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					}
 					break;
 				case ACLMessage.DISCONFIRM:
-					PrintToSystem(getLocalName() + ": " + message.getSender().getName() + " does not want to change prefs");
+					PrintToSystem(
+							getLocalName() + ": " + message.getSender().getName() + " does not want to change prefs");
 					break;
-				}				
+				}
 			}
-			
-			//block();
 		}
 
 		/**
 		 * Whether the car name exists in the list already
-		 * @param car Name of the car
+		 * 
+		 * @param car
+		 *            Name of the car
 		 */
 		private boolean CarExist(String car) {
 			for (int i = 0; i < carNameList.size(); i++) {
-				if (carNameList.get(i).agentName.equalsIgnoreCase(car)) { return true; }
+				if (carNameList.get(i).agentName.equalsIgnoreCase(car)) {
+					return true;
+				}
 			}
-			
+
 			return false;
 		}
-		
+
 		private boolean AddCar(PrefernceMessage prefernceMessage) {
 			CarPreferenceData c = new CarPreferenceData(prefernceMessage.name);
 			c.durationRequested = prefernceMessage.duration;
 			c.startTime = prefernceMessage.startRequested;
 			c.finishTime = prefernceMessage.finishRequired;
-			c.priority = carNameList.size()+1;
+			c.priority = carNameList.size() + 1;
 			// Remove this later, It was just to test.
-			PrintToSystem(getLocalName() + ": Adding/Updating "+ prefernceMessage.name + "..."
-					+"\n ** [Start Time Requested:"+prefernceMessage.startRequested + "]"
-					+"\n ** [Finish Time Requested:"+prefernceMessage.finishRequired + "]"
-					+"\n ** [Duration:"+prefernceMessage.duration + "]");
+			PrintToSystem(getLocalName() + ": Adding/Updating " + prefernceMessage.name + "..."
+					+ "\n ** [Start Time Requested:" + prefernceMessage.startRequested + "]"
+					+ "\n ** [Finish Time Requested:" + prefernceMessage.finishRequired + "]" + "\n ** [Duration:"
+					+ prefernceMessage.duration + "]");
 			carNameList.add(c);
-			
+
 			ga.Generate();
 			return true;
 		}
-		
+
 		/**
 		 * Updates car's preferences
+		 * 
 		 * @param name
 		 */
 		private boolean UpdateCar(PrefernceMessage prefernceMessage) {
-			if (!RemoveCar(prefernceMessage.name)) {return false;}
-			
-			
-			for (int i = 0; i < carNameList.size(); i++) {
-				carNameList.get(i).updatePriority(carNameList); //Updates cars' priorities (Bump up each car's priority)
+			if (!RemoveCar(prefernceMessage.name)) {
+				return false;
 			}
-			
-			//(needs more parameters/preferences)
-			if (!AddCar(prefernceMessage)) {return false;} //Adds the car with new parameters
-			
+
+			for (int i = 0; i < carNameList.size(); i++) {
+				carNameList.get(i).updatePriority(carNameList); // Updates cars' priorities (Bump up each car's
+																// priority)
+			}
+
+			// (needs more parameters/preferences)
+			if (!AddCar(prefernceMessage)) {
+				return false;
+			} // Adds the car with new parameters
+
 			return true;
-			
+
 		}
-		
+
 		private boolean RemoveCar(String name) {
 			CarPreferenceData d = null;
 			for (int i = 0; i < carNameList.size(); i++) {
-				if (carNameList.get(i).agentName.equalsIgnoreCase(name) ) { d = carNameList.get(i); }
+				if (carNameList.get(i).agentName.equalsIgnoreCase(name)) {
+					d = carNameList.get(i);
+				}
 			}
-			
-			return d != null; //Returns true if the car was found and removed
+
+			return d != null; // Returns true if the car was found and removed
 		}
-		
+
 	}
 
 	@Override
