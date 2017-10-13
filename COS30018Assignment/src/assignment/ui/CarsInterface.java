@@ -90,7 +90,7 @@ public class CarsInterface extends JFrame {
 		gbc_panel.gridy = 2;
 		contentPane.add(panel, gbc_panel);
 		
-		btnSendAllRequests = new JButton("Send All Requests (Buggy)");
+		btnSendAllRequests = new JButton("Send All Requests");
 		btnSendAllRequests.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -144,8 +144,9 @@ public class CarsInterface extends JFrame {
 			float finish = Float.parseFloat((String) table.getValueAt(i, 3));
 			PrefernceMessage PMdata = new PrefernceMessage(name,duration,start,finish);
 			try {
-				System.out.println("Sending Request for: " + name);
+				// System.out.println("Sending Request for: " + name);
 				SendCarChargeRequest(PMdata);
+				
 			} catch (ControllerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

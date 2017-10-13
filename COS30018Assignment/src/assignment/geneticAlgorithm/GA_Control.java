@@ -53,7 +53,7 @@ public class GA_Control implements AgentInteraction{
 	
 	public void Generate() {
 		
-		PrintToSystem("Genetic Algorithm: Generate Called");
+		// @Debug PrintToSystem("Genetic Algorithm: Generate Called");
 		
 		if (listOfCarPrefData.size() > 0) {
 			previousSchedule = currentSchedule;
@@ -94,12 +94,12 @@ public class GA_Control implements AgentInteraction{
 				}
 			}
 			
-			PrintToSystem("Genetic Algorithm: Schedule Ready To Use");
+			// @Debug PrintToSystem("Genetic Algorithm: Schedule Ready To Use");
 			scheduleReady = true; //Schedule ready to be used
 		
 			
 		} else {
-			PrintToSystem("Genetic Algorithm: Unable to Create List - No Cars");
+			// @Debug PrintToSystem("Genetic Algorithm: Unable to Create List - No Cars");
 			currentSchedule = null;	
 		}
 	}

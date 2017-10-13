@@ -63,7 +63,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 		@Override
 		public void action() {
 			PrintToSystem(getLocalName() + ": Listening for message");
-			ACLMessage m = receive();
+			ACLMessage m = blockingReceive();
 			
 			if (m != null) {
 				messageBuffer.add(m); //Stores up messages so it only has to process one at a time
@@ -147,7 +147,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 				}				
 			}
 			
-			block();
+			//block();
 		}
 
 		/**

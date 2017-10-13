@@ -36,6 +36,8 @@ import jade.wrapper.StaleProxyException;
 import jade.wrapper.gateway.JadeGateway;
 
 public class Control implements ActionListener {
+	
+	Thread one = new Thread();
 
 	private JADEController jController;
 	private MainInterface main;
@@ -47,8 +49,10 @@ public class Control implements ActionListener {
 	private AgentController master;
 	private ContainerController enviro;
 	private ContainerController station1;
+	
 	private CarsInterface carFrame;
 	private Random rnd = new Random();
+	
 
 	public LinkedList<JFrame> carFrames = new LinkedList<JFrame>();
 

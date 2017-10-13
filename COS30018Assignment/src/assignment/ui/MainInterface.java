@@ -41,6 +41,7 @@ public class MainInterface extends JFrame {
 	private JTable table;
 	private DefaultTableModel dtm;
 	private int interval = 30;
+	private JScrollPane scrollPane_1;
 
 	/**
 	 * Create the frame.
@@ -75,11 +76,14 @@ public class MainInterface extends JFrame {
 		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		contentPane.add(splitPane_1, BorderLayout.WEST);
 
+		scrollPane_1 = new JScrollPane();
+		splitPane_1.setRightComponent(scrollPane_1);
+		
 		mySystemOut = new JTextPane();
 		mySystemOut.setText("Latest Messages From Agents:");
 		mySystemOut.setEnabled(false);
 		mySystemOut.setEditable(false);
-		splitPane_1.setRightComponent(mySystemOut);
+		scrollPane_1.setViewportView(mySystemOut);
 
 		JSplitPane splitPane_2 = new JSplitPane();
 		splitPane_2.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -96,6 +100,8 @@ public class MainInterface extends JFrame {
 		btnClearMessages.addActionListener(controller);
 		btnClearMessages.setEnabled(false);
 		splitPane_2.setRightComponent(btnClearMessages);
+		
+
 
 		JSplitPane splitPane_3 = new JSplitPane();
 		splitPane_3.setOrientation(JSplitPane.VERTICAL_SPLIT);
