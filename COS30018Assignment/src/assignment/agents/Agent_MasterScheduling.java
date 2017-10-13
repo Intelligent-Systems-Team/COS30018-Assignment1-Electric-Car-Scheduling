@@ -85,20 +85,22 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					
 					ACLMessage reply = message.createReply();
 					AID sender = (AID) reply.getAllReceiver().next();
+					PrefernceMessage preferenceMessage = null;
 					String car = message.getSender().getLocalName();
-					PrefernceMessage prefernceMessage = null;
+					int carID = -1;
 					try {
-						prefernceMessage = (PrefernceMessage) message.getContentObject();
+						preferenceMessage = (PrefernceMessage) message.getContentObject();
+						carID = preferenceMessage.id;
 					} catch (UnreadableException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
 					
-					if (!CarExist(car))
+					if (carID >= 0 && !CarExist(carID))
 					{												
 						//Check If Can accept the car
 						//Add car to list	
-						if(AddCar(prefernceMessage))
+						if(AddCar(preferenceMessage))
 						{
 						PrintToSystem(getLocalName() + ": " + car + " has been registered");
 						reply.setPerformative(ACLMessage.AGREE);
@@ -119,7 +121,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					else 
 					{
 						reply.setPerformative(ACLMessage.INFORM);
-						reply.setContent("WARNING changing prefs will lose your priority in que - continue?");
+						reply.setContent("WARNING changing prefs will lose your priority in queue - continue?");
 						
 						//Send reply
 						send(reply); 
@@ -154,25 +156,28 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 		 * Whether the car name exists in the list already
 		 * @param car Name of the car
 		 */
-		private boolean CarExist(String car) {
+		private boolean CarExist(int carID) {
+			System.out.println("Checking:" + carID);
 			for (int i = 0; i < carNameList.size(); i++) {
-				if (carNameList.get(i).agentName.equalsIgnoreCase(car)) { return true; }
+				System.out.println("carNameList.get("+ i +").id = " + carNameList.get(i).id);
+				if (carNameList.get(i).id == carID) { return true; }
 			}
 			
 			return false;
 		}
 		
-		private boolean AddCar(PrefernceMessage prefernceMessage) {
-			CarPreferenceData c = new CarPreferenceData(prefernceMessage.name);
-			c.durationRequested = prefernceMessage.duration;
-			c.startTime = prefernceMessage.startRequested;
-			c.finishTime = prefernceMessage.finishRequired;
+		private boolean AddCar(PrefernceMessage preferenceMessage) {
+			CarPreferenceData c = new CarPreferenceData(preferenceMessage.name);
+			c.id = preferenceMessage.id;
+			c.durationRequested = preferenceMessage.duration;
+			c.startTime = preferenceMessage.startRequested;
+			c.finishTime = preferenceMessage.finishRequired;
 			c.priority = carNameList.size()+1;
 			// Remove this later, It was just to test.
-			PrintToSystem(getLocalName() + ": Adding/Updating "+ prefernceMessage.name + "..."
-					+"\n ** [Start Time Requested:"+prefernceMessage.startRequested + "]"
-					+"\n ** [Finish Time Requested:"+prefernceMessage.finishRequired + "]"
-					+"\n ** [Duration:"+prefernceMessage.duration + "]");
+			PrintToSystem(getLocalName() + ": Adding/Updating "+ preferenceMessage.name + "(" + preferenceMessage.id + ")..."
+					+"\n ** [Start Time Requested:"+preferenceMessage.startRequested + "]"
+					+"\n ** [Finish Time Requested:"+preferenceMessage.finishRequired + "]"
+					+"\n ** [Duration:"+preferenceMessage.duration + "]");
 			carNameList.add(c);
 			
 			ga.Generate();

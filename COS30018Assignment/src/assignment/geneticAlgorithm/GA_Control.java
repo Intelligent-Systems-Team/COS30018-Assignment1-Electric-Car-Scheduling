@@ -26,7 +26,6 @@ public class GA_Control implements AgentInteraction{
 	//Constants
 	private final int INTERVAL_SNAP = 30; //Interval time to snap to (e.g. 30 = 30 minute interval)
 	private final int SAMPLE_SIZE = 1000;
-	private final int NUM_ELITES = 2;
 	private final float MUTATION_CHANCE = 0.21f;
 	private final int MAX_GENERATIONS = 12; //Must be at least 1
 	private final float FITNESS_THRESHOLD = 0.95f;
@@ -101,6 +100,29 @@ public class GA_Control implements AgentInteraction{
 		} else {
 			// @Debug PrintToSystem("Genetic Algorithm: Unable to Create List - No Cars");
 			currentSchedule = null;	
+		}
+	}
+	
+	private Schedule GetSecondHighestSchedule(LinkedList<Schedule> p, Schedule firstHighest) {
+		
+		if (p.size() > 1) {
+			Schedule highest2 = p.getFirst();
+			highest2 = (highest2!=firstHighest)?highest2:p.get(1);
+			float fit = highest2.fitness;
+			
+			for (int i = 1; i < p.size(); i++) {
+				Schedule test = p.get(i);
+				
+				if (test.fitness > fit && test != firstHighest) {
+					highest2 = test;
+					fit = highest2.fitness;
+				}
+			}
+			
+			return highest2;
+			
+		} else {
+			return null;
 		}
 	}
 	
@@ -191,7 +213,7 @@ public class GA_Control implements AgentInteraction{
 				for (int c = 0; c < listOfCarPrefData.size(); c++) {
 					CarSlot test = CarSlotFromData(c);
 					
-					if (secondChance.CarExist(test.name) == false) {
+					if (secondChance.CarExist(test.id) == false) {
 						TryAddCarToSchedule(secondChance, test); //Adds any new cars if they can fit 
 					}
 				}
@@ -200,15 +222,13 @@ public class GA_Control implements AgentInteraction{
 			LinkedList<Schedule> newPop = new LinkedList<Schedule>();
 			
 			//Add elites to new population
-			for (int i = 0; i < NUM_ELITES; i++) {
-				if (i >= population.size()) {break;}
-				
-				Schedule s = population.get(i);
-				if (s.NumberOfCars() > 0) { 
-					newPop.add(s);
-					//System.out.println("Debug -- Elite added with fitness of: " + s.fitness);
-				}
-			} 
+			Schedule highest = GetHighestSchedule(population);
+			AddNewCars(highest); //Can fit any more cars?
+			Schedule secondHighest = GetSecondHighestSchedule(population, highest);
+			AddNewCars(secondHighest); //Can fit any more cars?
+			
+			newPop.add(highest);
+			newPop.add(secondHighest);
 
 			//System.out.println("Debug -- Elites added, creating new schedules");
 			
@@ -433,6 +453,7 @@ public class GA_Control implements AgentInteraction{
 		CarPreferenceData data = listOfCarPrefData.get(i);
 		CarSlot slot = new CarSlot();
 		
+		slot.id = data.id;
 		slot.name = data.agentName;
 		slot.priority = i+1;
 		slot.duration = data.durationRequested; //TODO: Change this depending on car, charge left, etc
@@ -458,7 +479,7 @@ public class GA_Control implements AgentInteraction{
 			middleTest = request;
 		}
 		
-		return (middleTest>=(start-padding) && middleTest<=(end+padding));
+		return (middleTest>(start-padding) && middleTest<(end+padding));
 		
 	}
 	
@@ -482,6 +503,40 @@ public class GA_Control implements AgentInteraction{
 		}
 		
 		p.fitness = fit;
+	}
+	
+	private void AddNewCars(Schedule s) {
+		for (int i = 0; i < listOfCarPrefData.size(); i++) {
+			CarSlot n = CarSlotFromData(i);
+			float nStart = n.startRequested;
+			
+			if (!s.CarExist(n.id)) {
+				int sta = 0;
+				while (sta < NUMBER_OF_STATIONS) {
+					StationSlot station = s.stations.get(sta);
+					
+					boolean clash = false;
+					for (int t = 0; t < station.registeredCars.size(); t++) {
+						CarSlot test = station.registeredCars.get(t);
+						
+						if (CheckClash(n, nStart,test)) {
+							sta++;
+							clash = true;
+							break;
+						}
+					}
+					
+					if (!clash) {
+						n.startTime = nStart;
+						station.registeredCars.add(n);
+						break;
+					}
+					
+					
+				}
+				
+			}
+		}
 	}
 	
 	private boolean TryAddCarToSchedule(Schedule s, CarSlot c) {

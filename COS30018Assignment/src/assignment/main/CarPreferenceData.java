@@ -8,6 +8,7 @@ public class CarPreferenceData {
 	public int priority;
 	public float startTime = 0, finishTime = 0;
 	public float durationRequested;
+	public int id;
 	
 	public CarPreferenceData(String name) {
 		agentName = name;

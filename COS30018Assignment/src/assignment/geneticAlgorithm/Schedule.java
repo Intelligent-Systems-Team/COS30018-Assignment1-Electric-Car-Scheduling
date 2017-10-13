@@ -101,12 +101,12 @@ public class Schedule{
 	 * @param n - Name of car to search for
 	 * @return If car's name was found
 	 */
-	public boolean CarExist(String n) {
+	public boolean CarExist(int id) {
 		for (int stationNum = 0; stationNum < numberOfStations; stationNum++) {
 			StationSlot station = stations.get(stationNum);
 			
 			for(int i = 0; i < station.registeredCars.size(); i++) {
-				if (station.registeredCars.get(i).name.equalsIgnoreCase(n)) { return true; } 
+				if (station.registeredCars.get(i).id == id) { return true; } 
 			}
 		}
 		
