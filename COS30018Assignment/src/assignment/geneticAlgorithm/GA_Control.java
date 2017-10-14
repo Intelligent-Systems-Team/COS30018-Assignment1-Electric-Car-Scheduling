@@ -27,7 +27,7 @@ public class GA_Control implements AgentInteraction{
 	private final int INTERVAL_SNAP = 30; //Interval time to snap to (e.g. 30 = 30 minute interval)
 	private final int SAMPLE_SIZE = 1000;
 	private final float MUTATION_CHANCE = 0.21f;
-	private final int MAX_GENERATIONS = 12; //Must be at least 1
+	private final int MAX_GENERATIONS = 15; //Must be at least 1
 	private final float FITNESS_THRESHOLD = 0.95f;
 	private final int NUMBER_OF_STATIONS = 4;
 	
@@ -73,7 +73,7 @@ public class GA_Control implements AgentInteraction{
 				control.UpdateCurrentSchedule(currentSchedule); //Send it to the control to be displayed
 				// @Debug System.out.println("currentSchedule.TimeFromRequested: " + currentSchedule.TimeFromRequested());
 				
-				if (currentSchedule.fitness > FITNESS_THRESHOLD /* || more than half have converged on same schedule*/) { break;}
+				if (currentSchedule.fitness > FITNESS_THRESHOLD||currentSchedule.fitness == 0 /* || more than half have converged on same schedule*/) { break;}
 				
 				generations++;
 			}
@@ -167,7 +167,9 @@ public class GA_Control implements AgentInteraction{
 			int size = SAMPLE_SIZE;
 			if (previousSchedule != null) {
 				size -= 1;
-				CalculateFitness(previousSchedule);
+				//CalculateFitness(previousSchedule);
+				//CalculateFitnessV2(previousSchedule);
+				CalculateFitnessV3(previousSchedule);
 				population.add(previousSchedule);
 			}
 			
@@ -444,7 +446,9 @@ public class GA_Control implements AgentInteraction{
 		}
 		
 		s.OrderCarsByHours();
-		CalculateFitness(s);
+		//CalculateFitness(s);
+		//CalculateFitnessV2(s);
+		CalculateFitnessV3(s);
 		// @Debug System.out.println("1b - Fitness Calculated");
 		return s;
 	}
@@ -503,6 +507,35 @@ public class GA_Control implements AgentInteraction{
 		}
 		
 		p.fitness = fit;
+	}
+	
+	private void CalculateFitnessV2(Schedule p) {
+		float TotalunusedHours = p.TotalUnusedHours();
+		float PriorityScore = p.PriorityScore();
+
+		float fit = (float) (1/TotalunusedHours)-PriorityScore;
+
+		// System.out.println("Fitness: "+fit+", "+TotalunusedHours + " TUsedHours, " + PriorityScore+" Priorty Score");
+		p.fitness = fit;
+	}
+	private void CalculateFitnessV3(Schedule p) {
+		float TotalAlloctedTime = p.TotalAlloctedTime();
+		float totalRequestedTime = TotalRequestedTime();
+		float PriorityScore = p.PriorityScore();
+
+		float fit = TotalAlloctedTime/totalRequestedTime;
+
+		// System.out.println("Fitness: "+fit+", "+TotalunusedHours + " TUsedHours, " + PriorityScore+" Priorty Score");
+		p.fitness = fit;
+	}
+	
+	public float TotalRequestedTime()
+	{
+		float total = 0;
+		for (int request = 0; request < listOfCarPrefData.size(); request++) {
+				total += listOfCarPrefData.get(request).durationRequested;
+		}
+		return total;
 	}
 	
 	private void AddNewCars(Schedule s) {

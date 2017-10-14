@@ -96,6 +96,42 @@ public class Schedule{
 		return hours;
 	}
 	
+	public float TotalUnusedHours() 
+	{
+		float hours = numberOfStations*24;
+		
+		for (int stationNum = 0; stationNum < numberOfStations; stationNum++) {
+			StationSlot station = stations.get(stationNum);
+			for (int i = 0; i < station.registeredCars.size()-1; i++) {
+				hours -= station.registeredCars.get(i).duration;
+			}
+		}
+		return hours;
+	}
+	public float PriorityScore() 
+	{
+		float priorityScore = 0;
+		
+		for (int stationNum = 0; stationNum < numberOfStations; stationNum++) {
+			StationSlot station = stations.get(stationNum);
+			for (int i = 0; i < station.registeredCars.size()-1; i++) {
+				priorityScore += station.registeredCars.get(i).priority;
+			}
+		}
+		return priorityScore;
+	}
+	public float TotalAlloctedTime()
+	{
+		float total = 0;
+		for (int stationNum = 0; stationNum < numberOfStations; stationNum++) {
+			StationSlot station = stations.get(stationNum);
+			for (int i = 0; i < station.registeredCars.size()-1; i++) {
+				total += station.registeredCars.get(i).duration;
+			}
+		}
+		return total;
+	}
+	
 	/**
 	 * Use this to check if a car was able to be slotted into the schedule
 	 * @param n - Name of car to search for

@@ -42,6 +42,8 @@ public class MainInterface extends JFrame {
 	private DefaultTableModel dtm;
 	private int interval = 30;
 	private JScrollPane scrollPane_1;
+	private float CurrFitness = 0;
+	private JLabel myLabelSchedule;
 
 	/**
 	 * Create the frame.
@@ -107,7 +109,7 @@ public class MainInterface extends JFrame {
 		splitPane_3.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		contentPane.add(splitPane_3, BorderLayout.CENTER);
 
-		JLabel myLabelSchedule = new JLabel("Current Schedule");
+		myLabelSchedule = new JLabel("Current Schedule Fitness: "+ CurrFitness );
 		splitPane_3.setLeftComponent(myLabelSchedule);
 		
 		scrollPane = new JScrollPane();
@@ -154,13 +156,24 @@ public class MainInterface extends JFrame {
 
 	public void UpdateTableSchedule(Schedule current)
 	{
-		for(int i= 0; i < dtm.getRowCount();i++) 
-		{
-		dtm.setValueAt("", i, 1);
-		}
 		if(current == null)return;
+		CurrFitness = current.fitness;
+		float TotalAlloctedTime = current.TotalAlloctedTime();
+		float TotalRequestTime = TotalAlloctedTime/CurrFitness;
+		System.out.println("Fitness: "+CurrFitness+" = "+TotalAlloctedTime + " TotalAlloctedTime / "+TotalRequestTime +"TotalRequestTime");
+		/*//Fitness2 Test output
+			float TotalunusedHours = current.TotalUnusedHours();
+			float PriorityScore = current.PriorityScore();
+			float fit = (float) (1/TotalunusedHours)-PriorityScore;
+			System.out.println("Fitness: "+fit+", "+TotalunusedHours + " TUsedHours, " + PriorityScore+" Priorty Score");
+		*/
+		myLabelSchedule.setText("Current Schedule Fitness: "+ CurrFitness);
 		for (int station = 1; station <= current.stations.size(); station++) 
 		{
+			for(int i= 0; i < dtm.getRowCount();i++) 
+			{
+			dtm.setValueAt("", i, station);
+			}
 			// System.out.println("TableLength: "+tableLength);
 			StationSlot currentStation = current.stations.get(station-1);
 			if (currentStation.registeredCars.size() == 0) {
@@ -178,7 +191,7 @@ public class MainInterface extends JFrame {
 					// System.out.println("ColumNum: "+rowNum);
 					while(duration > 0) 
 					{
-						dtm.setValueAt(car.name, rowNum, station);
+						dtm.setValueAt("Car "+car.name+ " P:"+car.priority, rowNum, station);
 						rowNum++;
 						duration = (float) (duration - interval/60f);
 					}
