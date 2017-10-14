@@ -34,9 +34,8 @@ import javax.swing.JScrollPane;
 public class MainInterface extends JFrame {
 
 	private JButton btnStartJadeController, btnStartSimulation, btnAddCar;
-	private JTextPane mySystemOut, myCurrentSchedule;
+	private JTextPane mySystemOut;
 	private JPanel contentPane;
-	private JSplitPane splitPane_4;
 	private JScrollPane scrollPane;
 	private JTable table;
 	private DefaultTableModel dtm;
@@ -122,16 +121,6 @@ public class MainInterface extends JFrame {
 		table.setModel(dtm);
 		table.getColumn("Time").setPreferredWidth(30);
 		scrollPane.setViewportView(table);
-		
-		splitPane_4 = new JSplitPane();
-		splitPane_4.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		contentPane.add(splitPane_4, BorderLayout.SOUTH);
-		
-		
-		myCurrentSchedule = new JTextPane();
-		myCurrentSchedule.setEnabled(false);
-		myCurrentSchedule.setEditable(false);
-		splitPane_4.setRightComponent(myCurrentSchedule);
 		this.setVisible(true);
 	}
 	
@@ -201,7 +190,7 @@ public class MainInterface extends JFrame {
 		}
 	}
 	public void UpdateCurrentSchedule(String s) {
-		myCurrentSchedule.setText(s);
+		//myCurrentSchedule.setText(s);
 	}
 
 	public void EnableSimulationButton() {
@@ -213,14 +202,14 @@ public class MainInterface extends JFrame {
 		btnAddCar.setEnabled(true);
 		btnStartSimulation.setText("Stop Simulation");
 		mySystemOut.setEnabled(true);
-		myCurrentSchedule.setEnabled(true);
+		//myCurrentSchedule.setEnabled(true);
 	}
 
 	public void StopDisplay(Control control) {
 		btnAddCar.setEnabled(false);
 		btnStartSimulation.setText("Start Simulation");
 		mySystemOut.setEnabled(false);
-		myCurrentSchedule.setEnabled(false);
+		//myCurrentSchedule.setEnabled(false);
 		control.ResetLatestMessagesList();
 	}
 
