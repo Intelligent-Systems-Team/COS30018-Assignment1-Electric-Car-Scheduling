@@ -265,9 +265,8 @@ public class Control implements ActionListener {
 			try {
 				float randomStart = (float) rnd.nextInt(12);
 				String carName = String.valueOf(CarNumber); //This becomes the car's id AND name
-				// PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart,
-					//	randomStart + 2 + (float) rnd.nextInt(10));
-				PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 23);
+				 PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart, randomStart + 2 + (float) rnd.nextInt(10));
+				//PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 23);
 				AgentController newCar = jController.CreatCarAgent(enviro, carName, InitPrefernceMessage); // Create the
 																											// car agent
 

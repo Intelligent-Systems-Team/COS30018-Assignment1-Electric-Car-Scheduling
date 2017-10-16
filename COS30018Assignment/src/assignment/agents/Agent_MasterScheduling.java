@@ -206,7 +206,13 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 		private boolean RemoveCar(String name) {
 			CarPreferenceData d = null;
 			for (int i = 0; i < carNameList.size(); i++) {
-				if (carNameList.get(i).agentName.equalsIgnoreCase(name) ) { d = carNameList.get(i); }
+				if (carNameList.get(i).agentName.equalsIgnoreCase(name) ) 
+				{ 
+					// TODO need to fix
+					d = carNameList.get(i);
+					// carNameList.remove(i);
+					//ga.re
+				}
 			}
 			
 			return d != null; //Returns true if the car was found and removed

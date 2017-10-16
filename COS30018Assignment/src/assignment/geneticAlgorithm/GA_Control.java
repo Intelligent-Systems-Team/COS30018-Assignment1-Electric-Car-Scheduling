@@ -27,7 +27,7 @@ public class GA_Control implements AgentInteraction{
 	private final int INTERVAL_SNAP = 30; //Interval time to snap to (e.g. 30 = 30 minute interval)
 	private final int SAMPLE_SIZE = 1000;
 	private final float MUTATION_CHANCE = 0.21f;
-	private final int MAX_GENERATIONS = 15; //Must be at least 1
+	private final int MAX_GENERATIONS = 30; //Must be at least 1
 	private final float FITNESS_THRESHOLD = 0.95f;
 	private final int NUMBER_OF_STATIONS = 4;
 	
@@ -523,9 +523,15 @@ public class GA_Control implements AgentInteraction{
 		float TotalAlloctedTime = p.TotalAlloctedTime();
 		float totalRequestedTime = TotalRequestedTime();
 		float PriorityScore = p.PriorityScore();
-
-		float fit = TotalAlloctedTime/totalRequestedTime;
-
+		float fit =0;
+		if(PriorityScore == 1)
+		{
+		fit = TotalAlloctedTime/totalRequestedTime;
+		}
+		else 
+		{
+		fit = (float) (TotalAlloctedTime/totalRequestedTime + (Math.log(TotalAlloctedTime/totalRequestedTime)/Math.log(PriorityScore)));
+		}
 		// System.out.println("Fitness: "+fit+", "+TotalunusedHours + " TUsedHours, " + PriorityScore+" Priorty Score");
 		p.fitness = fit;
 	}
@@ -627,7 +633,15 @@ public class GA_Control implements AgentInteraction{
 		
 		return newNum;
 	}
-	
+	// TODO need to be able to remove car form all shedules 
+	public void RemoveCarFromAllSchedules()
+	{
+		listOfCarPrefData.remove();
+		for(int i = 0; i < population.size(); i++)
+		{
+			//population.get(i).
+		}
+	}
 	@Override
 	public void RegisterControl(Control c) {
 		control = c;
