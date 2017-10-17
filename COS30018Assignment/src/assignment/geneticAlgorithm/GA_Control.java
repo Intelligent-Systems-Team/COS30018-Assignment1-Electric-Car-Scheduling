@@ -509,7 +509,6 @@ public class GA_Control implements AgentInteraction{
 		
 		p.fitness = fit;
 	}
-	
 	private void CalculateFitnessV2(Schedule p) {
 		float TotalunusedHours = p.TotalUnusedHours();
 		float PriorityScore = p.PriorityScore();
@@ -519,7 +518,20 @@ public class GA_Control implements AgentInteraction{
 		// System.out.println("Fitness: "+fit+", "+TotalunusedHours + " TUsedHours, " + PriorityScore+" Priorty Score");
 		p.fitness = fit;
 	}
-	private void CalculateFitnessV3(Schedule p) {
+	private void CalculateFitnessV3(Schedule p)
+	{
+		float TotalAlloctedTime = p.TotalAlloctedTime();
+		float totalRequestedTime = TotalRequestedTime();
+		float PriorityFactor;
+		float PriorityScore = p.PriorityScore();
+		float BestPosibilePriorityScore = BestPosibilePriorityScore(p.NumberOfCars());
+
+		float fit =  TotalAlloctedTime/totalRequestedTime;
+		PriorityFactor = (float) Math.pow(fit-1, 2);
+		fit = fit - (PriorityFactor*(PriorityScore/BestPosibilePriorityScore));
+		p.fitness = fit;
+	}
+	private void CalculateFitnessV4(Schedule p) {
 		float TotalAlloctedTime = p.TotalAlloctedTime();
 		float totalRequestedTime = TotalRequestedTime();
 		float PriorityScore = p.PriorityScore();
@@ -535,7 +547,28 @@ public class GA_Control implements AgentInteraction{
 		// System.out.println("Fitness: "+fit+", "+TotalunusedHours + " TUsedHours, " + PriorityScore+" Priorty Score");
 		p.fitness = fit;
 	}
+	private void CalculateFitnessV5(Schedule p) 
+	{
+		float TotalAlloctedTime = p.TotalAlloctedTime();
+		float totalRequestedTime = TotalRequestedTime();
+		float PriorityScore = p.PriorityScore();
+		
+		float fit =  TotalAlloctedTime/totalRequestedTime -(1/PriorityScore);
+		p.fitness = fit;
+	}
 	
+	
+	private float BestPosibilePriorityScore(float numOfCars)
+	{
+		float total = 0;
+		float count = 1;
+		for (int i =0; i<numOfCars;i++)
+		{
+			total += count;
+			count++;
+		}
+		return total;
+	}
 	public float TotalRequestedTime()
 	{
 		float total = 0;

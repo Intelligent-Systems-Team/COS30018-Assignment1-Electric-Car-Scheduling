@@ -149,7 +149,7 @@ public class MainInterface extends JFrame {
 		CurrFitness = current.fitness;
 		float TotalAlloctedTime = current.TotalAlloctedTime();
 		float TotalRequestTime = TotalAlloctedTime/CurrFitness;
-		System.out.println("Fitness: "+CurrFitness+" = "+TotalAlloctedTime + " TotalAlloctedTime / "+TotalRequestTime +"TotalRequestTime");
+		// @Debug System.out.println("Fitness: "+CurrFitness+" = "+TotalAlloctedTime + " TotalAlloctedTime / "+TotalRequestTime +"TotalRequestTime");
 		/*//Fitness2 Test output
 			float TotalunusedHours = current.TotalUnusedHours();
 			float PriorityScore = current.PriorityScore();
