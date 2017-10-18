@@ -458,7 +458,7 @@ public class GA_Control implements AgentInteraction {
 	// Checks if a car lies within the duration of another car
 	private boolean CheckClash(CarSlot n, float request, CarSlot other) {
 
-		if (n.startRequested == other.startRequested) {
+		if (n.startRequested == other.startTime) {
 			return true;
 		}
 		float padding = 0; // Minimum space between cars
