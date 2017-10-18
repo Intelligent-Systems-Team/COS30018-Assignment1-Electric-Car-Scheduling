@@ -120,6 +120,22 @@ public class Schedule{
 		}
 		return priorityScore;
 	}
+	public float Prioritypoints()
+	{
+		float score = 0;
+		for (int stationNum = 0; stationNum < numberOfStations; stationNum++) 
+		{
+			StationSlot station = stations.get(stationNum);
+			for (int i = 0; i < station.registeredCars.size(); i++) {
+				float temp = station.registeredCars.get(i).priority; 
+				score += (float)(1/temp);
+System.out.println("score: " + score);
+System.out.println("temp: " + temp);
+			}
+		}
+		return score;
+			
+	}
 	// TODO need to be fixxed. Need to find witch cars are registered
 	public float TotalAlloctedTime()
 	{
