@@ -167,13 +167,11 @@ public class GA_Control implements AgentInteraction {
 			population = new LinkedList<Schedule>();
 
 			int size = SAMPLE_SIZE;
-			if (previousSchedule != null) {
-				size -= 1;
-				// CalculateFitness(previousSchedule);
-				// CalculateFitnessV2(previousSchedule);
-				CalculateFitnessV3(previousSchedule);
-				population.add(previousSchedule);
-			}
+			/*
+			 * if (previousSchedule != null) { size -= 1; //
+			 * CalculateFitness(previousSchedule); // CalculateFitnessV2(previousSchedule);
+			 * CalculateFitnessV3(previousSchedule); population.add(previousSchedule); }
+			 */
 
 			// Create population
 			for (int i = 0; i < size; i++) {
@@ -203,6 +201,8 @@ public class GA_Control implements AgentInteraction {
 				}
 			}
 
+			System.out.println("1- population.size() = " + population.size());
+			
 			// Get rid of schedules with no cars
 			for (int i = population.size() - 1; i >= 0; i--) {
 				if (population.get(i).NumberOfCars() <= 0) {
@@ -210,7 +210,7 @@ public class GA_Control implements AgentInteraction {
 				}
 			}
 
-			// @Debug System.out.println("1- population.size() = " + population.size());
+			System.out.println("2- population.size() = " + population.size());
 
 			for (int i = 0; i < population.size(); i++) {
 				Schedule secondChance = population.get(i);
@@ -228,8 +228,11 @@ public class GA_Control implements AgentInteraction {
 
 			// Add elites to new population
 			Schedule highest = GetHighestSchedule(population);
+			System.out.println("highest = " + highest);
 			AddNewCars(highest); // Can fit any more cars?
 			Schedule secondHighest = GetSecondHighestSchedule(population, highest);
+			System.out.println("secondHighest = " + secondHighest);
+			System.out.println("population.size()");
 			AddNewCars(secondHighest); // Can fit any more cars?
 
 			newPop.add(highest);
@@ -385,48 +388,54 @@ public class GA_Control implements AgentInteraction {
 			for (int i = 0; i < listOfCarPrefData.size(); i++) {
 				CarSlot slot = CarSlotFromData(i);
 
-				for (int s1 = 0; s1 < NUMBER_OF_STATIONS; s1++) {
-					StationSlot station = s.stations.get(s1);
+				if (firstAtStartRequested == false) {
 
-					if (firstAtStartRequested == false) {
-						boolean check = false;
+					boolean clash = false;
+
+					for (int s1 = 0; s1 < NUMBER_OF_STATIONS; s1++) {
+						StationSlot station = s.stations.get(s1);
+
 						for (int e = 0; e < station.registeredCars.size(); e++) {
 							CarSlot other = station.registeredCars.get(e);
 
 							if (CheckClash(slot, slot.startRequested, other)) {
-								check = true;
+								clash = true;
 								break;
 							}
 						}
 
-						if (!check) // If no clash, register at startRequested
+						if (!clash) // If no clash, register at startRequested
 						{
 							slot.startTime = slot.startRequested;
 							station.registeredCars.add(slot);
-						} else // If clash, register at random time
-						{
-							int count = 0;
-							while (!TryAddCarToSchedule(s, slot) && count == 10) {
-								count++;
-							}
+							break;
 						}
-					} else {
-						// Try to add the car to a random location
+					}
+
+					if (clash) // If clash, register at random time
+					{
 						int count = 0;
 						while (!TryAddCarToSchedule(s, slot) && count == 10) {
 							count++;
 						}
 					}
-					firstAtStartRequested = true;
+
+				} else {
+					// Try to add the car to a random location
+					System.out.println("--DEBUG-- Trying car in random location");
+					int count = 0;
+					while (!TryAddCarToSchedule(s, slot) && count < 10) {
+						count++;
+						System.out.println("count: " + count);
+					}
 				}
 			}
+			firstAtStartRequested = true;
 
 		}
 
 		s.OrderCarsByHours();
 
-		// CalculateFitness(s);
-		// CalculateFitnessV2(s);
 		CalculateFitnessV3(s);
 		// @Debug System.out.println("1b - Fitness Calculated");
 		return s;
@@ -449,7 +458,7 @@ public class GA_Control implements AgentInteraction {
 	// Checks if a car lies within the duration of another car
 	private boolean CheckClash(CarSlot n, float request, CarSlot other) {
 
-		if (n.startRequested == other.startRequested) {
+		if (n.startRequested == other.startTime) {
 			return true;
 		}
 		float padding = 0; // Minimum space between cars
@@ -602,9 +611,10 @@ public class GA_Control implements AgentInteraction {
 
 		spotTaken = true;
 		int count = 0;
-
+		
 		// Checks if the car can fit into any of the stations, starting with station 1
 		while (spotTaken && count < NUMBER_OF_STATIONS) {
+			spotTaken = false;
 			StationSlot currentStation = s.stations.get(count);
 
 			for (int i = 0; i < currentStation.registeredCars.size(); i++) {
@@ -620,7 +630,9 @@ public class GA_Control implements AgentInteraction {
 			if (!spotTaken) {
 				c.startTime = randomTime;
 				currentStation.registeredCars.add(c);
+				System.out.println("Car fitted into station" + count + ": " + c);
 			} else {
+				System.out.println("Car COULD NOT FIT INTO station" + count + ": " + c);
 				count++;
 			}
 		}
