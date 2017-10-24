@@ -7,6 +7,7 @@ import java.util.Random;
 import assignment.agents.AgentInteraction;
 import assignment.main.CarPreferenceData;
 import assignment.main.Control;
+import assignment.ui.DebugMainInterface;
 import jade.core.behaviours.Behaviour;
 
 public class GA_Control implements AgentInteraction {
@@ -54,14 +55,16 @@ public class GA_Control implements AgentInteraction {
 		// @Debug PrintToSystem("Genetic Algorithm: Generate Called");
 		
 		// @Debug GetNewConstants
-		String strPopulation = control.debugMain.text_Population.getText();
-		String strGenerations = control.debugMain.text_Generations.getText();
-		
-		int intPopulation = Integer.parseInt(strPopulation);
-		int intGenerations = Integer.parseInt(strGenerations);
-		
-		SAMPLE_SIZE = intPopulation;
-		MAX_GENERATIONS = intGenerations;
+		if (control.debug){
+			String strPopulation = ((DebugMainInterface)control.main).text_Population.getText();
+			String strGenerations = ((DebugMainInterface)control.main).text_Generations.getText();
+			
+			int intPopulation = Integer.parseInt(strPopulation);
+			int intGenerations = Integer.parseInt(strGenerations);
+			
+			SAMPLE_SIZE = intPopulation;
+			MAX_GENERATIONS = intGenerations;
+		}
 
 		if (listOfCarPrefData.size() > 0) {
 			previousSchedule = currentSchedule;
@@ -448,23 +451,23 @@ public class GA_Control implements AgentInteraction {
 
 		if (control.debug == true)
 		{
-			if (control.debugMain.fitnessRadio1.isSelected() == true)
+			if (((DebugMainInterface)control.main).fitnessRadio1.isSelected() == true)
 			{
 				CalculateFitness(s);
 			}
-			else if (control.debugMain.fitnessRadio2.isSelected() == true)
+			else if (((DebugMainInterface)control.main).fitnessRadio2.isSelected() == true)
 			{
 				CalculateFitnessV2(s);
 			}
-			else if (control.debugMain.fitnessRadio3.isSelected() == true)
+			else if (((DebugMainInterface)control.main).fitnessRadio3.isSelected() == true)
 			{
 				CalculateFitnessV3(s);
 			}
-			else if (control.debugMain.fitnessRadio4.isSelected() == true)
+			else if (((DebugMainInterface)control.main).fitnessRadio4.isSelected() == true)
 			{
 				CalculateFitnessV4(s);
 			}
-			else if (control.debugMain.fitnessRadio5.isSelected() == true)
+			else if (((DebugMainInterface)control.main).fitnessRadio5.isSelected() == true)
 			{
 				CalculateFitnessV5(s);
 			}
