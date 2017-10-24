@@ -186,5 +186,23 @@ System.out.println("temp: " + temp);
 		
 		return hours;
 	}
+
+	public void RemoveCar(int id) 
+	{
+		// TODO Auto-generated method stub
+		for(StationSlot ss : stations)
+		{
+			CarSlot removeCar = null;
+			for (CarSlot cs: ss.registeredCars)
+			{
+				if(cs.id == id)
+				{
+					removeCar = cs;
+				}
+			}
+			if(removeCar !=null)ss.registeredCars.remove(removeCar);
+		}
+		
+	}
 	
 }

@@ -192,10 +192,15 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 		 * @param name
 		 */
 		private boolean UpdateCar(PrefernceMessage prefernceMessage) {
-			if (!RemoveCar(prefernceMessage.name)) {return false;}
+			if (!RemoveCar(prefernceMessage.id)) 
+			{
+				System.out.println("Failed to Remove car"); 
+				return false;
+			}
 			
 			
-			for (int i = 0; i < carNameList.size(); i++) {
+			for (int i = 0; i < carNameList.size(); i++) 
+			{
 				carNameList.get(i).updatePriority(carNameList); //Updates cars' priorities (Bump up each car's priority)
 			}
 			
@@ -206,17 +211,18 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 			
 		}
 		
-		private boolean RemoveCar(String name) {
+		private boolean RemoveCar(int id) {
 			CarPreferenceData d = null;
-			for (int i = 0; i < carNameList.size(); i++) {
-				if (carNameList.get(i).agentName.equalsIgnoreCase(name) ) 
-				{ 
-					// TODO need to fix
-					d = carNameList.get(i);
-					// carNameList.remove(i);
-					//ga.re
+			for(CarPreferenceData cpd: carNameList)
+			{
+				if(cpd.id == id)
+				{
+					d = cpd;
 				}
 			}
+			carNameList.remove(d);
+			// Remove that car form all schedules in GA
+			ga.RemoveCarFromAllSchedules(id);
 			
 			return d != null; //Returns true if the car was found and removed
 		}

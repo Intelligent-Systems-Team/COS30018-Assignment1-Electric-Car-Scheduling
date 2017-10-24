@@ -696,10 +696,11 @@ public class GA_Control implements AgentInteraction {
 	}
 
 	// TODO need to be able to remove car form all shedules
-	public void RemoveCarFromAllSchedules() {
-		listOfCarPrefData.remove();
-		for (int i = 0; i < population.size(); i++) {
-			// population.get(i).
+	public void RemoveCarFromAllSchedules(int id) 
+	{
+		for(Schedule sched :population)
+		{
+			if(sched.CarExist(id))sched.RemoveCar(id);
 		}
 	}
 
