@@ -192,7 +192,15 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 			while(!ga.scheduleReady)
 			{
 			}
-			return (ga.GetCurrentSchedule().CarExist(c.id));
+			
+			boolean couldAddCar = ga.GetCurrentSchedule().CarExist(c.id); 
+			
+			//If it couldn't fit in the car, restore to previous schedule
+			if (couldAddCar == false){
+				ga.RestoreSchedule(true);
+			}
+			
+			return (couldAddCar);
 		}
 		
 		/**
@@ -226,11 +234,15 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 				if(cpd.id == id)
 				{
 					d = cpd;
+					break;
 				}
 			}
-			carNameList.remove(d);
-			// Remove that car form all schedules in GA
-			ga.RemoveCarFromAllSchedules(id);
+			
+			if (d != null) {
+				carNameList.remove(d);
+				// Remove that car form all schedules in GA
+				ga.RemoveCarFromAllSchedules(id);
+			}
 			
 			return d != null; //Returns true if the car was found and removed
 		}
