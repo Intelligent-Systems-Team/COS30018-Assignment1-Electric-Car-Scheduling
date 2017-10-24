@@ -1,35 +1,21 @@
 package assignment.main;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.LinkedList;
 import java.util.Random;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import assignment.agents.AgentInteraction;
-import assignment.agents.Agent_Car;
-import assignment.agents.Agent_MasterScheduling;
 import assignment.agents.CarTableCarAgentIneraction;
-import assignment.geneticAlgorithm.CarSlot;
 import assignment.geneticAlgorithm.Schedule;
-import assignment.geneticAlgorithm.StationSlot;
 import assignment.message.PrefernceMessage;
 import assignment.ui.CarsInterface;
 import assignment.ui.MainInterface;
 import assignment.ui.MainInterfaceInterface;
 import assignment.ui.DebugMainInterface;
-import jade.content.onto.annotations.Result;
-import jade.core.AID;
-import jade.core.Agent;
 import jade.core.Profile;
-import jade.core.behaviours.OneShotBehaviour;
 import jade.util.leap.Properties;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
@@ -88,10 +74,9 @@ public class Control implements ActionListener {
 	// Control functions/procedures
 	// ****************************
 	public Control(String name) {
-		if (debug)
-		{
+		if (debug) {
 			main = new DebugMainInterface(this);
-		}else{
+		} else {
 			main = new MainInterface(this);
 		}
 	}

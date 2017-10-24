@@ -83,7 +83,7 @@ public class DebugMainInterface extends JFrame implements MainInterfaceInterface
 	 */
 	public DebugMainInterface(Control controller) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 660, 397);
+		setBounds(100, 100, 871, 458);
 		contentPane = new JPanel();
 		contentPane.setLocation(0, 0);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -147,23 +147,24 @@ public class DebugMainInterface extends JFrame implements MainInterfaceInterface
 		splitPane_11 = new JSplitPane();
 		splitPane_10.setRightComponent(splitPane_11);
 		
-		fitnessRadio1 = new JRadioButton("FITNESSV1");
+		fitnessRadio1 = new JRadioButton("Original (V1)");
 		buttonGroup.add(fitnessRadio1);
 		splitPane_10.setLeftComponent(fitnessRadio1);
 		
-		fitnessRadio2 = new JRadioButton("FITNESSV2");
+		fitnessRadio2 = new JRadioButton("PriorityScore (V2)");
 		buttonGroup.add(fitnessRadio2);
 		splitPane_11.setLeftComponent(fitnessRadio2);
 		
-		fitnessRadio3 = new JRadioButton("FITNESSV3");
+		fitnessRadio3 = new JRadioButton("Priority-Hours (V3)");
+		fitnessRadio3.setSelected(true);
 		buttonGroup.add(fitnessRadio3);
 		splitPane_11.setRightComponent(fitnessRadio3);
 		
-		fitnessRadio4 = new JRadioButton("FITNESSV4");
+		fitnessRadio4 = new JRadioButton("V5-Extend (V4)");
 		buttonGroup.add(fitnessRadio4);
 		splitPane_7.setLeftComponent(fitnessRadio4);
 		
-		fitnessRadio5 = new JRadioButton("FITNESSV5");
+		fitnessRadio5 = new JRadioButton("Allocated/Requested (V5)");
 		buttonGroup.add(fitnessRadio5);
 		splitPane_7.setRightComponent(fitnessRadio5);
 		
