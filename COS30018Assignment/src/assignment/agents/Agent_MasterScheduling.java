@@ -181,11 +181,14 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 			c.startTime = preferenceMessage.startRequested;
 			c.finishTime = preferenceMessage.finishRequired;
 			c.priority = carNameList.size()+1;
-			// Remove this later, It was just to test.
+			
+			// Remove this later, It was just to test. --Done--
+			/*
 			PrintToSystem(getLocalName() + ": Adding/Updating "+ preferenceMessage.name + "(" + preferenceMessage.id + ")..."
 					+"\n ** [Start Time Requested:"+preferenceMessage.startRequested + "]"
 					+"\n ** [Finish Time Requested:"+preferenceMessage.finishRequired + "]"
 					+"\n ** [Duration:"+preferenceMessage.duration + "]");
+			*/
 			carNameList.add(c);
 			
 			ga.Generate();

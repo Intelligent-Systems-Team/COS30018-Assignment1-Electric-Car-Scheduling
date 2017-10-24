@@ -53,7 +53,7 @@ public class Control implements ActionListener {
 
 		// Create Stations
 		enviro = jController.CreateContainer("Enviroment");
-		station1 = jController.CreateContainer("Station 1");
+		//station1 = jController.CreateContainer("Station 1");
 
 		// Make Car GUI
 		try {
@@ -208,8 +208,15 @@ public class Control implements ActionListener {
 			try {
 				float randomStart = (float) rnd.nextInt(12);
 				String carName = String.valueOf(CarNumber); //This becomes the car's id AND name
-				//PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart, randomStart + 2 + (float) rnd.nextInt(10));
-				PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 4);
+				
+				PrefernceMessage InitPrefernceMessage = null;
+				
+				if (!debug) {
+					InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart, randomStart + 2 + (float) rnd.nextInt(10));
+				} else {
+					InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 12);
+				}
+				
 				AgentController newCar = jController.CreatCarAgent(enviro, carName, InitPrefernceMessage); // Create the
 																											// car agent
 
