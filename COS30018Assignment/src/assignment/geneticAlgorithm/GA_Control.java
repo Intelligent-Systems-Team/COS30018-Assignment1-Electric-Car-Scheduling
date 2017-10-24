@@ -617,14 +617,25 @@ public class GA_Control implements AgentInteraction {
 		return newNum;
 	}
 	
-	public void RemoveCarFromAllSchedules() {
+	public void RemoveCarFromAllSchedules(int id) {
 		listOfCarPrefData.remove();
 		for (int i = 0; i < population.size(); i++) {
 			Schedule s = population.get(i);
 			
+			boolean found = false;
 			for (int st = 0; st < s.stations.size(); st++) {
 				StationSlot station = s.stations.get(st);
-				station.registeredCars.clear();
+				for (int c = 0; c < station.registeredCars.size(); c++) {
+					CarSlot car = station.registeredCars.get(c);
+					
+					if (car.id == id) {
+						station.registeredCars.remove(car);
+						found = true;
+						break;
+					}
+				}
+				
+				if (found) {break;}
 			}
 		}
 	}
