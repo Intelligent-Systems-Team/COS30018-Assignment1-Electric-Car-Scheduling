@@ -74,10 +74,11 @@ public class ButtonEditor extends DefaultCellEditor {
 		{
 			// Get data from Table
 			name = (String)currentTable.getValueAt(currentrow, 0);
-			duration = Float.parseFloat((String) currentTable.getValueAt(currentrow, 1));
-			start = Float.parseFloat((String) currentTable.getValueAt(currentrow, 2));
-			finish = Float.parseFloat((String) currentTable.getValueAt(currentrow, 3));
+			duration = Float.parseFloat((String) currentTable.getValueAt(currentrow, 2));
+			start = Float.parseFloat((String) currentTable.getValueAt(currentrow, 3));
+			finish = Float.parseFloat((String) currentTable.getValueAt(currentrow, 4));
 			//This is where the car will send it's data
+			currentTable.setValueAt("Sending", currentrow, 1);
 			JOptionPane.showMessageDialog(button, "Sending Data to CarAgent \n"+
 					name +":"
 					+"\n Start Time Requested:"+start

@@ -37,7 +37,7 @@ public class GA_Control implements AgentInteraction {
 	private LinkedList<String> printBuffer = new LinkedList<String>();
 
 	private Schedule currentSchedule = null, previousSchedule = null;
-	private boolean scheduleReady = false;
+	public boolean scheduleReady = false;
 
 	private Random random = new Random();
 	private Control control;
@@ -72,6 +72,7 @@ public class GA_Control implements AgentInteraction {
 			GeneratePopulation(null); // Generate first population
 			currentSchedule = GetHighestSchedule(population); // Get the highest fitness member as current schedule
 			control.UpdateCurrentSchedule(currentSchedule); // Send it to the control to be displayed
+			
 
 			int generations = 1;
 			while (generations < MAX_GENERATIONS) { // TODO: Make function for below comment
@@ -383,11 +384,11 @@ public class GA_Control implements AgentInteraction {
 
 				} else {
 					// Try to add the car to a random location
-					System.out.println("--DEBUG-- Trying car in random location");
+					// @Debug System.out.println("--DEBUG-- Trying car in random location");
 					int count = 0;
 					while (!TryAddCarToSchedule(s, slot) && count < 10) {
 						count++;
-						System.out.println("count: " + count);
+					// @Debug 	System.out.println("count: " + count);
 					}
 				}
 			}
@@ -594,9 +595,9 @@ public class GA_Control implements AgentInteraction {
 			if (!spotTaken) {
 				c.startTime = randomTime;
 				currentStation.registeredCars.add(c);
-				System.out.println("Car fitted into station" + count + ": " + c);
+				// @Debug System.out.println("Car fitted into station" + count + ": " + c);
 			} else {
-				System.out.println("Car COULD NOT FIT INTO station" + count + ": " + c);
+				// @Debug System.out.println("Car COULD NOT FIT INTO station" + count + ": " + c);
 				count++;
 			}
 		}
@@ -615,7 +616,7 @@ public class GA_Control implements AgentInteraction {
 		newNum = newNum / val;
 		return newNum;
 	}
-
+	
 	public void RemoveCarFromAllSchedules() {
 		listOfCarPrefData.remove();
 		for (int i = 0; i < population.size(); i++) {
@@ -698,7 +699,7 @@ public class GA_Control implements AgentInteraction {
 	//**************************
 	//Agent Interaction commands
 	//**************************
-	
+
 	@Override
 	public void RegisterControl(Control c) {
 		control = c;

@@ -15,6 +15,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
+import assignment.geneticAlgorithm.Schedule;
 import assignment.main.Control;
 import assignment.message.PrefernceMessage;
 import assignment.ui.TableButton.ButtonEditor;
@@ -72,7 +73,7 @@ public class CarsInterface extends JFrame {
 		table.setCellSelectionEnabled(true);
 		scrollPane.setViewportView(table);
 		tableModel = new DefaultTableModel(new Object[][] {},
-			new String[] {"Car", "Duration", "Start Time Request", "Lastest Finish Time Request","Send Request"})
+			new String[] {"Car","Status", "Duration", "Start Time Request", "Lastest Finish Time Request","Send"})
 		{
 			 @Override
 		        public boolean isCellEditable(int row, int column)
@@ -104,13 +105,14 @@ public class CarsInterface extends JFrame {
 		panel.add(btnSendAllRequests);
 		//Setting the "Send" column to look/act like buttons.
 		ButtonEditor sendButton = new ButtonEditor(new JCheckBox(),this);
-		table.getColumn("Send Request").setCellRenderer((TableCellRenderer) new ButtonRenderer());
-		table.getColumn("Send Request").setCellEditor(sendButton);
+		table.getColumn("Send").setCellRenderer((TableCellRenderer) new ButtonRenderer());
+		table.getColumn("Send").setCellEditor(sendButton);
 	}
 	
 	public void AddCarToTable(PrefernceMessage InitPrefernceMessage)
 	{		
 		Object[] newdata = {InitPrefernceMessage.name,
+							"Nothing Sent",
 							String.valueOf(InitPrefernceMessage.duration),
 							String.valueOf(InitPrefernceMessage.startRequested),
 							String.valueOf(InitPrefernceMessage.finishRequired),
@@ -139,9 +141,9 @@ public class CarsInterface extends JFrame {
 		for(int i =0; i < tableModel.getRowCount(); i++)
 		{
 			String name = (String)table.getValueAt(i, 0);
-			float duration = Float.parseFloat((String) table.getValueAt(i, 1));
-			float start = Float.parseFloat((String) table.getValueAt(i, 2));
-			float finish = Float.parseFloat((String) table.getValueAt(i, 3));
+			float duration = Float.parseFloat((String) table.getValueAt(i, 2));
+			float start = Float.parseFloat((String) table.getValueAt(i, 3));
+			float finish = Float.parseFloat((String) table.getValueAt(i, 4));
 			PrefernceMessage PMdata = new PrefernceMessage(name,duration,start,finish);
 			try {
 				// System.out.println("Sending Request for: " + name);
@@ -151,6 +153,28 @@ public class CarsInterface extends JFrame {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			table.setValueAt("Sending", i, 1);
+		}
+	}
+	public void ChangeCarStatus(int carID, String status)
+	{
+		table.setValueAt(status, carID, 1);
+	}
+	
+	// TODO Need to Fix!!
+	public void CheckCarDrop(Schedule current)
+	{
+		for(int i =0; i < tableModel.getRowCount(); i++)
+		{
+			if((!current.CarExist(i)) && (table.getValueAt(i, 1)=="Registered"||table.getValueAt(i, 1)=="Re-Registered"))
+			{
+				ChangeCarStatus(i, "Dropped");
+			}
+			else if(current.CarExist(i) && (table.getValueAt(i, 1)=="Dropped"||table.getValueAt(i, 1)=="Refused"))
+			{
+				ChangeCarStatus(i, "Re-Registered");
+			}
+			
 		}
 	}
 }
