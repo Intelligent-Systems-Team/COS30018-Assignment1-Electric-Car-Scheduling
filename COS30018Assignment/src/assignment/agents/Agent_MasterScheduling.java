@@ -181,7 +181,10 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 			carNameList.add(c);
 			
 			ga.Generate();
-			return true;
+			while(!ga.scheduleReady)
+			{
+			}
+			return (ga.GetCurrentSchedule().CarExist(c.id));
 		}
 		
 		/**

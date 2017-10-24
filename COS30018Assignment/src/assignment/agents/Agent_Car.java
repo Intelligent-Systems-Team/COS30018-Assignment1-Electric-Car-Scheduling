@@ -21,9 +21,6 @@ import jade.proto.AchieveREResponder;
 public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAgentIneraction {
 	
 	private Control control = null;
-	private String name;
-	private String LastMessage = "";
-	private Random rnd = new Random();
 	private PrefernceMessage messageContent;
 	
 	private LinkedList<String> printBuffer = new LinkedList<String>();
@@ -71,7 +68,7 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 		try {
 			registerRequest.setContentObject(messageContent);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Content Object Failed to attach to ACLMessage");
 			e.printStackTrace();
 		}
 		addBehaviour(new SendMessageBehaviour(this, registerRequest));

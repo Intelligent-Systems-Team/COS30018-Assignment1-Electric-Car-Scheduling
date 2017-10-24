@@ -36,7 +36,7 @@ public class GA_Control implements AgentInteraction {
 	private LinkedList<String> printBuffer = new LinkedList<String>();
 
 	private Schedule currentSchedule = null, previousSchedule = null;
-	private boolean scheduleReady = false;
+	public boolean scheduleReady = false;
 
 	private Random random = new Random();
 	private Control control;
