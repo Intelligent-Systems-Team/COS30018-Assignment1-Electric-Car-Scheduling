@@ -23,6 +23,7 @@ import assignment.geneticAlgorithm.StationSlot;
 import assignment.message.PrefernceMessage;
 import assignment.ui.CarsInterface;
 import assignment.ui.MainInterface;
+import assignment.ui.DebugMainInterface;
 import jade.content.onto.annotations.Result;
 import jade.core.AID;
 import jade.core.Agent;
@@ -38,9 +39,12 @@ import jade.wrapper.gateway.JadeGateway;
 public class Control implements ActionListener {
 	
 	Thread one = new Thread();
+	
+	public boolean debug = true; // @Debug
 
 	private JADEController jController;
 	private MainInterface main;
+	private DebugMainInterface debugMain;
 	private boolean simulating = false;
 	private String[] latestMessagesArray = new String[16]; // This number is the number of messages displayed in the UI
 	private LinkedList<String> AllMessages = new LinkedList<String>(); // TODO: Not sure if we need to keep track of all
@@ -52,7 +56,6 @@ public class Control implements ActionListener {
 	
 	private CarsInterface carFrame;
 	private Random rnd = new Random();
-	
 
 	public LinkedList<JFrame> carFrames = new LinkedList<JFrame>();
 
@@ -76,6 +79,11 @@ public class Control implements ActionListener {
 		UpdateCurrentSchedule(null);
 		ResetLatestMessagesList();
 		simulating = true;
+		
+		//@Debug
+		//debugMain.text_Population = ga.SAMPLE_SIZE;
+		//debugMain.text_Generations = ga.MAX_GENERATIONS;
+		
 		// ********************
 	}
 	// ***********************************************************************
@@ -84,7 +92,12 @@ public class Control implements ActionListener {
 	// Control functions/procedures
 	// ****************************
 	public Control(String name) {
-		main = new MainInterface(this);
+		if (debug)
+		{
+			debugMain = new DebugMainInterface(this);
+		}else{
+			main = new MainInterface(this);
+		}
 	}
 
 	/**
@@ -265,8 +278,8 @@ public class Control implements ActionListener {
 			try {
 				float randomStart = (float) rnd.nextInt(12);
 				String carName = String.valueOf(CarNumber); //This becomes the car's id AND name
-				//PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart, randomStart + 2 + (float) rnd.nextInt(10));
-				PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 24);
+				PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart, randomStart + 2 + (float) rnd.nextInt(10));
+				//PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 24);
 				AgentController newCar = jController.CreatCarAgent(enviro, carName, InitPrefernceMessage); // Create the
 																											// car agent
 
