@@ -23,6 +23,7 @@ import assignment.geneticAlgorithm.StationSlot;
 import assignment.message.PrefernceMessage;
 import assignment.ui.CarsInterface;
 import assignment.ui.MainInterface;
+import assignment.ui.MainInterfaceInterface;
 import assignment.ui.DebugMainInterface;
 import jade.content.onto.annotations.Result;
 import jade.core.AID;
@@ -43,8 +44,7 @@ public class Control implements ActionListener {
 	public boolean debug = true; // @Debug
 
 	private JADEController jController;
-	private MainInterface main;
-	private DebugMainInterface debugMain;
+	private MainInterfaceInterface main;
 	private boolean simulating = false;
 	private String[] latestMessagesArray = new String[16]; // This number is the number of messages displayed in the UI
 	private LinkedList<String> AllMessages = new LinkedList<String>(); // TODO: Not sure if we need to keep track of all
@@ -94,7 +94,7 @@ public class Control implements ActionListener {
 	public Control(String name) {
 		if (debug)
 		{
-			debugMain = new DebugMainInterface(this);
+			main = new DebugMainInterface(this);
 		}else{
 			main = new MainInterface(this);
 		}
@@ -107,64 +107,6 @@ public class Control implements ActionListener {
 	 */
 	public void UpdateCurrentSchedule(Schedule current) {
 		main.UpdateTableSchedule(current);
-		if (current != null && current.NumberOfCars() > 0) {
-			String schedule = "\n Highest Fitness: " + current.fitness + "\n";
-			
-			for (int station = 1; station <= current.stations.size(); station++) 
-			{
-				StationSlot currentStation = current.stations.get(station-1);
-				
-				String s = "\nStation " + station + " ::";
-				
-				if (currentStation.registeredCars.size() == 0) {
-					schedule += s + "\n";
-					continue;
-				}
-				
-				LinkedList<CarSlot> cars = currentStation.registeredCars;
-				float start = cars.getFirst().startTime;
-
-				// Adds "-" leading to the first car
-				float loop = start;
-				while (loop > 0) {
-					s += " -";
-					loop -= 0.5;
-				}
-
-				// Displays cars in schedule
-				for (int c = 0; c < cars.size(); c++) {
-					CarSlot car = cars.get(c);
-
-					int hours = (int) Math.floor(car.startTime);
-					int minutes = (int) Math.ceil(60 * (car.startTime - hours));
-					s += " {" + car.name + ")[" + hours + ":" + minutes + "]";
-
-					loop = car.duration;
-					while (loop > 0) {
-						s += " ~";
-						loop -= 0.5;
-					}
-
-					float finish = car.startTime + car.duration;
-					hours = (int) Math.floor(finish);
-					minutes = (int) Math.ceil(60 * (finish - hours));
-					s += " [" + hours + ":" + minutes + "]";
-
-					float next = (c == cars.size() - 1) ? (24 - finish) : (cars.get(c + 1).startTime - finish);
-					while (next > 0) {
-						s += " -";
-						next -= 0.5;
-					}
-				}
-
-				schedule += s + "\n"; // Draw up each station's schedule
-			}
-
-			main.UpdateCurrentSchedule(schedule);
-
-		} else {
-			main.UpdateCurrentSchedule("N/A");
-		}
 	}
 
 	public void NewCarInputs(AgentInteraction car) {

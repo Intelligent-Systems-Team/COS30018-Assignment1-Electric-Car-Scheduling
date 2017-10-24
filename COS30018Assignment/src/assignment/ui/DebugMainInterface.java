@@ -46,9 +46,9 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
 
-public class DebugMainInterface extends JFrame {
+public class DebugMainInterface extends JFrame implements MainInterfaceInterface {
 
-	private JButton btnStartJadeController, btnStartSimulation, btnAddCar;
+	private JButton btnStartJadeController, btnStartSimulation, btnAddCar, btnClearMessages;
 	private JTextPane mySystemOut;
 	private JPanel contentPane;
 	private JScrollPane scrollPane;
@@ -172,7 +172,7 @@ public class DebugMainInterface extends JFrame {
 		btnAddCar.addActionListener(controller);
 		splitPane_2.setLeftComponent(btnAddCar);
 
-		JButton btnClearMessages = new JButton("[Clear Messages]");
+		btnClearMessages = new JButton("[Clear Messages]");
 		btnClearMessages.setActionCommand("ClearMessages");
 		btnClearMessages.addActionListener(controller);
 		btnClearMessages.setEnabled(false);
@@ -219,6 +219,7 @@ public class DebugMainInterface extends JFrame {
 		return (Object[][])timeSlots.toArray(new Object[timeSlots.size()][]);
 	}
 
+	@Override
 	public void UpdateTableSchedule(Schedule current)
 	{
 		if(current == null)return;
@@ -265,9 +266,6 @@ public class DebugMainInterface extends JFrame {
 			}
 		}
 	}
-	public void UpdateCurrentSchedule(String s) {
-		//myCurrentSchedule.setText(s);
-	}
 
 	public void EnableSimulationButton() {
 		btnStartJadeController.setEnabled(false);
@@ -278,6 +276,7 @@ public class DebugMainInterface extends JFrame {
 		btnAddCar.setEnabled(true);
 		btnStartSimulation.setText("Stop Simulation");
 		mySystemOut.setEnabled(true);
+		btnClearMessages.setEnabled(true);
 		//myCurrentSchedule.setEnabled(true);
 	}
 
@@ -285,6 +284,7 @@ public class DebugMainInterface extends JFrame {
 		btnAddCar.setEnabled(false);
 		btnStartSimulation.setText("Start Simulation");
 		mySystemOut.setEnabled(false);
+		btnClearMessages.setEnabled(false);
 		//myCurrentSchedule.setEnabled(false);
 		control.ResetLatestMessagesList();
 	}
