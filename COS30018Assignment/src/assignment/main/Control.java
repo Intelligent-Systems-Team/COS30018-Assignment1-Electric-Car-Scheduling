@@ -44,7 +44,7 @@ public class Control implements ActionListener {
 	public boolean debug = true; // @Debug
 
 	private JADEController jController;
-	private MainInterfaceInterface main;
+	public MainInterfaceInterface main;
 	private boolean simulating = false;
 	private String[] latestMessagesArray = new String[16]; // This number is the number of messages displayed in the UI
 	private LinkedList<String> AllMessages = new LinkedList<String>(); // TODO: Not sure if we need to keep track of all
@@ -79,10 +79,6 @@ public class Control implements ActionListener {
 		UpdateCurrentSchedule(null);
 		ResetLatestMessagesList();
 		simulating = true;
-		
-		//@Debug
-		//debugMain.text_Population = ga.SAMPLE_SIZE;
-		//debugMain.text_Generations = ga.MAX_GENERATIONS;
 		
 		// ********************
 	}
@@ -134,8 +130,10 @@ public class Control implements ActionListener {
 
 		latestMessagesArray[latestMessagesArray.length - 1] = newMessage; // Adds latest message
 		displayString += "\n* " + latestMessagesArray[latestMessagesArray.length - 1];
-
+		
 		main.UpdateSystemOut("Latest Messages from agents:" + displayString);
+		
+		
 		AllMessages.add(newMessage);
 	}
 
@@ -167,7 +165,9 @@ public class Control implements ActionListener {
 			System.out.println("StartJADE called");
 			try {
 				jController = new JADEController(this);
+				
 				main.EnableSimulationButton();
+				
 			} catch (StaleProxyException e1) {
 				e1.printStackTrace();
 			} catch (InterruptedException e1) {
@@ -179,7 +179,9 @@ public class Control implements ActionListener {
 				System.out.println("StartSimulation called");
 				try {
 					Begin();
+					
 					main.EnableDisplay();
+
 				} catch (StaleProxyException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -211,6 +213,7 @@ public class Control implements ActionListener {
 
 				// Reset UI
 				main.StopDisplay(this);
+				
 				UpdateCurrentSchedule(null);
 
 				// Reset Car Number

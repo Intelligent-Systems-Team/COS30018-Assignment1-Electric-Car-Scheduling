@@ -7,6 +7,7 @@ import java.util.Random;
 import assignment.agents.AgentInteraction;
 import assignment.main.CarPreferenceData;
 import assignment.main.Control;
+import assignment.ui.DebugMainInterface;
 import jade.core.behaviours.Behaviour;
 
 public class GA_Control implements AgentInteraction {
@@ -25,9 +26,9 @@ public class GA_Control implements AgentInteraction {
 
 	// Constants
 	private final int INTERVAL_SNAP = 30; // Interval time to snap to (e.g. 30 = 30 minute interval)
-	private final int SAMPLE_SIZE = 1000;
+	private int SAMPLE_SIZE = 1000;
 	private final float MUTATION_CHANCE = 0.7f;
-	private final int MAX_GENERATIONS = 10; // Must be at least 1
+	private int MAX_GENERATIONS = 10; // Must be at least 1
 	private final float FITNESS_THRESHOLD = 5f;
 	private final int NUMBER_OF_STATIONS = 4;
 
@@ -52,6 +53,18 @@ public class GA_Control implements AgentInteraction {
 	public void Generate() {
 		firstAtStartRequested = false;
 		// @Debug PrintToSystem("Genetic Algorithm: Generate Called");
+		
+		// @Debug GetNewConstants
+		if (control.debug){
+			String strPopulation = ((DebugMainInterface)control.main).text_Population.getText();
+			String strGenerations = ((DebugMainInterface)control.main).text_Generations.getText();
+			
+			int intPopulation = Integer.parseInt(strPopulation);
+			int intGenerations = Integer.parseInt(strGenerations);
+			
+			SAMPLE_SIZE = intPopulation;
+			MAX_GENERATIONS = intGenerations;
+		}
 
 		if (listOfCarPrefData.size() > 0) {
 			previousSchedule = currentSchedule;
@@ -436,7 +449,36 @@ public class GA_Control implements AgentInteraction {
 
 		s.OrderCarsByHours();
 
-		CalculateFitnessV3(s);
+		if (control.debug == true)
+		{
+			if (((DebugMainInterface)control.main).fitnessRadio1.isSelected() == true)
+			{
+				CalculateFitness(s);
+			}
+			else if (((DebugMainInterface)control.main).fitnessRadio2.isSelected() == true)
+			{
+				CalculateFitnessV2(s);
+			}
+			else if (((DebugMainInterface)control.main).fitnessRadio3.isSelected() == true)
+			{
+				CalculateFitnessV3(s);
+			}
+			else if (((DebugMainInterface)control.main).fitnessRadio4.isSelected() == true)
+			{
+				CalculateFitnessV4(s);
+			}
+			else if (((DebugMainInterface)control.main).fitnessRadio5.isSelected() == true)
+			{
+				CalculateFitnessV5(s);
+			}
+		}
+		else
+		{
+			CalculateFitnessV3(s);
+		}
+		
+		
+
 		// @Debug System.out.println("1b - Fitness Calculated");
 		return s;
 	}
