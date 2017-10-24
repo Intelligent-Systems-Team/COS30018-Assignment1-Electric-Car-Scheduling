@@ -73,6 +73,7 @@ public class GA_Control implements AgentInteraction {
 			GeneratePopulation(null); // Generate first population
 			currentSchedule = GetHighestSchedule(population); // Get the highest fitness member as current schedule
 			control.UpdateCurrentSchedule(currentSchedule); // Send it to the control to be displayed
+			
 
 			int generations = 1;
 			while (generations < MAX_GENERATIONS) { // TODO: Make function for below comment
@@ -241,11 +242,11 @@ public class GA_Control implements AgentInteraction {
 
 			// Add elites to new population
 			Schedule highest = GetHighestSchedule(population);
-			System.out.println("highest = " + highest);
+			// @Debug System.out.println("highest = " + highest);
 			AddNewCars(highest); // Can fit any more cars?
 			Schedule secondHighest = GetSecondHighestSchedule(population, highest);
-			System.out.println("secondHighest = " + secondHighest);
-			System.out.println("population.size()");
+			// @Debug System.out.println("secondHighest = " + secondHighest);
+			// @Debug System.out.println("population.size()");
 			AddNewCars(secondHighest); // Can fit any more cars?
 
 			newPop.add(highest);
@@ -435,11 +436,11 @@ public class GA_Control implements AgentInteraction {
 
 				} else {
 					// Try to add the car to a random location
-					System.out.println("--DEBUG-- Trying car in random location");
+					// @Debug System.out.println("--DEBUG-- Trying car in random location");
 					int count = 0;
 					while (!TryAddCarToSchedule(s, slot) && count < 10) {
 						count++;
-						System.out.println("count: " + count);
+					// @Debug 	System.out.println("count: " + count);
 					}
 				}
 			}
@@ -672,9 +673,9 @@ public class GA_Control implements AgentInteraction {
 			if (!spotTaken) {
 				c.startTime = randomTime;
 				currentStation.registeredCars.add(c);
-				System.out.println("Car fitted into station" + count + ": " + c);
+				// @Debug System.out.println("Car fitted into station" + count + ": " + c);
 			} else {
-				System.out.println("Car COULD NOT FIT INTO station" + count + ": " + c);
+				// @Debug System.out.println("Car COULD NOT FIT INTO station" + count + ": " + c);
 				count++;
 			}
 		}
@@ -695,7 +696,6 @@ public class GA_Control implements AgentInteraction {
 		return newNum;
 	}
 
-	// TODO need to be able to remove car form all shedules
 	public void RemoveCarFromAllSchedules(int id) 
 	{
 		for(Schedule sched :population)
@@ -703,7 +703,7 @@ public class GA_Control implements AgentInteraction {
 			if(sched.CarExist(id))sched.RemoveCar(id);
 		}
 	}
-
+	
 	@Override
 	public void RegisterControl(Control c) {
 		control = c;

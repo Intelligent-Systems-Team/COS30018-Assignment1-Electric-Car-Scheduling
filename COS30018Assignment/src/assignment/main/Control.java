@@ -101,9 +101,7 @@ public class Control implements ActionListener {
 	 * 
 	 * @param current
 	 */
-	public void UpdateCurrentSchedule(Schedule current) {
-		main.UpdateTableSchedule(current);
-	}
+
 
 	public void NewCarInputs(AgentInteraction car) {
 		JFrame carFrame = new JFrame(car.AgentName());
@@ -209,6 +207,9 @@ public class Control implements ActionListener {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+				// Reset Car Number
+				CarNumber = 0;
+				
 				carFrame.dispose();
 
 				// Reset UI
@@ -216,15 +217,14 @@ public class Control implements ActionListener {
 				
 				UpdateCurrentSchedule(null);
 
-				// Reset Car Number
-				CarNumber = 0;
+				
 			}
 		} else if ("AddCar".equals(e.getActionCommand()) && jController != null) {
 			try {
 				float randomStart = (float) rnd.nextInt(12);
 				String carName = String.valueOf(CarNumber); //This becomes the car's id AND name
-				PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart, randomStart + 2 + (float) rnd.nextInt(10));
-				//PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 24);
+				//PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart, randomStart + 2 + (float) rnd.nextInt(10));
+				PrefernceMessage InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 4);
 				AgentController newCar = jController.CreatCarAgent(enviro, carName, InitPrefernceMessage); // Create the
 																											// car agent
 
@@ -259,5 +259,14 @@ public class Control implements ActionListener {
 		} else {
 			System.out.println("That car Don't excit");
 		}
+	}
+	public void UpdateCarStatus(int carID, String status)
+	{
+		carFrame.ChangeCarStatus(carID, status);
+	}
+	public void UpdateCurrentSchedule(Schedule current) 
+	{
+		main.UpdateTableSchedule(current);
+		carFrame.CheckCarDrop(current);
 	}
 }

@@ -129,8 +129,8 @@ public class Schedule{
 			for (int i = 0; i < station.registeredCars.size(); i++) {
 				float temp = station.registeredCars.get(i).priority; 
 				score += (float)(1/temp);
-System.out.println("score: " + score);
-System.out.println("temp: " + temp);
+				// @Debug System.out.println("score: " + score);
+				// @Debug System.out.println("temp: " + temp);
 			}
 		}
 		return score;
@@ -158,7 +158,8 @@ System.out.println("temp: " + temp);
 		for (int stationNum = 0; stationNum < numberOfStations; stationNum++) {
 			StationSlot station = stations.get(stationNum);
 			
-			for(int i = 0; i < station.registeredCars.size(); i++) {
+			for(int i = 0; i < station.registeredCars.size(); i++) 
+			{
 				if (station.registeredCars.get(i).id == id) { return true; } 
 			}
 		}
@@ -189,7 +190,6 @@ System.out.println("temp: " + temp);
 
 	public void RemoveCar(int id) 
 	{
-		// TODO Auto-generated method stub
 		for(StationSlot ss : stations)
 		{
 			CarSlot removeCar = null;
@@ -202,7 +202,6 @@ System.out.println("temp: " + temp);
 			}
 			if(removeCar !=null)ss.registeredCars.remove(removeCar);
 		}
-		
 	}
 	
 }

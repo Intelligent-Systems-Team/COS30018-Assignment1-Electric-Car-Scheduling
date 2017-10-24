@@ -79,7 +79,8 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 				PrintToSystem(getLocalName() + ": Received message [\"" + message.getProtocol() + "\"] from "
 						+ message.getSender().getLocalName());
 				
-				switch(message.getPerformative()) {
+				switch(message.getPerformative()) 
+				{
 				case ACLMessage.REQUEST: //Car is registering itself to the master scheduler
 					
 					
@@ -105,6 +106,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						PrintToSystem(getLocalName() + ": " + car + " has been registered");
 						reply.setPerformative(ACLMessage.AGREE);
 						reply.setContent("you have succesfull been registered for charging");
+						control.UpdateCarStatus(carID, "Registered");
 						}
 						//False
 						else
@@ -112,6 +114,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						PrintToSystem(getLocalName() + ": " + car + " refused ");
 						reply.setPerformative(ACLMessage.REFUSE);
 						reply.setContent("can not schedule you or your deviced preference");
+						control.UpdateCarStatus(carID, "Refused");
 						}
 						//Send reply
 						send(reply);
@@ -122,7 +125,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					{
 						reply.setPerformative(ACLMessage.INFORM);
 						reply.setContent("WARNING changing prefs will lose your priority in queue - continue?");
-						
+						control.UpdateCarStatus(carID, "Updating"); // TODO Change this to a better Status?
 						//Send reply
 						send(reply); 
 						PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
@@ -136,7 +139,12 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					PrefernceMessage UpdatePrefernceMessage;
 					try {
 						UpdatePrefernceMessage = (PrefernceMessage) message.getContentObject();
-						UpdateCar(UpdatePrefernceMessage);
+						carID = UpdatePrefernceMessage.id;
+						if(UpdateCar(UpdatePrefernceMessage))
+							{
+								control.UpdateCarStatus(carID, "Registered");
+							}
+						else {control.UpdateCarStatus(carID, "Refused");}
 					} catch (UnreadableException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
