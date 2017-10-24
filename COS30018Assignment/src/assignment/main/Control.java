@@ -42,9 +42,10 @@ public class Control implements ActionListener {
 	
 	public boolean debug = true; // @Debug
 
-	private JADEController jController;
 	private MainInterface main;
-	private DebugMainInterface debugMain;
+	public DebugMainInterface debugMain;
+	
+	private JADEController jController;
 	private boolean simulating = false;
 	private String[] latestMessagesArray = new String[16]; // This number is the number of messages displayed in the UI
 	private LinkedList<String> AllMessages = new LinkedList<String>(); // TODO: Not sure if we need to keep track of all
@@ -80,10 +81,6 @@ public class Control implements ActionListener {
 		ResetLatestMessagesList();
 		simulating = true;
 		
-		//@Debug
-		//debugMain.text_Population = ga.SAMPLE_SIZE;
-		//debugMain.text_Generations = ga.MAX_GENERATIONS;
-		
 		// ********************
 	}
 	// ***********************************************************************
@@ -106,7 +103,13 @@ public class Control implements ActionListener {
 	 * @param current
 	 */
 	public void UpdateCurrentSchedule(Schedule current) {
-		main.UpdateTableSchedule(current);
+		if (debug)
+		{
+			debugMain.UpdateTableSchedule(current);
+		}else{
+			main.UpdateTableSchedule(current);
+		}
+		
 		if (current != null && current.NumberOfCars() > 0) {
 			String schedule = "\n Highest Fitness: " + current.fitness + "\n";
 			
@@ -160,10 +163,21 @@ public class Control implements ActionListener {
 				schedule += s + "\n"; // Draw up each station's schedule
 			}
 
-			main.UpdateCurrentSchedule(schedule);
+			if (debug)
+			{
+				debugMain.UpdateCurrentSchedule(schedule);
+			}else{
+				main.UpdateCurrentSchedule(schedule);
+			}
 
 		} else {
-			main.UpdateCurrentSchedule("N/A");
+
+			if (debug)
+			{
+				debugMain.UpdateCurrentSchedule("N/A");
+			}else{
+				main.UpdateCurrentSchedule("N/A");
+			}
 		}
 	}
 
@@ -192,8 +206,15 @@ public class Control implements ActionListener {
 
 		latestMessagesArray[latestMessagesArray.length - 1] = newMessage; // Adds latest message
 		displayString += "\n* " + latestMessagesArray[latestMessagesArray.length - 1];
-
-		main.UpdateSystemOut("Latest Messages from agents:" + displayString);
+		
+		if (debug)
+		{
+			debugMain.UpdateSystemOut("Latest Messages from agents:" + displayString);
+		}else{
+			main.UpdateSystemOut("Latest Messages from agents:" + displayString);
+		}
+		
+		
 		AllMessages.add(newMessage);
 	}
 
@@ -225,7 +246,14 @@ public class Control implements ActionListener {
 			System.out.println("StartJADE called");
 			try {
 				jController = new JADEController(this);
-				main.EnableSimulationButton();
+				
+				if (debug)
+				{
+					debugMain.EnableSimulationButton();
+				}else{
+					main.EnableSimulationButton();
+				}
+				
 			} catch (StaleProxyException e1) {
 				e1.printStackTrace();
 			} catch (InterruptedException e1) {
@@ -237,7 +265,12 @@ public class Control implements ActionListener {
 				System.out.println("StartSimulation called");
 				try {
 					Begin();
-					main.EnableDisplay();
+					if (debug)
+					{
+						debugMain.EnableDisplay();
+					}else{
+						main.EnableDisplay();
+					}
 				} catch (StaleProxyException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -268,7 +301,14 @@ public class Control implements ActionListener {
 				carFrame.dispose();
 
 				// Reset UI
-				main.StopDisplay(this);
+				
+				if (debug)
+				{
+					debugMain.StopDisplay(this);
+				}else{
+					main.StopDisplay(this);
+				}
+				
 				UpdateCurrentSchedule(null);
 
 				// Reset Car Number
