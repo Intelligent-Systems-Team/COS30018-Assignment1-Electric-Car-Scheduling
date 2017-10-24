@@ -62,9 +62,6 @@ public class DebugMainInterface extends JFrame {
 	private JSplitPane splitPane_5;
 	private JSplitPane splitPane_6;
 	private JSplitPane splitPane_7;
-	private JRadioButton fitnessRadio1;
-	private JRadioButton fitnessRadio2;
-	private JRadioButton fitnessRadio3;
 	private JSplitPane splitPane_8;
 	private JSplitPane splitPane_9;
 	private JLabel lblPopulation;
@@ -72,6 +69,14 @@ public class DebugMainInterface extends JFrame {
 	private JLabel lblGenerations;
 	public JTextField text_Generations;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
+	private JSplitPane splitPane_10;
+	private JSplitPane splitPane_11;
+	
+	public JRadioButton fitnessRadio1;
+	public JRadioButton fitnessRadio2;
+	public JRadioButton fitnessRadio3;
+	public JRadioButton fitnessRadio4;
+	public JRadioButton fitnessRadio5;
 
 	/**
 	 * Create the frame.
@@ -136,18 +141,31 @@ public class DebugMainInterface extends JFrame {
 		splitPane_7 = new JSplitPane();
 		splitPane_6.setRightComponent(splitPane_7);
 		
+		splitPane_10 = new JSplitPane();
+		splitPane_6.setLeftComponent(splitPane_10);
+		
+		splitPane_11 = new JSplitPane();
+		splitPane_10.setRightComponent(splitPane_11);
+		
 		fitnessRadio1 = new JRadioButton("FITNESSV1");
 		buttonGroup.add(fitnessRadio1);
-		splitPane_6.setLeftComponent(fitnessRadio1);
-		fitnessRadio1.setSelected(true);
+		splitPane_10.setLeftComponent(fitnessRadio1);
 		
 		fitnessRadio2 = new JRadioButton("FITNESSV2");
 		buttonGroup.add(fitnessRadio2);
-		splitPane_7.setLeftComponent(fitnessRadio2);
+		splitPane_11.setLeftComponent(fitnessRadio2);
 		
 		fitnessRadio3 = new JRadioButton("FITNESSV3");
 		buttonGroup.add(fitnessRadio3);
-		splitPane_7.setRightComponent(fitnessRadio3);
+		splitPane_11.setRightComponent(fitnessRadio3);
+		
+		fitnessRadio4 = new JRadioButton("FITNESSV4");
+		buttonGroup.add(fitnessRadio4);
+		splitPane_7.setLeftComponent(fitnessRadio4);
+		
+		fitnessRadio5 = new JRadioButton("FITNESSV5");
+		buttonGroup.add(fitnessRadio5);
+		splitPane_7.setRightComponent(fitnessRadio5);
 		
 		JSplitPane splitPane_1 = new JSplitPane();
 		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -178,8 +196,6 @@ public class DebugMainInterface extends JFrame {
 		btnClearMessages.setEnabled(false);
 		splitPane_2.setRightComponent(btnClearMessages);
 		
-
-
 		JSplitPane splitPane_3 = new JSplitPane();
 		splitPane_3.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		contentPane.add(splitPane_3, BorderLayout.CENTER);
