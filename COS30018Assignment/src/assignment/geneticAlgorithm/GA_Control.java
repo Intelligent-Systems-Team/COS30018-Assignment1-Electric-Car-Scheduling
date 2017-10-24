@@ -27,7 +27,7 @@ public class GA_Control implements AgentInteraction {
 	// Constants
 	private final int INTERVAL_SNAP = 30; // Interval time to snap to (e.g. 30 = 30 minute interval)
 	private int SAMPLE_SIZE = 1000;
-	private final float MUTATION_CHANCE = 0.7f;
+	private final float MUTATION_CHANCE = 0.65f;
 	private int MAX_GENERATIONS = 10; // Must be at least 1
 	private final float FITNESS_THRESHOLD = 5f;
 	private final int NUMBER_OF_STATIONS = 4;
@@ -298,8 +298,8 @@ public class GA_Control implements AgentInteraction {
 				for (int i = 0; i < newScheduleStation.registeredCars.size(); i++) {
 					int r = random.nextInt(100);
 
+					//Mutate up or down?
 					if (r <= chance) {
-						// @Debug System.out.println("3a- Schedule mutating");
 						CarSlot car = newScheduleStation.registeredCars.get(i);
 						float moveHours = ((float) (random.nextInt(6)));
 
@@ -328,19 +328,40 @@ public class GA_Control implements AgentInteraction {
 
 							if (!spotTaken) {
 								car.startTime = SnapToTime(car.startTime + moveHours); // Mutate start time
-							}
-
-							if (car.startTime < car.startRequested) {
-								// @Debug System.out.println("Mutation error");
+								if (car.startTime < car.startRequested) {
+									car.startTime += (INTERVAL_SNAP/60);
+								}
 							}
 
 						}
 
-						// @Debug System.out.println("3b- Schedule mutated");
+					} else {
+						
+						//Small chance it could try jumping to the start requested now
+						r = random.nextInt(100);					
+						if (r <= chance) {
+						
+							CarSlot car = newScheduleStation.registeredCars.get(i);
+								boolean spotTaken = false;
+
+								for (int t2 = 0; t2 < newScheduleStation.registeredCars.size(); t2++) {
+									CarSlot test = newScheduleStation.registeredCars.get(t2);
+									if (car != test && CheckClash(car, car.startRequested, test)) {
+										spotTaken = true;
+										break;
+									}
+								}
+
+								if (!spotTaken) {
+									car.startTime = SnapToTime(car.startRequested); // Mutate start time
+									if (car.startTime < car.startRequested) {
+										car.startTime += (INTERVAL_SNAP/60);
+									}
+								}
+						}
 					}
 				}
 
-				// @Debug System.out.println("2b- Schedule crossedover");
 				s = schedule; // schedule is the returned schedule
 
 			}
@@ -498,7 +519,7 @@ public class GA_Control implements AgentInteraction {
 		float PriorityScore = p.Prioritypoints();
 		float TimeGap = p.UnusedHours();
 		float fit = 0;
-		fit = PriorityScore - TimeGap;
+		fit = PriorityScore*0.8f - TimeGap;
 		p.fitness = fit;
 	}
 
