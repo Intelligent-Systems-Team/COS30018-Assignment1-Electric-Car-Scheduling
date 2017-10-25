@@ -44,6 +44,7 @@ import com.jgoodies.forms.layout.RowSpec;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollBar;
 import javax.swing.ButtonGroup;
 
 public class DebugMainInterface extends JFrame implements MainInterfaceInterface {
@@ -303,11 +304,25 @@ public class DebugMainInterface extends JFrame implements MainInterfaceInterface
 		mySystemOut.setEnabled(false);
 		btnClearMessages.setEnabled(false);
 		//myCurrentSchedule.setEnabled(false);
+		ClearTable();
 		control.ResetLatestMessagesList();
 	}
 
 	public void UpdateSystemOut(String string) {
 		mySystemOut.setText(string);
+		JScrollBar vertical = scrollPane_1.getVerticalScrollBar();
+		vertical.setValue( vertical.getMaximum() );
+	}
+	
+	private void ClearTable()
+	{
+		for (int station = 1; station <= 4; station++) 
+		{
+			for(int i= 0; i < dtm.getRowCount();i++) 
+			{
+			dtm.setValueAt("", i, station);
+			}
+		}
 	}
 
 }

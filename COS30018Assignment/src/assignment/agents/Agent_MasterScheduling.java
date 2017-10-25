@@ -76,18 +76,16 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 				ACLMessage message = messageBuffer.get(0);
 				messageBuffer.remove(message);
 				
-				PrintToSystem(getLocalName() + ": Received message [\"" + message.getProtocol() + "\"] from "
-						+ message.getSender().getLocalName());
+				PrintToSystem(getLocalName() + ": Received message [" + message.getProtocol() + "] from "
+						+ "Car"+message.getSender().getLocalName());
 				
+				ACLMessage reply = message.createReply();
+				AID sender = (AID) reply.getAllReceiver().next();
+				PrefernceMessage preferenceMessage = null;
+				String car = message.getSender().getLocalName();
 				switch(message.getPerformative()) 
 				{
 				case ACLMessage.REQUEST: //Car is registering itself to the master scheduler
-					
-					
-					ACLMessage reply = message.createReply();
-					AID sender = (AID) reply.getAllReceiver().next();
-					PrefernceMessage preferenceMessage = null;
-					String car = message.getSender().getLocalName();
 					int carID = -1;
 					try {
 						preferenceMessage = (PrefernceMessage) message.getContentObject();
@@ -103,9 +101,9 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						//Add car to list	
 						if(AddCar(preferenceMessage))
 						{
-						PrintToSystem(getLocalName() + ": " + car + " has been registered");
+						PrintToSystem("Car"+getLocalName() + ": " + car + " has been registered");
 						reply.setPerformative(ACLMessage.AGREE);
-						reply.setContent("you have succesfull been registered for charging");
+						reply.setContent("Registered");
 						control.UpdateCarStatus(carID, "Registered");
 						}
 						//False
@@ -113,18 +111,18 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 						{
 						PrintToSystem(getLocalName() + ": " + car + " refused ");
 						reply.setPerformative(ACLMessage.REFUSE);
-						reply.setContent("can not schedule you or your deviced preference");
+						reply.setContent("Can't Registered");
 						control.UpdateCarStatus(carID, "Refused");
 						}
 						//Send reply
 						send(reply);
 						PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to "
-								+ sender.getLocalName());
+								+ "Car"+sender.getLocalName());
 					}
 					else 
 					{
 						reply.setPerformative(ACLMessage.INFORM);
-						reply.setContent("WARNING changing prefs will lose your priority in queue - continue?");
+						reply.setContent("Update Preference? Priority will be lost");
 						control.UpdateCarStatus(carID, "Updating"); // TODO Change this to a better Status?
 						//Send reply
 						send(reply); 
@@ -134,25 +132,33 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction{
 					
 					break;
 				case ACLMessage.CONFIRM:
-					//TODO add the how the master updates the car prefs
-					PrintToSystem(getLocalName() + ": " + message.getSender().getName() + " wants to change prefs");
+					PrintToSystem("Car"+getLocalName() + ": " + sender.getLocalName() + " wants to Change Preferences");
 					PrefernceMessage UpdatePrefernceMessage;
 					try {
 						UpdatePrefernceMessage = (PrefernceMessage) message.getContentObject();
 						carID = UpdatePrefernceMessage.id;
 						if(UpdateCar(UpdatePrefernceMessage))
 							{
-								control.UpdateCarStatus(carID, "Registered");
+							PrintToSystem(getLocalName() + ": " + car + " has been registered");
+							reply.setPerformative(ACLMessage.AGREE);
+							reply.setContent("Registered");
+							control.UpdateCarStatus(carID, "Registered");
 							}
-						else {control.UpdateCarStatus(carID, "Refused");}
+						else 
+							{
+							PrintToSystem(getLocalName() + ": " + car + " refused ");
+							reply.setPerformative(ACLMessage.REFUSE);
+							reply.setContent("Can't Registered");
+							control.UpdateCarStatus(carID, "Refused");
+							}
 					} catch (UnreadableException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
-						PrintToSystem("Reseved no UpdatePrefernce");
+						PrintToSystem("Update PrefernceMessage");
 					}
 					break;
 				case ACLMessage.DISCONFIRM:
-					PrintToSystem(getLocalName() + ": " + message.getSender().getName() + " does not want to change prefs");
+					PrintToSystem(getLocalName() + ": " + sender.getLocalName() + " does not want to change prefs");
 					break;
 				}				
 			}

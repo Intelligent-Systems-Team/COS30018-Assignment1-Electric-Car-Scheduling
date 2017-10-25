@@ -121,25 +121,17 @@ public class Control implements ActionListener {
 
 	public void AddLastMessage(String newMessage) {
 		String displayString = "";
-
-		for (int i = 0; i < latestMessagesArray.length - 1; i++) {
-			latestMessagesArray[i] = latestMessagesArray[i + 1]; // Bumps messages up
-			displayString += "\n* " + latestMessagesArray[i];
-		}
-
-		latestMessagesArray[latestMessagesArray.length - 1] = newMessage; // Adds latest message
-		displayString += "\n* " + latestMessagesArray[latestMessagesArray.length - 1];
-
-		main.UpdateSystemOut("Latest Messages from agents:" + displayString);
-
 		AllMessages.add(newMessage);
+		for(String line: AllMessages)
+		{
+			displayString += "\n* " + line;
+		}
+		main.UpdateSystemOut("Latest Messages from agents:" + displayString);
 	}
 
 	public void ResetLatestMessagesList() {
 		System.out.println("Messages reset");
-		for (int i = 0; i < latestMessagesArray.length; i++) {
-			latestMessagesArray[i] = " ";
-		}
+		AllMessages.removeAll(AllMessages);
 		AddLastMessage("");
 	}
 
@@ -207,11 +199,11 @@ public class Control implements ActionListener {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				// Reset Car Number
+				
+				// Old Stuff
 				// CarNumber = 0;
-
 				// carFrame.dispose();
-
+				
 				// Reset UI
 				main.StopDisplay(this);
 

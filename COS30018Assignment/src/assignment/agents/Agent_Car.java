@@ -83,12 +83,12 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 
 		public SendMessageBehaviour(Agent a, ACLMessage msg) {
 			super(a, msg);
-			PrintToSystem(messageContent.name +": sent Request to Master");
+			PrintToSystem("Car"+messageContent.name +": sent Request to Master");
 			// TODO Auto-generated constructor stub
 		}
 
 		protected void handleAgree(ACLMessage agree) {
-			PrintToSystem(getLocalName() + ": " + agree.getSender().getLocalName() + " has agreed to the request");
+			PrintToSystem("Car"+getLocalName() + ": " + agree.getSender().getLocalName() + " has agreed to the request");
 		}
 		
 		protected void handleInform(ACLMessage inform) 
@@ -102,7 +102,7 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 				ACLMessage reply = inform.createReply();
 				if (update!=1) 
 				{
-					PrintToSystem(getLocalName() +": sent CONFIRM to Master");
+					PrintToSystem("Car"+getLocalName() +": sent CONFIRM to Master");
 					reply.setPerformative(ACLMessage.CONFIRM);
 					reply.setContent("Yes, Please Change");
 					try {
@@ -116,7 +116,7 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 				//Choose no
 				else
 				{
-					PrintToSystem(getLocalName() +": sent DISCONFIRM to Master");
+					PrintToSystem("Car"+getLocalName() +": sent DISCONFIRM to Master");
 					reply.setPerformative(ACLMessage.DISCONFIRM);
 					reply.setContent("No, Don't Change");
 					control.UpdateCarStatus(messageContent.id, "Registered");
@@ -126,14 +126,14 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
-			PrintToSystem(getLocalName() + ": " + refuse.getSender().getLocalName() + " refused request");
+			PrintToSystem("Car"+getLocalName() + ": " + refuse.getSender().getLocalName() + " refused request");
 		}
 
 		protected void handleFailure(ACLMessage failure) {
 			if (failure.getSender().equals(myAgent.getAMS())) {
-				PrintToSystem(getLocalName() + ": " + "Responder does not exist");
+				PrintToSystem("Car"+getLocalName() + ": " + "Responder does not exist");
 			} else {
-				PrintToSystem(getLocalName() + ": " + failure.getSender().getName()
+				PrintToSystem("Car"+getLocalName() + ": " + failure.getSender().getName()
 						+ " failed to perform the requested action");
 			}
 		}

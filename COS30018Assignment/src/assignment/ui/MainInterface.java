@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.border.EmptyBorder;
 
 import assignment.geneticAlgorithm.CarSlot;
@@ -81,9 +82,9 @@ public class MainInterface extends JFrame implements MainInterfaceInterface {
 		splitPane_1.setRightComponent(scrollPane_1);
 		
 		mySystemOut = new JTextPane();
+		mySystemOut.setEditable(false);
 		mySystemOut.setText("Latest Messages From Agents:");
 		mySystemOut.setEnabled(false);
-		mySystemOut.setEditable(false);
 		scrollPane_1.setViewportView(mySystemOut);
 
 		JSplitPane splitPane_2 = new JSplitPane();
@@ -112,6 +113,7 @@ public class MainInterface extends JFrame implements MainInterfaceInterface {
 		splitPane_3.setLeftComponent(myLabelSchedule);
 		
 		scrollPane = new JScrollPane();
+		scrollPane.setEnabled(false);
 		splitPane_3.setBottomComponent(scrollPane);
 		
 		// Make Table
@@ -214,12 +216,26 @@ public class MainInterface extends JFrame implements MainInterfaceInterface {
 		mySystemOut.setEnabled(false);
 		btnClearMessages.setEnabled(false);
 		//myCurrentSchedule.setEnabled(false);
+		ClearTable();
 		control.ResetLatestMessagesList();
+	}
+
+	private void ClearTable()
+	{
+		for (int station = 1; station <= 4; station++) 
+		{
+			for(int i= 0; i < dtm.getRowCount();i++) 
+			{
+			dtm.setValueAt("", i, station);
+			}
+		}
 	}
 
 	@Override
 	public void UpdateSystemOut(String string) {
 		mySystemOut.setText(string);
+		JScrollBar vertical = scrollPane_1.getVerticalScrollBar();
+		vertical.setValue( vertical.getMaximum() );
 	}
 
 }
