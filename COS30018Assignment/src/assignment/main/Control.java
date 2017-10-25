@@ -25,6 +25,8 @@ import jade.wrapper.gateway.JadeGateway;
 
 public class Control implements ActionListener {
 
+
+
 	Thread one = new Thread();
 
 	public boolean debug = true; // @Debug
@@ -35,6 +37,7 @@ public class Control implements ActionListener {
 	private String[] latestMessagesArray = new String[16]; // This number is the number of messages displayed in the UI
 	private LinkedList<String> AllMessages = new LinkedList<String>(); // TODO: Not sure if we need to keep track of all
 																		// messages?
+	private static final int MAX_NUM_MESSAGES = 50;
 	private int CarNumber;
 	private AgentController master;
 	private ContainerController enviro;
@@ -121,6 +124,11 @@ public class Control implements ActionListener {
 
 	public void AddLastMessage(String newMessage) {
 		String displayString = "";
+		if(AllMessages.size() >= MAX_NUM_MESSAGES)
+		{
+			for(int i = 0; i <(MAX_NUM_MESSAGES/2);i++)
+			AllMessages.removeLast();
+		}
 		AllMessages.add(newMessage);
 		for(String line: AllMessages)
 		{
@@ -266,6 +274,6 @@ public class Control implements ActionListener {
 
 	public void UpdateCurrentSchedule(Schedule current) {
 		main.UpdateTableSchedule(current);
-		//carFrame.CheckCarDrop(current);
+		if(current !=null)carFrame.CheckCarDrop(current);
 	}
 }
