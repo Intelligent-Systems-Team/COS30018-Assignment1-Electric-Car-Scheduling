@@ -29,7 +29,7 @@ public class GA_Control implements AgentInteraction {
 	private int SAMPLE_SIZE = 1000;
 	private final float MUTATION_CHANCE = 0.65f;
 	private int MAX_GENERATIONS = 10; // Must be at least 1
-	private final float FITNESS_THRESHOLD = 5f;
+	private final float FITNESS_THRESHOLD = 10f;
 	private final int NUMBER_OF_STATIONS = 4;
 
 	private LinkedList<CarPreferenceData> listOfCarPrefData;
@@ -165,8 +165,6 @@ public class GA_Control implements AgentInteraction {
 				}
 			}
 
-			System.out.println("1- population.size() = " + population.size());
-
 			// Get rid of schedules with no cars
 			for (int i = population.size() - 1; i >= 0; i--) {
 				if (population.get(i).NumberOfCars() <= 0) {
@@ -174,8 +172,7 @@ public class GA_Control implements AgentInteraction {
 				}
 			}
 
-			System.out.println("2- population.size() = " + population.size());
-
+			/*
 			for (int i = 0; i < population.size(); i++) {
 				Schedule secondChance = population.get(i);
 
@@ -187,6 +184,7 @@ public class GA_Control implements AgentInteraction {
 					}
 				}
 			}
+			*/
 
 			LinkedList<Schedule> newPop = new LinkedList<Schedule>();
 
