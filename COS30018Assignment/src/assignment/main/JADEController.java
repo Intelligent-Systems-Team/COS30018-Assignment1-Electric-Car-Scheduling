@@ -78,11 +78,11 @@ public class JADEController {
 		return master;
 	}
 	
-	public AgentController CreatCarAgent(ContainerController ctrl, String name,PrefernceMessage InitPrefernceMessage) throws StaleProxyException {
+	public AgentController CreatCarAgent(ContainerController ctrl, String name) throws StaleProxyException {
 		ContainerController ctr = (ctrl!=null)?ctrl:mainCtrl; //If null, create in main container
 		
 		// Make the Car agent
-		AgentController car = ctr.createNewAgent(name, Agent_Car.class.getName(), new Object[]{InitPrefernceMessage});
+		AgentController car = ctr.createNewAgent(name, Agent_Car.class.getName(), new Object[] {});
 		car.start();
 		c.GetInteractionInterface(car).RegisterControl(c); //Registers reference to Control on the agent		
 		

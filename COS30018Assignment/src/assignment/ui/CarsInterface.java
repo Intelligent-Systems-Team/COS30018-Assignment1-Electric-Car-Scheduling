@@ -29,6 +29,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.Action;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.awt.event.ActionListener;
 
 public class CarsInterface extends JFrame {
@@ -176,5 +178,14 @@ public class CarsInterface extends JFrame {
 			}
 			
 		}
+	}
+	public List<String> GetCarIds()
+	{
+		List<String> carids = new ArrayList<String >();
+		for(int i=0; i< table.getRowCount(); i++)
+		{
+			carids.add((String) table.getValueAt(i, 0));
+		}
+		return carids;
 	}
 }

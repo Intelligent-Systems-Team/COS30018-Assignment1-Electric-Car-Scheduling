@@ -24,9 +24,9 @@ import jade.wrapper.StaleProxyException;
 import jade.wrapper.gateway.JadeGateway;
 
 public class Control implements ActionListener {
-	
+
 	Thread one = new Thread();
-	
+
 	public boolean debug = true; // @Debug
 
 	private JADEController jController;
@@ -39,7 +39,7 @@ public class Control implements ActionListener {
 	private AgentController master;
 	private ContainerController enviro;
 	private ContainerController station1;
-	
+
 	private CarsInterface carFrame;
 	private Random rnd = new Random();
 
@@ -53,22 +53,39 @@ public class Control implements ActionListener {
 
 		// Create Stations
 		enviro = jController.CreateContainer("Enviroment");
-		//station1 = jController.CreateContainer("Station 1");
+		// station1 = jController.CreateContainer("Station 1");
 
 		// Make Car GUI
-		try {
-			carFrame = new CarsInterface(this);
-			carFrame.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
+		if (carFrame == null) {
+			try {
+				carFrame = new CarsInterface(this);
+				carFrame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
+		MakeCarAgentsFormTable();
 		UpdateCurrentSchedule(null);
 		ResetLatestMessagesList();
 		simulating = true;
-		
+
 		// ********************
 	}
 	// ***********************************************************************
+
+	private void MakeCarAgentsFormTable() 
+	{
+		for (String carName : carFrame.GetCarIds())
+		{
+		
+		try {
+			jController.CreatCarAgent(enviro, carName);
+		} catch (StaleProxyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		}
+	}
 
 	// ****************************
 	// Control functions/procedures
@@ -86,7 +103,6 @@ public class Control implements ActionListener {
 	 * 
 	 * @param current
 	 */
-
 
 	public void NewCarInputs(AgentInteraction car) {
 		JFrame carFrame = new JFrame(car.AgentName());
@@ -113,10 +129,9 @@ public class Control implements ActionListener {
 
 		latestMessagesArray[latestMessagesArray.length - 1] = newMessage; // Adds latest message
 		displayString += "\n* " + latestMessagesArray[latestMessagesArray.length - 1];
-		
+
 		main.UpdateSystemOut("Latest Messages from agents:" + displayString);
-		
-		
+
 		AllMessages.add(newMessage);
 	}
 
@@ -148,9 +163,9 @@ public class Control implements ActionListener {
 			System.out.println("StartJADE called");
 			try {
 				jController = new JADEController(this);
-				
+
 				main.EnableSimulationButton();
-				
+
 			} catch (StaleProxyException e1) {
 				e1.printStackTrace();
 			} catch (InterruptedException e1) {
@@ -162,7 +177,7 @@ public class Control implements ActionListener {
 				System.out.println("StartSimulation called");
 				try {
 					Begin();
-					
+
 					main.EnableDisplay();
 
 				} catch (StaleProxyException e1) {
@@ -187,37 +202,37 @@ public class Control implements ActionListener {
 				try {
 					master.kill();
 					enviro.kill();
-					station1.kill();
+					//station1.kill();
 				} catch (StaleProxyException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				// Reset Car Number
-				CarNumber = 0;
-				
-				carFrame.dispose();
+				// CarNumber = 0;
+
+				// carFrame.dispose();
 
 				// Reset UI
 				main.StopDisplay(this);
-				
+
 				UpdateCurrentSchedule(null);
 
-				
 			}
 		} else if ("AddCar".equals(e.getActionCommand()) && jController != null) {
 			try {
 				float randomStart = (float) rnd.nextInt(12);
-				String carName = String.valueOf(CarNumber); //This becomes the car's id AND name
-				
+				String carName = String.valueOf(CarNumber); // This becomes the car's id AND name
+
 				PrefernceMessage InitPrefernceMessage = null;
-				
+
 				if (!debug) {
-					InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart, randomStart + 2 + (float) rnd.nextInt(10));
+					InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart,
+							randomStart + 2 + (float) rnd.nextInt(10));
 				} else {
-					InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 12);
+					InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 4);
 				}
-				
-				AgentController newCar = jController.CreatCarAgent(enviro, carName, InitPrefernceMessage); // Create the
+
+				AgentController newCar = jController.CreatCarAgent(enviro, carName); // Create the
 																											// car agent
 
 				CarNumber++;
@@ -252,13 +267,13 @@ public class Control implements ActionListener {
 			System.out.println("That car Don't excit");
 		}
 	}
-	public void UpdateCarStatus(int carID, String status)
-	{
+
+	public void UpdateCarStatus(int carID, String status) {
 		carFrame.ChangeCarStatus(carID, status);
 	}
-	public void UpdateCurrentSchedule(Schedule current) 
-	{
+
+	public void UpdateCurrentSchedule(Schedule current) {
 		main.UpdateTableSchedule(current);
-		carFrame.CheckCarDrop(current);
+		//carFrame.CheckCarDrop(current);
 	}
 }

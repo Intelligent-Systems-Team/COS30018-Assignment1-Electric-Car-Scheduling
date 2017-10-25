@@ -31,8 +31,8 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 	}
 	
 	protected void setup() {
-		Object[] args = getArguments();
-		messageContent = (PrefernceMessage) args[0];
+		//Object[] args = getArguments();
+		//messageContent = (PrefernceMessage) args[0];
 		//SendRegisterRequest(messageContent);
 	}
 
