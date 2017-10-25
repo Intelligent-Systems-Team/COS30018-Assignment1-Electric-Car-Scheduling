@@ -49,6 +49,7 @@ public class MainInterface extends JFrame implements MainInterfaceInterface {
 	 * Create the frame.
 	 */
 	public MainInterface(Control controller) {
+		setTitle("Electric Car Charge Scheduling System");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 660, 397);
 		contentPane = new JPanel();

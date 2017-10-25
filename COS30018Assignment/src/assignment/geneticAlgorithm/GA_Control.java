@@ -27,7 +27,7 @@ public class GA_Control implements AgentInteraction {
 	// Constants
 	private final int INTERVAL_SNAP = 30; // Interval time to snap to (e.g. 30 = 30 minute interval)
 	private int SAMPLE_SIZE = 1000;
-	private final float MUTATION_CHANCE = 0.65f;
+	private float MUTATION_CHANCE = 0.65f;
 	private int MAX_GENERATIONS = 10; // Must be at least 1
 	private final float FITNESS_THRESHOLD = 10f;
 	private final int NUMBER_OF_STATIONS = 4;
@@ -57,10 +57,13 @@ public class GA_Control implements AgentInteraction {
 		if (control.debug) {
 			String strPopulation = ((DebugMainInterface) control.main).text_Population.getText();
 			String strGenerations = ((DebugMainInterface) control.main).text_Generations.getText();
+			String strMutationChance = ((DebugMainInterface) control.main).text_Mutation.getText();
 
 			int intPopulation = Integer.parseInt(strPopulation);
 			int intGenerations = Integer.parseInt(strGenerations);
+			float floatMutationChance = Float.parseFloat(strMutationChance);
 
+			MUTATION_CHANCE = floatMutationChance;
 			SAMPLE_SIZE = intPopulation;
 			MAX_GENERATIONS = intGenerations;
 		}
@@ -439,16 +442,25 @@ public class GA_Control implements AgentInteraction {
 
 		// Debug -> Choose which fitness function to use
 		if (control.debug == true) {
-			if (((DebugMainInterface) control.main).fitnessRadio1.isSelected() == true) {
+			int verINDEX = ((DebugMainInterface) control.main).fitnessCB.getSelectedIndex();
+			switch (verINDEX) {
+			case 0:
 				CalculateFitness(s);
-			} else if (((DebugMainInterface) control.main).fitnessRadio2.isSelected() == true) {
+				break;
+			case 1:
 				CalculateFitnessV2(s);
-			} else if (((DebugMainInterface) control.main).fitnessRadio3.isSelected() == true) {
+				break;
+			case 2:
 				CalculateFitnessV3(s);
-			} else if (((DebugMainInterface) control.main).fitnessRadio4.isSelected() == true) {
+				break;
+			case 3:
 				CalculateFitnessV4(s);
-			} else if (((DebugMainInterface) control.main).fitnessRadio5.isSelected() == true) {
+				break;
+			case 4:
 				CalculateFitnessV5(s);
+				break;
+			default:
+				CalculateFitnessV3(s);
 			}
 		} else {
 			CalculateFitnessV3(s);

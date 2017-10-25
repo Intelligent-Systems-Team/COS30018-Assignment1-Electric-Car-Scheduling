@@ -31,6 +31,8 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+
 import java.awt.FlowLayout;
 import javax.swing.BoxLayout;
 import java.awt.GridLayout;
@@ -59,30 +61,28 @@ public class DebugMainInterface extends JFrame implements MainInterfaceInterface
 	private JScrollPane scrollPane_1;
 	private float CurrFitness = 0;
 	private JLabel myLabelSchedule;
-	private JSplitPane splitPane_4;
-	private JSplitPane splitPane_5;
-	private JSplitPane splitPane_6;
-	private JSplitPane splitPane_7;
-	private JSplitPane splitPane_8;
-	private JSplitPane splitPane_9;
+	private JSplitPane BottomSplitPane;
+	private JSplitPane FitSplitPane;
+	private JSplitPane PopSplitPane;
+	private JSplitPane GenSplitPane;
+	private JSplitPane MutSplitPane;
+	private JSplitPane subSplitPane_1;
+	private JSplitPane subSplitPane_2;
+	private JSplitPane subSplitPane_3;
 	private JLabel lblPopulation;
-	public JTextField text_Population;
 	private JLabel lblGenerations;
+	private JLabel lblMutation;
+	private JLabel lblFitness;
+	public JComboBox fitnessCB;
 	public JTextField text_Generations;
-	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private JSplitPane splitPane_10;
-	private JSplitPane splitPane_11;
-	
-	public JRadioButton fitnessRadio1;
-	public JRadioButton fitnessRadio2;
-	public JRadioButton fitnessRadio3;
-	public JRadioButton fitnessRadio4;
-	public JRadioButton fitnessRadio5;
+	public JTextField text_Mutation;
+	public JTextField text_Population;
 
 	/**
 	 * Create the frame.
 	 */
 	public DebugMainInterface(Control controller) {
+		setTitle("Electric Car Charge Scheduling System -DEBUG MODE");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 871, 458);
 		contentPane = new JPanel();
@@ -91,90 +91,77 @@ public class DebugMainInterface extends JFrame implements MainInterfaceInterface
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 
-		JSplitPane splitPane = new JSplitPane();
-		contentPane.add(splitPane, BorderLayout.NORTH);
+		JSplitPane TopSplitPane = new JSplitPane();
+		contentPane.add(TopSplitPane, BorderLayout.NORTH);
 
 		btnStartJadeController = new JButton("Start JADE Controller");
 		btnStartJadeController.setActionCommand("StartJADE");
 		btnStartJadeController.addActionListener(controller);
 
 		btnStartJadeController.setBackground(SystemColor.info);
-		splitPane.setLeftComponent(btnStartJadeController);
+		TopSplitPane.setLeftComponent(btnStartJadeController);
 
 		btnStartSimulation = new JButton("Start Simulation");
 		btnStartSimulation.setActionCommand("StartSimulation");
 		btnStartSimulation.addActionListener(controller);
 		btnStartSimulation.setBackground(SystemColor.info);
 		btnStartSimulation.setEnabled(false);
-		splitPane.setRightComponent(btnStartSimulation);
+		TopSplitPane.setRightComponent(btnStartSimulation);
 		
-		splitPane_4 = new JSplitPane();
-		contentPane.add(splitPane_4, BorderLayout.SOUTH);
+		//Debug display
+		BottomSplitPane = new JSplitPane();
+		BottomSplitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+		contentPane.add(BottomSplitPane, BorderLayout.SOUTH);
 		
-		splitPane_5 = new JSplitPane();
-		splitPane_4.setRightComponent(splitPane_5);
-		
-		splitPane_8 = new JSplitPane();
-		splitPane_5.setLeftComponent(splitPane_8);
-		
+		PopSplitPane = new JSplitPane();
 		lblPopulation = new JLabel("Population:");
-		splitPane_8.setLeftComponent(lblPopulation);
-		
 		text_Population = new JTextField();
 		text_Population.setText("1000");
-		splitPane_8.setRightComponent(text_Population);
 		text_Population.setColumns(10);
+		PopSplitPane.setLeftComponent(lblPopulation);
+		PopSplitPane.setRightComponent(text_Population);
 		
-		splitPane_9 = new JSplitPane();
-		splitPane_5.setRightComponent(splitPane_9);
-		
+		GenSplitPane = new JSplitPane();
 		lblGenerations = new JLabel("Generations:");
-		splitPane_9.setLeftComponent(lblGenerations);
-		
 		text_Generations = new JTextField();
 		text_Generations.setText("10");
-		splitPane_9.setRightComponent(text_Generations);
 		text_Generations.setColumns(10);
+		GenSplitPane.setLeftComponent(lblGenerations);
+		GenSplitPane.setRightComponent(text_Generations);
 		
-		splitPane_6 = new JSplitPane();
-		splitPane_4.setLeftComponent(splitPane_6);
+		MutSplitPane = new JSplitPane();
+		lblMutation = new JLabel("Mutation:");
+		text_Mutation = new JTextField();
+		text_Mutation.setText("0.7");
+		text_Generations.setColumns(10);
+		MutSplitPane.setLeftComponent(lblMutation);
+		MutSplitPane.setRightComponent(text_Mutation);
 		
-		splitPane_7 = new JSplitPane();
-		splitPane_6.setRightComponent(splitPane_7);
+		FitSplitPane = new JSplitPane();
+		lblFitness = new JLabel("Fitness Ver:");
+		//new ComboBox
+		String[] fitnessCals = {"Original (V1)","PriorityScore (V2)","Priority-Hours (V3)","V5-Extend (V4)","Allocated/Requested (V5)"};
+		fitnessCB =new JComboBox(fitnessCals);
+		FitSplitPane.setLeftComponent(lblFitness);
+		FitSplitPane.setRightComponent(fitnessCB);
 		
-		splitPane_10 = new JSplitPane();
-		splitPane_6.setLeftComponent(splitPane_10);
+		subSplitPane_1 = new JSplitPane();
+		subSplitPane_2 = new JSplitPane();
+		subSplitPane_3 = new JSplitPane();
 		
-		splitPane_11 = new JSplitPane();
-		splitPane_10.setRightComponent(splitPane_11);
+		BottomSplitPane.setLeftComponent(FitSplitPane);
+		BottomSplitPane.setRightComponent(subSplitPane_1);
+		subSplitPane_1.setLeftComponent(MutSplitPane);
+		subSplitPane_1.setRightComponent(subSplitPane_2);
+		subSplitPane_2.setLeftComponent(PopSplitPane);
+		subSplitPane_2.setRightComponent(GenSplitPane);
 		
-		fitnessRadio1 = new JRadioButton("Original (V1)");
-		buttonGroup.add(fitnessRadio1);
-		splitPane_10.setLeftComponent(fitnessRadio1);
-		
-		fitnessRadio2 = new JRadioButton("PriorityScore (V2)");
-		buttonGroup.add(fitnessRadio2);
-		splitPane_11.setLeftComponent(fitnessRadio2);
-		
-		fitnessRadio3 = new JRadioButton("Priority-Hours (V3)");
-		fitnessRadio3.setSelected(true);
-		buttonGroup.add(fitnessRadio3);
-		splitPane_11.setRightComponent(fitnessRadio3);
-		
-		fitnessRadio4 = new JRadioButton("V5-Extend (V4)");
-		buttonGroup.add(fitnessRadio4);
-		splitPane_7.setLeftComponent(fitnessRadio4);
-		
-		fitnessRadio5 = new JRadioButton("Allocated/Requested (V5)");
-		buttonGroup.add(fitnessRadio5);
-		splitPane_7.setRightComponent(fitnessRadio5);
-		
-		JSplitPane splitPane_1 = new JSplitPane();
-		splitPane_1.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		contentPane.add(splitPane_1, BorderLayout.WEST);
+		JSplitPane LeftSplitPane = new JSplitPane();
+		LeftSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		contentPane.add(LeftSplitPane, BorderLayout.WEST);
 
 		scrollPane_1 = new JScrollPane();
-		splitPane_1.setRightComponent(scrollPane_1);
+		LeftSplitPane.setRightComponent(scrollPane_1);
 		
 		mySystemOut = new JTextPane();
 		mySystemOut.setText("Latest Messages From Agents:");
@@ -184,7 +171,7 @@ public class DebugMainInterface extends JFrame implements MainInterfaceInterface
 
 		JSplitPane splitPane_2 = new JSplitPane();
 		splitPane_2.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		splitPane_1.setLeftComponent(splitPane_2);
+		LeftSplitPane.setLeftComponent(splitPane_2);
 
 		btnAddCar = new JButton("Add Car");
 		btnAddCar.setEnabled(false);
@@ -198,15 +185,15 @@ public class DebugMainInterface extends JFrame implements MainInterfaceInterface
 		btnClearMessages.setEnabled(false);
 		splitPane_2.setRightComponent(btnClearMessages);
 		
-		JSplitPane splitPane_3 = new JSplitPane();
-		splitPane_3.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		contentPane.add(splitPane_3, BorderLayout.CENTER);
+		JSplitPane RightSplitPane = new JSplitPane();
+		RightSplitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		contentPane.add(RightSplitPane, BorderLayout.CENTER);
 
 		myLabelSchedule = new JLabel("Current Schedule Fitness: "+ CurrFitness );
-		splitPane_3.setLeftComponent(myLabelSchedule);
+		RightSplitPane.setLeftComponent(myLabelSchedule);
 		
 		scrollPane = new JScrollPane();
-		splitPane_3.setBottomComponent(scrollPane);
+		RightSplitPane.setBottomComponent(scrollPane);
 		
 		// Make Table
 		Object[][] TabeleData = MakeTableTime(interval);
