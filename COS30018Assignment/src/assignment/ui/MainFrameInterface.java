@@ -3,7 +3,7 @@ package assignment.ui;
 import assignment.geneticAlgorithm.Schedule;
 import assignment.main.Control;
 
-public interface MainInterfaceInterface {
+public interface MainFrameInterface {
 
 	public void UpdateTableSchedule(Schedule schedule);
 

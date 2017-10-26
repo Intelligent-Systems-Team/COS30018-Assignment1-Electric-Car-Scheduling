@@ -11,9 +11,9 @@ import javax.swing.table.TableCellRenderer;
  * @version 1.0 11/09/98
  */
 
-public class ButtonRenderer extends JButton implements TableCellRenderer {
+public class SendButtonRenderer extends JButton implements TableCellRenderer {
 
-	public ButtonRenderer() {
+	public SendButtonRenderer() {
 		setOpaque(true);
 	}
 

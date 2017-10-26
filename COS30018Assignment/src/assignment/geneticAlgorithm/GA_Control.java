@@ -7,30 +7,23 @@ import java.util.Random;
 import assignment.agents.AgentInteraction;
 import assignment.main.CarPreferenceData;
 import assignment.main.Control;
-import assignment.ui.DebugMainInterface;
+import assignment.ui.DebugMainFrame;
 import jade.core.behaviours.Behaviour;
-
+/**
+ * 
+ * @author Matthew Ward 
+ *
+ */
 public class GA_Control implements AgentInteraction {
-
-	// ***********************
-	// ***********************
-	// ***********************
-	// ***********************
-	// ***********************
-	// NEEDS CONFIGURATION FILE??
-	// ***********************
-	// ***********************
-	// ***********************
-	// ***********************
-	// ***********************
 
 	// Constants
 	private final int INTERVAL_SNAP = 30; // Interval time to snap to (e.g. 30 = 30 minute interval)
-	private int SAMPLE_SIZE = 1000;
-	private final float MUTATION_CHANCE = 0.7f;
-	private int MAX_GENERATIONS = 10; // Must be at least 1
-	private final float FITNESS_THRESHOLD = 10f;
 	private final int NUMBER_OF_STATIONS = 4;
+	private final float FITNESS_THRESHOLD = 10f;
+	
+	private float MUTATION_CHANCE = 0.65f;
+	private int MAX_GENERATIONS = 10; // Must be at least 1
+	private int SAMPLE_SIZE = 1000;
 
 	private LinkedList<CarPreferenceData> listOfCarPrefData;
 	private LinkedList<Schedule> population;
@@ -46,7 +39,6 @@ public class GA_Control implements AgentInteraction {
 
 	public String Setup(LinkedList<CarPreferenceData> list) {
 		this.listOfCarPrefData = list;
-		// random.randomize()??
 		return "Genetic Algorithm Created";
 	}
 
@@ -55,19 +47,22 @@ public class GA_Control implements AgentInteraction {
 
 		// @Debug GetNewConstants
 		if (control.debug) {
-			String strPopulation = ((DebugMainInterface) control.main).text_Population.getText();
-			String strGenerations = ((DebugMainInterface) control.main).text_Generations.getText();
+			String strPopulation = ((DebugMainFrame) control.mainFrame).text_Population.getText();
+			String strGenerations = ((DebugMainFrame) control.mainFrame).text_Generations.getText();
+			String strMutationChance = ((DebugMainFrame) control.mainFrame).text_Mutation.getText();
 
 			int intPopulation = Integer.parseInt(strPopulation);
 			int intGenerations = Integer.parseInt(strGenerations);
+			float floatMutationChance = Float.parseFloat(strMutationChance);
 
+			MUTATION_CHANCE = floatMutationChance;
 			SAMPLE_SIZE = intPopulation;
 			MAX_GENERATIONS = intGenerations;
 		}
 
 		if (listOfCarPrefData.size() > 0) {
 			previousSchedule = currentSchedule;
-			scheduleReady = false; // Lets master scheduler know schedule is being calcualted
+			scheduleReady = false; // Lets master scheduler know schedule is being calculated
 
 			GeneratePopulation(null); // Generate first population
 			currentSchedule = GetHighestSchedule(population); // Get the highest fitness member as current schedule
@@ -439,16 +434,25 @@ public class GA_Control implements AgentInteraction {
 
 		// Debug -> Choose which fitness function to use
 		if (control.debug == true) {
-			if (((DebugMainInterface) control.main).fitnessRadio1.isSelected() == true) {
+			int verINDEX = ((DebugMainFrame) control.mainFrame).fitnessCB.getSelectedIndex();
+			switch (verINDEX) {
+			case 0:
 				CalculateFitness(s);
-			} else if (((DebugMainInterface) control.main).fitnessRadio2.isSelected() == true) {
+				break;
+			case 1:
 				CalculateFitnessV2(s);
-			} else if (((DebugMainInterface) control.main).fitnessRadio3.isSelected() == true) {
+				break;
+			case 2:
 				CalculateFitnessV3(s);
-			} else if (((DebugMainInterface) control.main).fitnessRadio4.isSelected() == true) {
+				break;
+			case 3:
 				CalculateFitnessV4(s);
-			} else if (((DebugMainInterface) control.main).fitnessRadio5.isSelected() == true) {
+				break;
+			case 4:
 				CalculateFitnessV5(s);
+				break;
+			default:
+				CalculateFitnessV3(s);
 			}
 		} else {
 			CalculateFitnessV3(s);
@@ -460,48 +464,51 @@ public class GA_Control implements AgentInteraction {
 	// ************************************************************************
 
 	// Checks if a car lies within the duration of another car
-	private boolean CheckClash(CarSlot n, float request, CarSlot other) {
-
-		if (n.startRequested == other.startTime || request == other.startTime) {
+	private boolean CheckClash(CarSlot newCar, float newCarRequest, CarSlot other) {
+		
+		if (newCar.startRequested == other.startTime || newCarRequest == other.startTime) {
 			return true;
 		}
 		float padding = 0; // Minimum space between cars
 
 		float start, end, middleTest;
-		if (other.startTime >= request) {
-			start = request;
-			end = request + n.duration;
+		if (other.startTime >= newCarRequest) 
+		{
+			start = newCarRequest;
+			end = newCarRequest + newCar.duration;
 			middleTest = other.startTime;
-		} else {
+		} 
+		else 
+		{
 			start = other.startTime;
 			end = other.startTime + other.duration;
-			middleTest = request;
+			middleTest = newCarRequest;
 		}
-
-		return (middleTest > (start - padding) && middleTest < (end + padding));
+		return (middleTest < end);
+		//return (middleTest > (start - padding) && middleTest < (end + padding));
 
 	}
 
 	// Calculating Fitness
 	// *************************************************************************
 	/**
-	 * Fitness Function
-	 * 
-	 * @param p
-	 * @return
+	 * @author Matthew Ward
 	 */
 	private void CalculateFitness(Schedule p) {
 		float max = listOfCarPrefData.size();
 		float numberOfCars = p.NumberOfCars();
-		float unusedHours = p.UnusedHours();
+		float totalTimeGap = p.TimeGap();
 		float wastedFromRequestedStart = p.TimeFromRequested();
 
 		// Fitness function
-		float fit = (numberOfCars - 0.1f * unusedHours - 0.5f * wastedFromRequestedStart) / max;
+		float fit = (numberOfCars - 0.1f * totalTimeGap - 0.5f * wastedFromRequestedStart) / max;
 
 		p.fitness = fit;
 	}
 
+	/**
+	 * @author Jacques Van Niekerk
+	 */
 	private void CalculateFitnessV2(Schedule p) {
 		float TotalunusedHours = p.TotalUnusedHours();
 		float PriorityScore = p.PriorityScore();
@@ -510,6 +517,9 @@ public class GA_Control implements AgentInteraction {
 		p.fitness = fit;
 	}
 
+	/**
+	 * @author Jacques Van Niekerk
+	 */
 	private void CalculateFitnessV4(Schedule p) {
 		float TotalAlloctedTime = p.TotalAlloctedTime();
 		float totalRequestedTime = TotalRequestedTime();
@@ -522,15 +532,21 @@ public class GA_Control implements AgentInteraction {
 		p.fitness = fit;
 	}
 
+	/**
+	 * @author Matthew Ward
+	 */
 	private void CalculateFitnessV3(Schedule p) {
 		float PriorityScore = p.Prioritypoints();
 		float AmountDown = p.TimeFromRequested();
-		float TimeGap = p.UnusedHours();
+		float TimeGap = p.TimeGap();
 		float fit = 0;
 		fit = PriorityScore*2 - TimeGap*0.5f - AmountDown*0.1f;
 		p.fitness = fit;
 	}
 
+	/**
+	 * @author Jacques Van Niekerk
+	 */
 	private void CalculateFitnessV5(Schedule p) {
 		float TotalAlloctedTime = p.TotalAlloctedTime();
 		float totalRequestedTime = TotalRequestedTime();

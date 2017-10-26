@@ -11,13 +11,16 @@ import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 import jade.wrapper.*;
-
+/**
+ * This class is used to make the JADE runtime environment and Construct agents.
+ * @author Matthew Ward
+ *
+ */
 public class JADEController {
 	
 	private ContainerController mainCtrl; //Main Container
 	private Runtime rt;
 	private Control c;
-	private Random rnd = new Random();
 	
 	public JADEController(Control c) throws StaleProxyException, InterruptedException {
 		
@@ -31,24 +34,7 @@ public class JADEController {
 		pMain.setParameter(Profile.GUI, "true");
 		
 		mainCtrl = rt.createMainContainer(pMain);
-		
-		//Thread.sleep(3000);
 	}
-	
-	/*
-	public AgentInteraction GetAgentInterface(Agent agent) {
-		AgentInteraction o2a_interface;
-		
-		//Retrieve O2A interface exposed by the agent
-		System.out.println(agent.getName() + ": Agent Interaction Interace Requested");
-		o2a_interface = agent.getO2AInterface(AgentInteraction.class);
-		
-		//o2a.activate();
-		//o2a.deactivate();
-		
-		return o2a_interface;
-	}
-	*/
 	
 	/**
 	 * Creates a container with a name
@@ -78,6 +64,14 @@ public class JADEController {
 		return master;
 	}
 	
+	/**
+	 * Creates the Car Agent in a specific container
+	 * @param ctrl
+	 * @param name
+	 * @return
+	 * @throws StaleProxyException
+	 * @author Jacques Van Niekerk
+	 */
 	public AgentController CreatCarAgent(ContainerController ctrl, String name) throws StaleProxyException {
 		ContainerController ctr = (ctrl!=null)?ctrl:mainCtrl; //If null, create in main container
 		

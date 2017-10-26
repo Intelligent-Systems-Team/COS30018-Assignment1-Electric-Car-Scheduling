@@ -18,6 +18,11 @@ import jade.lang.acl.MessageTemplate;
 import jade.proto.AchieveREInitiator;
 import jade.proto.AchieveREResponder;
 
+/**
+ * 
+ * @author Jacques Van Niekerk
+ *
+ */
 public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAgentIneraction {
 	
 	private Control control = null;
@@ -28,12 +33,6 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 	public Agent_Car() {
 		registerO2AInterface(AgentInteraction.class, this); //Required to access interface
 		registerO2AInterface(CarTableCarAgentIneraction.class, this);
-	}
-	
-	protected void setup() {
-		//Object[] args = getArguments();
-		//messageContent = (PrefernceMessage) args[0];
-		//SendRegisterRequest(messageContent);
 	}
 
 	@Override
@@ -57,7 +56,10 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 			if (s!="") { control.AddLastMessage(s); }
 		}
 	}
-	
+
+	/**
+	 * Sends a PrefernceMessage to the MasterSchedulerAgent
+	 */
 	@Override
 	public void SendRegisterRequest(PrefernceMessage sendPrefMessage)
 	{
@@ -76,20 +78,21 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 	}
 
 	/**
-	 * 
-	 *
+	 * SendMessageBehaviour is a Initiator Behaviour which will send a ACLMessage to Master
+	 * and then will handle response and reply if needed.
+	 * @author Jacques Van Niekerk
 	 *
 	 */
 	private class SendMessageBehaviour extends AchieveREInitiator {
 
 		public SendMessageBehaviour(Agent a, ACLMessage msg) {
 			super(a, msg);
-			PrintToSystem(messageContent.name +": sent Request to Master");
+			PrintToSystem("Car"+messageContent.name +": sent Request to Master");
 			// TODO Auto-generated constructor stub
 		}
 
 		protected void handleAgree(ACLMessage agree) {
-			PrintToSystem(getLocalName() + ": " + agree.getSender().getLocalName() + " has agreed to the request");
+			PrintToSystem("Car"+getLocalName() + ": " + agree.getSender().getLocalName() + " has agreed to the request");
 		}
 		
 		protected void handleInform(ACLMessage inform) 
@@ -103,7 +106,7 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 				ACLMessage reply = inform.createReply();
 				if (update!=1) 
 				{
-					PrintToSystem(getLocalName() +": sent CONFIRM to Master");
+					PrintToSystem("Car"+getLocalName() +": sent CONFIRM to Master");
 					reply.setPerformative(ACLMessage.CONFIRM);
 					reply.setContent("Yes, Please Change");
 					try {
@@ -117,7 +120,7 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 				//Choose no
 				else
 				{
-					PrintToSystem(getLocalName() +": sent DISCONFIRM to Master");
+					PrintToSystem("Car"+getLocalName() +": sent DISCONFIRM to Master");
 					reply.setPerformative(ACLMessage.DISCONFIRM);
 					reply.setContent("No, Don't Change");
 					control.UpdateCarStatus(messageContent.id, "Registered");
@@ -127,14 +130,14 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 		}
 
 		protected void handleRefuse(ACLMessage refuse) {
-			PrintToSystem(getLocalName() + ": " + refuse.getSender().getLocalName() + " refused request");
+			PrintToSystem("Car"+getLocalName() + ": " + refuse.getSender().getLocalName() + " refused request");
 		}
 
 		protected void handleFailure(ACLMessage failure) {
 			if (failure.getSender().equals(myAgent.getAMS())) {
-				PrintToSystem(getLocalName() + ": " + "Responder does not exist");
+				PrintToSystem("Car"+getLocalName() + ": " + "Responder does not exist");
 			} else {
-				PrintToSystem(getLocalName() + ": " + failure.getSender().getName()
+				PrintToSystem("Car"+getLocalName() + ": " + failure.getSender().getName()
 						+ " failed to perform the requested action");
 			}
 		}
