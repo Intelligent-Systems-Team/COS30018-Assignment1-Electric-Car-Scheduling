@@ -55,9 +55,9 @@ public class GA_Control implements AgentInteraction {
 
 		// @Debug GetNewConstants
 		if (control.debug) {
-			String strPopulation = ((DebugMainFrame) control.main).text_Population.getText();
-			String strGenerations = ((DebugMainFrame) control.main).text_Generations.getText();
-			String strMutationChance = ((DebugMainFrame) control.main).text_Mutation.getText();
+			String strPopulation = ((DebugMainFrame) control.mainFrame).text_Population.getText();
+			String strGenerations = ((DebugMainFrame) control.mainFrame).text_Generations.getText();
+			String strMutationChance = ((DebugMainFrame) control.mainFrame).text_Mutation.getText();
 
 			int intPopulation = Integer.parseInt(strPopulation);
 			int intGenerations = Integer.parseInt(strGenerations);
@@ -442,7 +442,7 @@ public class GA_Control implements AgentInteraction {
 
 		// Debug -> Choose which fitness function to use
 		if (control.debug == true) {
-			int verINDEX = ((DebugMainFrame) control.main).fitnessCB.getSelectedIndex();
+			int verINDEX = ((DebugMainFrame) control.mainFrame).fitnessCB.getSelectedIndex();
 			switch (verINDEX) {
 			case 0:
 				CalculateFitness(s);

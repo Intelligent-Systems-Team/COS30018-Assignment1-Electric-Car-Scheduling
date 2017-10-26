@@ -56,7 +56,7 @@ import com.jgoodies.forms.layout.RowSpec;
  * @author Matthew Ward
  * @author Brendan Pert
  * @see JFrame
- * @see Control
+ * @see MainFrame
  * 
  */
 public class DebugMainFrame extends JFrame implements MainFrameInterface {

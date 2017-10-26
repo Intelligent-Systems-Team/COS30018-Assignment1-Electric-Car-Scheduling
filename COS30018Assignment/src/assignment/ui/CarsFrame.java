@@ -33,6 +33,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.awt.event.ActionListener;
 
+/**
+ * Car frame is just a modified JFrame which has all the data of all the
+ * Agent_Cars and has the functionality to make the Agent_Car send a Request.
+ * 
+ * @author Jacques Van Niekerk
+ * @see JFrame
+ * @see Agent_Car
+ */
 public class CarsFrame extends JFrame {
 
 	private JPanel contentPane;

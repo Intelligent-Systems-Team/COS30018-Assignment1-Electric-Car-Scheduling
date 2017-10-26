@@ -23,40 +23,52 @@ import jade.wrapper.ControllerException;
 import jade.wrapper.StaleProxyException;
 import jade.wrapper.gateway.JadeGateway;
 
+/**
+ * This class is the class that controls all the interactions between the agents and the UI and the JADE controller.
+ * @author Matthew Ward
+ * @author Jacques Van Niekerk
+ * @author Brendan Pert
+ */
 public class Control implements ActionListener {
-
-
-
-	Thread one = new Thread();
-
 	public boolean debug = true; // @Debug
+	public MainFrameInterface mainFrame;
 
 	private JADEController jController;
-	public MainFrameInterface main;
+	private CarsFrame carFrame;
 	private boolean simulating = false;
-	private String[] latestMessagesArray = new String[16]; // This number is the number of messages displayed in the UI
-	private LinkedList<String> AllMessages = new LinkedList<String>(); // TODO: Not sure if we need to keep track of all
-																		// messages?
+	private LinkedList<String> AllMessages = new LinkedList<String>();
 	private static final int MAX_NUM_MESSAGES = 50;
 	private int CarNumber;
 	private AgentController master;
 	private ContainerController enviro;
 	private ContainerController station1;
-
-	private CarsFrame carFrame;
 	private Random rnd = new Random();
 
-	public LinkedList<JFrame> carFrames = new LinkedList<JFrame>();
+	public Control(String name) {
+		if (debug) {
+			mainFrame = new DebugMainFrame(this);
+		} else {
+			mainFrame = new MainFrame(this);
+		}
+	}
 
+	/**
+	 * When one of the mainFrames start the simulation this function will be called.
+	 * This will initialize the JADE Gateway and create the MasterScheduling Agent
+	 * and the environment container and if there's a CarFrame already it will make
+	 * all the required car agents
+	 * 
+	 * @throws ControllerException
+	 * @throws InterruptedException
+	 */
 	private void Begin() throws ControllerException, InterruptedException {
 		InitializeJadeGateway(); // Sets up Jade Gateway
 
 		// Creates Master Scheduling Agent
 		master = jController.CreateMasterAgent("Master");
 
-		// Create Stations
+		// Create EnviroMent Container
 		enviro = jController.CreateContainer("Enviroment");
-		// station1 = jController.CreateContainer("Station 1");
 
 		// Make Car GUI
 		if (carFrame == null) {
@@ -71,70 +83,39 @@ public class Control implements ActionListener {
 		UpdateCurrentSchedule(null);
 		ResetLatestMessagesList();
 		simulating = true;
-
-		// ********************
-	}
-	// ***********************************************************************
-
-	private void MakeCarAgentsFormTable() 
-	{
-		for (String carName : carFrame.GetCarIds())
-		{
-		
-		try {
-			jController.CreatCarAgent(enviro, carName);
-		} catch (StaleProxyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		}
 	}
 
-	// ****************************
-	// Control functions/procedures
-	// ****************************
-	public Control(String name) {
-		if (debug) {
-			main = new DebugMainFrame(this);
-		} else {
-			main = new MainFrame(this);
+	/**
+	 * Create car agents from the CarFrame Table
+	 */
+	private void MakeCarAgentsFormTable() {
+		for (String carName : carFrame.GetCarIds()) {
+
+			try {
+				jController.CreatCarAgent(enviro, carName);
+			} catch (StaleProxyException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
 	/**
-	 * Prints the current schedule to the UI
+	 * Updates the MainFrame System Message Display with all the system out messages
+	 * from agents plus adds the new Message.
 	 * 
-	 * @param current
+	 * @param newMessage
 	 */
-
-	public void NewCarInputs(AgentInteraction car) {
-		JFrame carFrame = new JFrame(car.AgentName());
-
-		if (carFrames.size() > 0) {
-			carFrame.setLocationRelativeTo(carFrames.getLast());
-		} else {
-			carFrame.setLocationRelativeTo(null);
-		}
-
-		// carFrame.add(new InteractionButton(car, 1, this));
-
-		carFrame.setVisible(true);
-		carFrames.add(carFrame);
-	}
-
 	public void AddLastMessage(String newMessage) {
 		String displayString = "";
-		if(AllMessages.size() >= MAX_NUM_MESSAGES)
-		{
-			for(int i = 0; i <(MAX_NUM_MESSAGES/2);i++)
-			AllMessages.removeLast();
+		if (AllMessages.size() >= MAX_NUM_MESSAGES) {
+			for (int i = 0; i < (MAX_NUM_MESSAGES / 2); i++)
+				AllMessages.removeLast();
 		}
 		AllMessages.add(newMessage);
-		for(String line: AllMessages)
-		{
+		for (String line : AllMessages) {
 			displayString += "\n* " + line;
 		}
-		main.UpdateSystemOut("Latest Messages from agents:" + displayString);
+		mainFrame.UpdateSystemOut("Latest Messages from agents:" + displayString);
 	}
 
 	public void ResetLatestMessagesList() {
@@ -148,7 +129,6 @@ public class Control implements ActionListener {
 		gatewayProperties.setProperty(Profile.MAIN_HOST, "localhost");
 		gatewayProperties.setProperty(Profile.MAIN_PORT, "1099");
 		JadeGateway.init(null, gatewayProperties);
-
 		System.out.println("Gateway Established");
 	}
 
@@ -156,29 +136,34 @@ public class Control implements ActionListener {
 		return a.getO2AInterface(AgentInteraction.class);
 	}
 
+	/**
+	 * This Method handles all the Events from the buttons being pressed in the
+	 * MainFrame.
+	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		System.out.print("Action listener called with: " + e.getActionCommand());
+		// Starts the JADE Controller
 		if ("StartJADE".equals(e.getActionCommand()) && jController == null) {
 			System.out.println("StartJADE called");
 			try {
 				jController = new JADEController(this);
 
-				main.EnableSimulationButton();
+				mainFrame.EnableSimulationButton();
 
 			} catch (StaleProxyException e1) {
 				e1.printStackTrace();
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-
 		} else if ("StartSimulation".equals(e.getActionCommand()) && jController != null) {
+			// Start the Simulation
 			if (!simulating) {
 				System.out.println("StartSimulation called");
 				try {
 					Begin();
 
-					main.EnableDisplay();
+					mainFrame.EnableDisplay();
 
 				} catch (StaleProxyException e1) {
 					// TODO Auto-generated catch block
@@ -190,7 +175,9 @@ public class Control implements ActionListener {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-			} else if (simulating) {
+			}
+			// Stops the Simulation
+			else if (simulating) {
 				System.out.println("Simulation Stopped");
 
 				// Toggle simulation boolean
@@ -202,23 +189,22 @@ public class Control implements ActionListener {
 				try {
 					master.kill();
 					enviro.kill();
-					//station1.kill();
 				} catch (StaleProxyException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
-				// Old Stuff
+
+				// Old Stuff to reset CarFrame.
 				// CarNumber = 0;
 				// carFrame.dispose();
-				
+
 				// Reset UI
-				main.StopDisplay(this);
+				mainFrame.StopDisplay(this);
 
 				UpdateCurrentSchedule(null);
 
 			}
 		} else if ("AddCar".equals(e.getActionCommand()) && jController != null) {
+			// Adds a Car Agent and a corresponding row to the CarFrame.
 			try {
 				float randomStart = (float) rnd.nextInt(12);
 				String carName = String.valueOf(CarNumber); // This becomes the car's id AND name
@@ -231,17 +217,13 @@ public class Control implements ActionListener {
 				} else {
 					InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 4);
 				}
-
-				AgentController newCar = jController.CreatCarAgent(enviro, carName); // Create the
-																											// car agent
+				// Create Car Agent
+				AgentController newCar = jController.CreatCarAgent(enviro, carName);
 
 				CarNumber++;
 				carFrame.AddCarToTable(InitPrefernceMessage); // Adds the Car to the Car Table
 
-				// Create jFrame for car with inputs, preferences, etc??
-
 			} catch (StaleProxyException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		} else if ("ClearMessages".equals(e.getActionCommand()) && jController != null) {
@@ -249,17 +231,19 @@ public class Control implements ActionListener {
 		}
 	}
 
+	/**
+	 * This method will make a Car Agent send the passed preference message to the
+	 * master scheduler.
+	 * 
+	 * @param sendMessage
+	 * @throws ControllerException
+	 */
 	public void SendPefernceToCarAgent(PrefernceMessage sendMessage) throws ControllerException {
-		// get An Agent Controller for the required car
-		// System.out.println("Looking for " + sendMessage.name);
 		AgentController carAgent = enviro.getAgent(sendMessage.name);
 		if (carAgent != null) {
-			// System.out.println("Found: " + carAgent.getName());
-			// System.out.println("with Class" + carAgent.getClass().toString());
 			try {
 				carAgent.getO2AInterface(CarTableCarAgentIneraction.class).SendRegisterRequest(sendMessage);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 				System.out.println("Making a Car Object didn't work");
 			}
@@ -268,12 +252,19 @@ public class Control implements ActionListener {
 		}
 	}
 
+	/**
+	 * Give other objects the ability to use the CarFrame's ChangeCarStatus().
+	 * 
+	 * @param carID
+	 * @param status
+	 */
 	public void UpdateCarStatus(int carID, String status) {
 		carFrame.ChangeCarStatus(carID, status);
 	}
 
 	public void UpdateCurrentSchedule(Schedule current) {
-		main.UpdateTableSchedule(current);
-		if(current !=null)carFrame.CheckCarDrop(current);
+		mainFrame.UpdateTableSchedule(current);
+		if (current != null)
+			carFrame.CheckCarDrop(current);
 	}
 }

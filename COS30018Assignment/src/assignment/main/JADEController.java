@@ -11,7 +11,11 @@ import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.core.Runtime;
 import jade.wrapper.*;
-
+/**
+ * This class is used to make the JADE runtime environment and Construct agents.
+ * @author Matthew Ward
+ *
+ */
 public class JADEController {
 	
 	private ContainerController mainCtrl; //Main Container
@@ -78,6 +82,14 @@ public class JADEController {
 		return master;
 	}
 	
+	/**
+	 * Creates the Car Agent in a specific container
+	 * @param ctrl
+	 * @param name
+	 * @return
+	 * @throws StaleProxyException
+	 * @author Jacques Van Niekerk
+	 */
 	public AgentController CreatCarAgent(ContainerController ctrl, String name) throws StaleProxyException {
 		ContainerController ctr = (ctrl!=null)?ctrl:mainCtrl; //If null, create in main container
 		
