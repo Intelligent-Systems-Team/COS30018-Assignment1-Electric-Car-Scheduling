@@ -9,28 +9,21 @@ import assignment.main.CarPreferenceData;
 import assignment.main.Control;
 import assignment.ui.DebugMainFrame;
 import jade.core.behaviours.Behaviour;
-
+/**
+ * 
+ * @author Matthew Ward
+ *
+ */
 public class GA_Control implements AgentInteraction {
-
-	// ***********************
-	// ***********************
-	// ***********************
-	// ***********************
-	// ***********************
-	// NEEDS CONFIGURATION FILE??
-	// ***********************
-	// ***********************
-	// ***********************
-	// ***********************
-	// ***********************
 
 	// Constants
 	private final int INTERVAL_SNAP = 30; // Interval time to snap to (e.g. 30 = 30 minute interval)
-	private int SAMPLE_SIZE = 1000;
+	private final int NUMBER_OF_STATIONS = 4;
+	private final float FITNESS_THRESHOLD = 10f;
+	
 	private float MUTATION_CHANCE = 0.65f;
 	private int MAX_GENERATIONS = 10; // Must be at least 1
-	private final float FITNESS_THRESHOLD = 10f;
-	private final int NUMBER_OF_STATIONS = 4;
+	private int SAMPLE_SIZE = 1000;
 
 	private LinkedList<CarPreferenceData> listOfCarPrefData;
 	private LinkedList<Schedule> population;
@@ -46,7 +39,6 @@ public class GA_Control implements AgentInteraction {
 
 	public String Setup(LinkedList<CarPreferenceData> list) {
 		this.listOfCarPrefData = list;
-		// random.randomize()??
 		return "Genetic Algorithm Created";
 	}
 
@@ -70,7 +62,7 @@ public class GA_Control implements AgentInteraction {
 
 		if (listOfCarPrefData.size() > 0) {
 			previousSchedule = currentSchedule;
-			scheduleReady = false; // Lets master scheduler know schedule is being calcualted
+			scheduleReady = false; // Lets master scheduler know schedule is being calculated
 
 			GeneratePopulation(null); // Generate first population
 			currentSchedule = GetHighestSchedule(population); // Get the highest fitness member as current schedule
@@ -508,11 +500,11 @@ public class GA_Control implements AgentInteraction {
 	private void CalculateFitness(Schedule p) {
 		float max = listOfCarPrefData.size();
 		float numberOfCars = p.NumberOfCars();
-		float unusedHours = p.UnusedHours();
+		float totalTimeGap = p.TimeGap();
 		float wastedFromRequestedStart = p.TimeFromRequested();
 
 		// Fitness function
-		float fit = (numberOfCars - 0.1f * unusedHours - 0.5f * wastedFromRequestedStart) / max;
+		float fit = (numberOfCars - 0.1f * totalTimeGap - 0.5f * wastedFromRequestedStart) / max;
 
 		p.fitness = fit;
 	}
@@ -539,7 +531,7 @@ public class GA_Control implements AgentInteraction {
 
 	private void CalculateFitnessV3(Schedule p) {
 		float PriorityScore = p.Prioritypoints();
-		float TimeGap = p.UnusedHours();
+		float TimeGap = p.TimeGap();
 		float fit = 0;
 		fit = PriorityScore * 0.8f - TimeGap;
 		p.fitness = fit;

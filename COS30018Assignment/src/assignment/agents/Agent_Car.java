@@ -18,6 +18,11 @@ import jade.lang.acl.MessageTemplate;
 import jade.proto.AchieveREInitiator;
 import jade.proto.AchieveREResponder;
 
+/**
+ * 
+ * @author Jacques Van Niekerk
+ *
+ */
 public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAgentIneraction {
 	
 	private Control control = null;
@@ -28,12 +33,6 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 	public Agent_Car() {
 		registerO2AInterface(AgentInteraction.class, this); //Required to access interface
 		registerO2AInterface(CarTableCarAgentIneraction.class, this);
-	}
-	
-	protected void setup() {
-		//Object[] args = getArguments();
-		//messageContent = (PrefernceMessage) args[0];
-		//SendRegisterRequest(messageContent);
 	}
 
 	@Override
@@ -57,6 +56,9 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 			if (s!="") { control.AddLastMessage(s); }
 		}
 	}
+	/**
+	 * Sends a PrefernceMessage to the MasterSchedulerAgent
+	 */
 	@Override
 	public void SendRegisterRequest(PrefernceMessage sendPrefMessage)
 	{
@@ -75,8 +77,9 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 	}
 
 	/**
-	 * 
-	 *
+	 * SendMessageBehaviour is a Initiator Behaviour which will send a ACLMessage to Master
+	 * and then will handle response and reply if needed.
+	 * @author Jacques Van Niekerk
 	 *
 	 */
 	private class SendMessageBehaviour extends AchieveREInitiator {
