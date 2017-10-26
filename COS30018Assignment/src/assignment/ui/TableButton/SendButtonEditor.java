@@ -12,19 +12,19 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
 import assignment.message.PrefernceMessage;
-import assignment.ui.CarsInterface;
+import assignment.ui.CarsFrame;
 import jade.wrapper.ControllerException;
 
 /**
  * @version 1.0 11/09/98
  */
 
-public class ButtonEditor extends DefaultCellEditor {
+public class SendButtonEditor extends DefaultCellEditor {
 	protected JButton button;
 	private String label;
 	private boolean isPushed;
 	
-	private CarsInterface carFrame;
+	private CarsFrame carFrame;
 	
 	private String name; 
 	private float duration;
@@ -36,7 +36,7 @@ public class ButtonEditor extends DefaultCellEditor {
 	private int currentcolumn;
 	
 
-	public ButtonEditor(JCheckBox checkBox, CarsInterface carframe) {
+	public SendButtonEditor(JCheckBox checkBox, CarsFrame carframe) {
 		super(checkBox);
 		carFrame = carframe;
 		button = new JButton();
@@ -77,8 +77,9 @@ public class ButtonEditor extends DefaultCellEditor {
 			duration = Float.parseFloat((String) currentTable.getValueAt(currentrow, 2));
 			start = Float.parseFloat((String) currentTable.getValueAt(currentrow, 3));
 			finish = Float.parseFloat((String) currentTable.getValueAt(currentrow, 4));
-			//This is where the car will send it's data
+			// Change the Car Status
 			currentTable.setValueAt("Sending", currentrow, 1);
+			// Pop-up Of Presence Details 
 			JOptionPane.showMessageDialog(button, "Sending Data to CarAgent \n"+
 					name +":"
 					+"\n Start Time Requested:"+start
@@ -99,14 +100,13 @@ public class ButtonEditor extends DefaultCellEditor {
 	protected void fireEditingStopped() {
 		super.fireEditingStopped();
 	}
-	//TODO Some How figure out how to 
+	
 	public void SendPrefenceData()
 	{
 		PrefernceMessage PMdata = new PrefernceMessage(name,duration,start,finish);
 		try {
 			carFrame.SendCarChargeRequest(PMdata);
 		} catch (ControllerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

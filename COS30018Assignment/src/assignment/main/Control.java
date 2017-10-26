@@ -11,10 +11,10 @@ import assignment.agents.AgentInteraction;
 import assignment.agents.CarTableCarAgentIneraction;
 import assignment.geneticAlgorithm.Schedule;
 import assignment.message.PrefernceMessage;
-import assignment.ui.CarsInterface;
-import assignment.ui.MainInterface;
-import assignment.ui.MainInterfaceInterface;
-import assignment.ui.DebugMainInterface;
+import assignment.ui.CarsFrame;
+import assignment.ui.MainFrame;
+import assignment.ui.MainFrameInterface;
+import assignment.ui.DebugMainFrame;
 import jade.core.Profile;
 import jade.util.leap.Properties;
 import jade.wrapper.AgentController;
@@ -32,7 +32,7 @@ public class Control implements ActionListener {
 	public boolean debug = true; // @Debug
 
 	private JADEController jController;
-	public MainInterfaceInterface main;
+	public MainFrameInterface main;
 	private boolean simulating = false;
 	private String[] latestMessagesArray = new String[16]; // This number is the number of messages displayed in the UI
 	private LinkedList<String> AllMessages = new LinkedList<String>(); // TODO: Not sure if we need to keep track of all
@@ -43,7 +43,7 @@ public class Control implements ActionListener {
 	private ContainerController enviro;
 	private ContainerController station1;
 
-	private CarsInterface carFrame;
+	private CarsFrame carFrame;
 	private Random rnd = new Random();
 
 	public LinkedList<JFrame> carFrames = new LinkedList<JFrame>();
@@ -61,7 +61,7 @@ public class Control implements ActionListener {
 		// Make Car GUI
 		if (carFrame == null) {
 			try {
-				carFrame = new CarsInterface(this);
+				carFrame = new CarsFrame(this);
 				carFrame.setVisible(true);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -95,9 +95,9 @@ public class Control implements ActionListener {
 	// ****************************
 	public Control(String name) {
 		if (debug) {
-			main = new DebugMainInterface(this);
+			main = new DebugMainFrame(this);
 		} else {
-			main = new MainInterface(this);
+			main = new MainFrame(this);
 		}
 	}
 
