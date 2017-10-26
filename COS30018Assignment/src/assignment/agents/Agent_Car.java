@@ -57,6 +57,7 @@ public class Agent_Car extends Agent implements AgentInteraction, CarTableCarAge
 			if (s!="") { control.AddLastMessage(s); }
 		}
 	}
+	
 	@Override
 	public void SendRegisterRequest(PrefernceMessage sendPrefMessage)
 	{

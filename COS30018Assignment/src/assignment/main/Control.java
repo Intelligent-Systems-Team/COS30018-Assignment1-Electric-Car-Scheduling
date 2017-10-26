@@ -38,7 +38,7 @@ public class Control implements ActionListener {
 	private int CarNumber;
 	private AgentController master;
 	private ContainerController enviro;
-	private ContainerController station1;
+	//private ContainerController station1;
 
 	private CarsInterface carFrame;
 	private Random rnd = new Random();
@@ -229,7 +229,7 @@ public class Control implements ActionListener {
 					InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart,
 							randomStart + 2 + (float) rnd.nextInt(10));
 				} else {
-					InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 4);
+					InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 12);
 				}
 
 				AgentController newCar = jController.CreatCarAgent(enviro, carName); // Create the

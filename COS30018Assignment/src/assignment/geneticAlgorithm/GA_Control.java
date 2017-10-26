@@ -27,7 +27,7 @@ public class GA_Control implements AgentInteraction {
 	// Constants
 	private final int INTERVAL_SNAP = 30; // Interval time to snap to (e.g. 30 = 30 minute interval)
 	private int SAMPLE_SIZE = 1000;
-	private final float MUTATION_CHANCE = 0.65f;
+	private final float MUTATION_CHANCE = 0.7f;
 	private int MAX_GENERATIONS = 10; // Must be at least 1
 	private final float FITNESS_THRESHOLD = 10f;
 	private final int NUMBER_OF_STATIONS = 4;
@@ -358,7 +358,7 @@ public class GA_Control implements AgentInteraction {
 
 						// Small chance it could try jumping to the start requested now
 						r = random.nextInt(100);
-						if (r <= chance) {
+						if (r <= chance/4) {
 
 							CarSlot car = newScheduleStation.registeredCars.get(i);
 							boolean spotTaken = false;
@@ -462,7 +462,7 @@ public class GA_Control implements AgentInteraction {
 	// Checks if a car lies within the duration of another car
 	private boolean CheckClash(CarSlot n, float request, CarSlot other) {
 
-		if (n.startRequested == other.startTime) {
+		if (n.startRequested == other.startTime || request == other.startTime) {
 			return true;
 		}
 		float padding = 0; // Minimum space between cars
@@ -524,9 +524,10 @@ public class GA_Control implements AgentInteraction {
 
 	private void CalculateFitnessV3(Schedule p) {
 		float PriorityScore = p.Prioritypoints();
+		float AmountDown = p.TimeFromRequested();
 		float TimeGap = p.UnusedHours();
 		float fit = 0;
-		fit = PriorityScore * 0.8f - TimeGap;
+		fit = PriorityScore*2 - TimeGap*0.5f - AmountDown*0.1f;
 		p.fitness = fit;
 	}
 
