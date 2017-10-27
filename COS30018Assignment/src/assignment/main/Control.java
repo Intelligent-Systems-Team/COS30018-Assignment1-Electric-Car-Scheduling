@@ -2,6 +2,7 @@ package assignment.main;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ConcurrentModificationException;
 import java.util.LinkedList;
 import java.util.Random;
 
@@ -24,7 +25,9 @@ import jade.wrapper.StaleProxyException;
 import jade.wrapper.gateway.JadeGateway;
 
 /**
- * This class is the class that controls all the interactions between the agents and the UI and the JADE controller.
+ * This class is the class that controls all the interactions between the agents
+ * and the UI and the JADE controller.
+ * 
  * @author Matthew Ward
  * @author Jacques Van Niekerk
  * @author Brendan Pert
@@ -41,7 +44,7 @@ public class Control implements ActionListener {
 	private int CarNumber;
 	private AgentController master;
 	private ContainerController enviro;
-	//private ContainerController station1;
+	// private ContainerController station1;
 	private Random rnd = new Random();
 
 	public Control(String name) {
@@ -105,15 +108,20 @@ public class Control implements ActionListener {
 	 * 
 	 * @param newMessage
 	 */
-	public void AddLastMessage(String newMessage) {
+	public synchronized void AddLastMessage(String newMessage) {
 		String displayString = "";
 		if (AllMessages.size() >= MAX_NUM_MESSAGES) {
 			for (int i = 0; i < (MAX_NUM_MESSAGES / 2); i++)
 				AllMessages.removeLast();
 		}
 		AllMessages.add(newMessage);
-		for (String line : AllMessages) {
-			displayString += "\n* " + line;
+		try {
+			for (String line : AllMessages) {
+				displayString += "\n* " + line;
+			}
+		} catch (ConcurrentModificationException e) {
+			System.out.println("AllMessage ERROR");
+			e.printStackTrace();
 		}
 		mainFrame.UpdateSystemOut("Latest Messages from agents:" + displayString);
 	}

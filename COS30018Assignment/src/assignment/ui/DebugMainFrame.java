@@ -304,13 +304,18 @@ public class DebugMainFrame extends JFrame implements MainFrameInterface {
 	public void UpdateSystemOut(String string) {
 		mySystemOut.setText(string);
 		JScrollBar vertical = scrollPane_1.getVerticalScrollBar();
-		vertical.setValue(vertical.getMaximum());
+		try {
+			vertical.setValue(vertical.getMaximum());
+		} catch (ArrayIndexOutOfBoundsException e) {
+			System.out.println("Scroll Error");
+			e.printStackTrace();
+		}
 	}
 
 	private void ClearTable() {
 		for (int station = 1; station <= 4; station++) {
 			for (int i = 0; i < dtm.getRowCount(); i++) {
-				dtm.setValueAt("", i, station-1);
+				dtm.setValueAt("", i, station);
 			}
 		}
 	}
