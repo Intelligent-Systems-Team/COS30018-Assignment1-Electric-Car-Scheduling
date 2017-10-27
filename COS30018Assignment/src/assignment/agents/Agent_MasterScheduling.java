@@ -113,7 +113,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 					if (carID >= 0 && !CarExist(carID)) {
 						// Check If Can accept the car
 						// Tries to Add car to list
-						if (AddCar(preferenceMessage)) {
+						if (AddCar(preferenceMessage, -1)) {
 							PrintToSystem("Car" + getLocalName() + ": " + car + " has been registered");
 							reply.setPerformative(ACLMessage.AGREE);
 							reply.setContent("Registered");
@@ -193,7 +193,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 			return false;
 		}
 
-		private boolean AddCar(PrefernceMessage preferenceMessage) {
+		private boolean AddCar(PrefernceMessage preferenceMessage, int removedCar) {
 			CarPreferenceData c = new CarPreferenceData(preferenceMessage.name);
 			c.id = preferenceMessage.id;
 			c.durationRequested = preferenceMessage.duration;
@@ -202,7 +202,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 			c.priority = carNameList.size() + 1;
 			carNameList.add(c);
 
-			ga.Generate();
+			ga.Generate(removedCar);
 			while (!ga.scheduleReady) {}
 
 			boolean couldAddCar = ga.GetCurrentSchedule().CarExist(c.id);
@@ -231,7 +231,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 																// priority)
 			}
 
-			return AddCar(prefernceMessage);
+			return AddCar(prefernceMessage, prefernceMessage.id);
 
 		}
 

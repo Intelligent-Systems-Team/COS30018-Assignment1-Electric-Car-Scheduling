@@ -42,7 +42,7 @@ public class GA_Control implements AgentInteraction {
 		return "Genetic Algorithm Created";
 	}
 
-	public void Generate() {
+	public void Generate(int idToRemoveOrUpdate) {
 		firstAtStartRequested = false;
 
 		// @Debug GetNewConstants
@@ -61,9 +61,32 @@ public class GA_Control implements AgentInteraction {
 		}
 
 		if (listOfCarPrefData.size() > 0) {
+			
+			System.out.println("--- Genetic Algorithm: Generation 1 ---");
+			
 			previousSchedule = currentSchedule;
 			scheduleReady = false; // Lets master scheduler know schedule is being calculated
 
+			//Remove the car from the current schedule
+			if (idToRemoveOrUpdate > -1 && currentSchedule != null) {
+				boolean removed = false;
+				for (int s = 0; s < NUMBER_OF_STATIONS; s++) {
+					StationSlot station = currentSchedule.stations.get(s);
+					for (int c = 0; c < station.registeredCars.size(); c++) {
+						int tid = station.registeredCars.get(c).id;
+						
+						if (tid == idToRemoveOrUpdate) {
+							station.registeredCars.remove(c);
+							removed = true;
+							break;
+						}
+					}
+					
+					if (removed) {break;}
+				}
+				
+			}
+			
 			GeneratePopulation(null); // Generate first population
 			currentSchedule = GetHighestSchedule(population); // Get the highest fitness member as current schedule
 			control.UpdateCurrentSchedule(currentSchedule); // Send it to the control to be displayed
@@ -71,11 +94,15 @@ public class GA_Control implements AgentInteraction {
 			int generations = 1;
 			while (generations < MAX_GENERATIONS) { // TODO: Make function for below comment
 
+				System.out.println("--- Genetic Algorithm: Generation " + (generations+1) +" ---");
+				
+				String calculating = "Calculating";
+				for (int ca = 0; ca < generations; ca++) { calculating += ".";}
+				PrintToSystem("Genetic Algorithm: " + calculating);
+				
 				GeneratePopulation(population); // Use existing list
 				currentSchedule = GetHighestSchedule(population); // Get the highest fitness member as current schedule
 				control.UpdateCurrentSchedule(currentSchedule); // Send it to the control to be displayed
-				// @Debug System.out.println("currentSchedule.TimeFromRequested: " +
-				// currentSchedule.TimeFromRequested());
 
 				if (currentSchedule.fitness > FITNESS_THRESHOLD
 						|| currentSchedule.fitness == 0 /* || more than half have converged on same schedule */) {
@@ -99,11 +126,11 @@ public class GA_Control implements AgentInteraction {
 				}
 			}
 
-			// @Debug PrintToSystem("Genetic Algorithm: Schedule Ready To Use");
+			PrintToSystem("Genetic Algorithm: Schedule Ready To Use");
 			scheduleReady = true; // Schedule ready to be used
 
 		} else {
-			// @Debug PrintToSystem("Genetic Algorithm: Unable to Create List - No Cars");
+			PrintToSystem("Genetic Algorithm: Unable to Create List - No Cars");
 			currentSchedule = null;
 		}
 	}
@@ -421,20 +448,9 @@ public class GA_Control implements AgentInteraction {
 		Schedule schedule = new Schedule(NUMBER_OF_STATIONS);
 		
 		for (int t = 0; t < NUMBER_OF_STATIONS; t++) {
-			StationSlot station_p1 = parent1.stations.get(t);
-			StationSlot station_p2 = parent2.stations.get(t);
+			StationSlot stationA = parent1.stations.get(t);
+			StationSlot stationB = parent2.stations.get(t);
 			StationSlot newScheduleStation = schedule.stations.get(t);
-
-			StationSlot stationA, stationB;
-			
-			float r = random.nextFloat();
-			if (station_p1.registeredCars.size() > station_p2.registeredCars.size()) {
-				stationA = (r < 0.7)?station_p1:station_p2;
-				stationB = (r < 0.7)?station_p2:station_p1;
-			} else {
-				stationB = (r < 0.7)?station_p1:station_p2;
-				stationA = (r < 0.7)?station_p2:station_p1;
-			} 
 			
 			
 			// Adds cars from parent 1 to new schedule
@@ -483,6 +499,53 @@ public class GA_Control implements AgentInteraction {
 					}
 				}
 			}
+					
+		}
+		
+		//Now, if any cars weren't added from station 2, it attempts to add them now
+		boolean noLostCars = true;
+		
+		for (int t = 0; t < NUMBER_OF_STATIONS; t++) {
+			StationSlot testParent1 = parent1.stations.get(t);
+			StationSlot testParent2 = parent2.stations.get(t);
+			
+			for (int i = 0; i < testParent1.registeredCars.size(); i++) {
+				CarSlot carToTest = testParent1.registeredCars.get(i);
+				
+				if (!schedule.CarExist(carToTest.id)) {
+					boolean success = false;
+					int attempts = 0;
+					
+					while(success == false && attempts++ < 12) {
+						success = TryAddCarToSchedule(schedule, carToTest.Clone());
+					}
+					
+					if (!success) {noLostCars = true; break;}
+					
+				}
+			}
+			
+			if (noLostCars == false) {break;}
+			
+			for (int i = 0; i < testParent2.registeredCars.size(); i++) {
+				CarSlot carToTest = testParent2.registeredCars.get(i);
+				
+				if (!schedule.CarExist(carToTest.id)) {
+					boolean success = false;
+					int attempts = 0;
+					
+					while(success == false && attempts++ < 12) {
+						success = TryAddCarToSchedule(schedule, carToTest.Clone());
+					}
+					
+					if (!success) {noLostCars = true; break;}
+					
+				}
+			}
+		}
+		
+		if (noLostCars == false) {
+			schedule = (parent1.fitness >= parent2.fitness)?parent1.Clone():parent2.Clone();
 		}
 		
 		return schedule;

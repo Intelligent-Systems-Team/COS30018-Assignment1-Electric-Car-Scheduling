@@ -2,8 +2,8 @@ package assignment.geneticAlgorithm;
 
 import java.util.LinkedList;
 /**
- * This is a class That stores CarSlots and the it's given Station number.
- * A Schedule will have a List of these StationSlot.
+ * This is a class that stores CarSlots and its given Station number.
+ * A Schedule will have a list of these StationSlot.
  * @author Matthew Ward 
  *
  */
@@ -14,5 +14,15 @@ public class StationSlot {
 	
 	public StationSlot(int num) {
 		stationNumber = num;
+	}
+	
+	public StationSlot Clone() {
+		StationSlot clone = new StationSlot(stationNumber);
+		
+		for (int i = 0; i < registeredCars.size(); i++) {
+			clone.registeredCars.set(i, this.registeredCars.get(i).Clone());
+		}
+		
+		return clone;
 	}
 }

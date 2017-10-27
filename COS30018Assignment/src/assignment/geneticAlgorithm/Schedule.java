@@ -24,6 +24,16 @@ public class Schedule {
 			stations.add(new StationSlot(i + 1));
 		}
 	}
+	
+	public Schedule Clone() {
+		Schedule clone = new Schedule(numberOfStations);
+		
+		for (int i = 0; i < numberOfStations; i++) {
+			clone.stations.set(i, this.stations.get(i).Clone());
+		}
+		
+		return clone;
+	}
 
 	public CarSlot GetCar(String name, int stationNum) {
 		StationSlot station = stations.get(stationNum);
