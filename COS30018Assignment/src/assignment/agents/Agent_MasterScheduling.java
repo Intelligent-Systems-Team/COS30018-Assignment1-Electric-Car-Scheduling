@@ -196,7 +196,8 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 		private boolean AddCar(PrefernceMessage preferenceMessage, int removedCar) {
 			CarPreferenceData c = new CarPreferenceData(preferenceMessage.name);
 			c.id = preferenceMessage.id;
-			c.durationRequested = preferenceMessage.duration;
+			c.carType = preferenceMessage.type.toString();
+			c.durationRequested = calculateDuration(preferenceMessage.type);
 			c.startTime = preferenceMessage.startRequested;
 			c.finishTime = preferenceMessage.finishRequired;
 			c.priority = carNameList.size() + 1;
@@ -213,6 +214,26 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 			}
 
 			return (couldAddCar);
+		}
+
+		/**
+		 * Calculates the duration to charge for, given the car type
+		 * @param type
+		 * @return
+		 */
+		private float calculateDuration(CarType type) {
+			
+			//Assuming Full charge 0% -> 100%
+			switch (type) {
+			case Nissan_Leaf:
+				return 1f;
+			case Toyota_Mirai:
+				return 0.5f;
+			case Volkswagen_eGolf:
+				return 1.25f;
+			default:
+				return 0;
+			}
 		}
 
 		/**

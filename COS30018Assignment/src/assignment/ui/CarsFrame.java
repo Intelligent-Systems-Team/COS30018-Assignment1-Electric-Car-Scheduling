@@ -16,6 +16,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
 import assignment.geneticAlgorithm.Schedule;
+import assignment.main.CarType;
 import assignment.main.Control;
 import assignment.message.PrefernceMessage;
 import assignment.ui.TableButton.SendButtonEditor;
@@ -82,7 +83,7 @@ public class CarsFrame extends JFrame {
 		table = new JTable();
 		table.setCellSelectionEnabled(true);
 		scrollPane.setViewportView(table);
-		tableModel = new DefaultTableModel(new Object[][] {}, new String[] { "Car", "Status", "Duration",
+		tableModel = new DefaultTableModel(new Object[][] {}, new String[] { "Car", "Status", "Car Type",
 				"Start Time Request", "Lastest Finish Time Request", "Send" }) {
 			@Override
 			public boolean isCellEditable(int row, int column) {
@@ -125,7 +126,7 @@ public class CarsFrame extends JFrame {
 	 * @param InitPrefernceMessage
 	 */
 	public void AddCarToTable(PrefernceMessage InitPrefernceMessage) {
-		Object[] newdata = { InitPrefernceMessage.name, "Nothing Sent", String.valueOf(InitPrefernceMessage.duration),
+		Object[] newdata = { InitPrefernceMessage.name, "Nothing Sent", String.valueOf(InitPrefernceMessage.type),
 				String.valueOf(InitPrefernceMessage.startRequested),
 				String.valueOf(InitPrefernceMessage.finishRequired), "Send" };
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
@@ -161,10 +162,10 @@ public class CarsFrame extends JFrame {
 		System.out.println("Send All Car Charge Request");
 		for (int i = 0; i < tableModel.getRowCount(); i++) {
 			String name = (String) table.getValueAt(i, 0);
-			float duration = Float.parseFloat((String) table.getValueAt(i, 2));
+			CarType type = CarType.valueOf((String) table.getValueAt(i, 2));
 			float start = Float.parseFloat((String) table.getValueAt(i, 3));
 			float finish = Float.parseFloat((String) table.getValueAt(i, 4));
-			PrefernceMessage PMdata = new PrefernceMessage(name, duration, start, finish);
+			PrefernceMessage PMdata = new PrefernceMessage(name, type, start, finish);
 			try {
 				// System.out.println("Sending Request for: " + name);
 				SendCarChargeRequest(PMdata);

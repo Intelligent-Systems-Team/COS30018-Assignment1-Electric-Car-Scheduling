@@ -400,7 +400,7 @@ public class GA_Control implements AgentInteraction {
 					
 					CarSlot car = newScheduleStation.registeredCars.get(i);
 					
-					r = random.nextInt(5);
+					r = random.nextInt(5); //Chance of station hoping instead of mutating hours
 					if (r != 1) {
 						
 						//Mutate hours
@@ -908,6 +908,7 @@ public class GA_Control implements AgentInteraction {
 		CarSlot slot = new CarSlot();
 
 		slot.id = data.id;
+		slot.type = data.carType;
 		slot.name = data.agentName;
 		slot.priority = i + 1;
 		slot.duration = data.durationRequested; // TODO: Change this depending on car, charge left, etc

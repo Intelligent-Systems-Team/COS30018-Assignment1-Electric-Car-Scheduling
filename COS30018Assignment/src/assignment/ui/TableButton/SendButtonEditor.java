@@ -11,6 +11,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 
+import assignment.main.CarType;
 import assignment.message.PrefernceMessage;
 import assignment.ui.CarsFrame;
 import jade.wrapper.ControllerException;
@@ -27,7 +28,7 @@ public class SendButtonEditor extends DefaultCellEditor {
 	private CarsFrame carFrame;
 	
 	private String name; 
-	private float duration;
+	private String type;
 	private float start;
 	private float finish;
 	
@@ -74,7 +75,7 @@ public class SendButtonEditor extends DefaultCellEditor {
 		{
 			// Get data from Table
 			name = (String)currentTable.getValueAt(currentrow, 0);
-			duration = Float.parseFloat((String) currentTable.getValueAt(currentrow, 2));
+			type = (String) currentTable.getValueAt(currentrow, 2);
 			start = Float.parseFloat((String) currentTable.getValueAt(currentrow, 3));
 			finish = Float.parseFloat((String) currentTable.getValueAt(currentrow, 4));
 			// Change the Car Status
@@ -84,7 +85,7 @@ public class SendButtonEditor extends DefaultCellEditor {
 					name +":"
 					+"\n Start Time Requested:"+start
 					+"\n Finish Time Requested:"+finish
-					+"\n Duration:"+duration);
+					+"\n Car Type:"+type);
 			
 			SendPrefenceData();
 		}
@@ -103,7 +104,7 @@ public class SendButtonEditor extends DefaultCellEditor {
 	
 	public void SendPrefenceData()
 	{
-		PrefernceMessage PMdata = new PrefernceMessage(name,duration,start,finish);
+		PrefernceMessage PMdata = new PrefernceMessage(name,CarType.valueOf(type),start,finish);
 		try {
 			carFrame.SendCarChargeRequest(PMdata);
 		} catch (ControllerException e) {

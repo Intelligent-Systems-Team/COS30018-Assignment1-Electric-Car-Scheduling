@@ -10,6 +10,7 @@ package assignment.geneticAlgorithm;
 public class CarSlot {
 
 	public String name = ""; // Car's local name
+	public String type = "unknown";
 	public int priority = -1; // The priority of the car (first car's request is priority 1)
 	public float duration = 0; // The duration the car will take to charge (in hours)
 	public float startRequested = 0, finishRequired = 0; // The start and finish time requested by the car
@@ -20,6 +21,7 @@ public class CarSlot {
 	public CarSlot Clone() {
 		CarSlot car = new CarSlot();
 		car.id = id;
+		car.type = type;
 		car.name = name;
 		car.priority = priority;
 		car.duration = duration;

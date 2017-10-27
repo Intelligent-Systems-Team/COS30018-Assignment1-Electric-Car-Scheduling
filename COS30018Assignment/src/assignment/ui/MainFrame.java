@@ -198,7 +198,7 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 					int rowNum = (int) (start * (60 / interval));
 					// System.out.println("ColumNum: "+rowNum);
 					while (duration > 0) {
-						dtm.setValueAt("Car " + car.name + " P:" + car.priority, rowNum, station);
+						dtm.setValueAt("Car " + car.name + " - " + car.type, rowNum, station);
 						rowNum++;
 						duration = (float) (duration - interval / 60f);
 					}

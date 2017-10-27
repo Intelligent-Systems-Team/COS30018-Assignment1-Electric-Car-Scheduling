@@ -13,6 +13,7 @@ import java.util.LinkedList;
 public class CarPreferenceData {
 
 	public String agentName;
+	public String carType;
 	public int priority;
 	public float startTime = 0, finishTime = 0;
 	public float durationRequested;

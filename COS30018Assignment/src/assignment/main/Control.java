@@ -220,10 +220,10 @@ public class Control implements ActionListener {
 				PrefernceMessage InitPrefernceMessage = null;
 
 				if (!debug) {
-					InitPrefernceMessage = new PrefernceMessage(carName, 2f, randomStart,
+					InitPrefernceMessage = new PrefernceMessage(carName, RandomCarType(), randomStart,
 							randomStart + 2 + (float) rnd.nextInt(10));
 				} else {
-					InitPrefernceMessage = new PrefernceMessage(carName, 2f, 0, 12);
+					InitPrefernceMessage = new PrefernceMessage(carName, RandomCarType(), 0, 12);
 				}
 				// Create Car Agent
 				AgentController newCar = jController.CreatCarAgent(enviro, carName);
@@ -237,6 +237,14 @@ public class Control implements ActionListener {
 		} else if ("ClearMessages".equals(e.getActionCommand()) && jController != null) {
 			ResetLatestMessagesList();
 		}
+	}
+
+	private CarType RandomCarType() {
+		int size = CarType.values().length;
+
+		int r = rnd.nextInt(size);
+		
+		return CarType.values()[r];
 	}
 
 	/**
