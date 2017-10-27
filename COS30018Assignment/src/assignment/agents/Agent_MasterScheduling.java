@@ -183,9 +183,8 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 		 *            Name of the car
 		 */
 		private boolean CarExist(int carID) {
-			System.out.println("Checking:" + carID);
 			for (int i = 0; i < carNameList.size(); i++) {
-				System.out.println("carNameList.get(" + i + ").id = " + carNameList.get(i).id);
+				//System.out.println("carNameList.get(" + i + ").id = " + carNameList.get(i).id);
 				if (carNameList.get(i).id == carID) {
 					return true;
 				}

@@ -198,8 +198,8 @@ public class GA_Control implements AgentInteraction {
 					// @Debug System.out.println("count:" + count + ", values = " + a + " | " + b);
 
 					float r2 = random.nextFloat();
-					parents[count] = (r2 < 0.7) ? ((a.fitness > b.fitness) ? a : b) : ((a.fitness > b.fitness) ? b : a); // Tournament
-																															// Selection
+					parents[count] = (r2 < 0.7) ? ((a.fitness > b.fitness) ? a : b) : ((a.fitness > b.fitness) ? b : a); 
+					// Tournament Selection
 
 					count++;
 				}
@@ -225,7 +225,7 @@ public class GA_Control implements AgentInteraction {
 		// Schedule with parents
 		if (parent1 != null && parent2 != null) {
 
-			Schedule schedule = CrossoverFunction1(parent1, parent2); //Crossover
+			Schedule schedule = CrossoverFunction2(parent1, parent2); //Crossover
 
 			for (int t = 0; t < NUMBER_OF_STATIONS; t++) {
 				StationSlot newScheduleStation = schedule.stations.get(t);
@@ -414,6 +414,79 @@ public class GA_Control implements AgentInteraction {
 		return (middleTest < end);
 		//return (middleTest > (start - padding) && middleTest < (end + padding));
 
+	}
+	
+	private Schedule CrossoverFunction2(Schedule parent1, Schedule parent2) {
+
+		Schedule schedule = new Schedule(NUMBER_OF_STATIONS);
+		
+		for (int t = 0; t < NUMBER_OF_STATIONS; t++) {
+			StationSlot station_p1 = parent1.stations.get(t);
+			StationSlot station_p2 = parent2.stations.get(t);
+			StationSlot newScheduleStation = schedule.stations.get(t);
+
+			StationSlot stationA, stationB;
+			
+			float r = random.nextFloat();
+			if (station_p1.registeredCars.size() > station_p2.registeredCars.size()) {
+				stationA = (r < 0.7)?station_p1:station_p2;
+				stationB = (r < 0.7)?station_p2:station_p1;
+			} else {
+				stationB = (r < 0.7)?station_p1:station_p2;
+				stationA = (r < 0.7)?station_p2:station_p1;
+			} 
+			
+			
+			// Adds cars from parent 1 to new schedule
+			for (int i = 0; i < stationA.registeredCars.size(); i++) {
+				newScheduleStation.registeredCars.add(stationA.registeredCars.get(i).Clone());
+			}
+
+			// Adds cars from parent 2 (if they don't already exist in the schedule, and can
+			// fit)
+			for (int i = 0; i < stationB.registeredCars.size(); i++) {
+				CarSlot carToAdd = stationB.registeredCars.get(i);
+
+				boolean canFit = true;
+
+				for (int c = 0; c < schedule.stations.get(t).registeredCars.size(); c++) {
+					CarSlot other = newScheduleStation.registeredCars.get(c);
+
+					// Does the new car clash with existing car?
+					if (CheckClash(carToAdd, carToAdd.startTime, other)) {
+						canFit = false;
+						break;
+					}
+
+					// Does car already exist in the new schedule?
+					for (int test = 0; test < newScheduleStation.registeredCars.size(); test++) {
+						if (newScheduleStation.registeredCars.get(test).id == other.id) {
+							canFit = false;
+							break;
+						}
+					}
+
+					// Does car already exist in a different station in new schedule?
+					for (int t2 = 0; t2 < NUMBER_OF_STATIONS; t2++) {
+						StationSlot testStation = schedule.stations.get(t2); // Test other stations
+
+						for (int test = 0; test < testStation.registeredCars.size(); test++) {
+							if (testStation.registeredCars.get(test).id == other.id) {
+								canFit = false;
+								break;
+							}
+						}
+					}
+
+					if (canFit) {
+						newScheduleStation.registeredCars.add(carToAdd.Clone());
+					}
+				}
+			}
+		}
+		
+		return schedule;
+	
 	}
 	
 	private Schedule CrossoverFunction1(Schedule parent1, Schedule parent2) {
