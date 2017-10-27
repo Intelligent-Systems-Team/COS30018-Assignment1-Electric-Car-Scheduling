@@ -25,9 +25,13 @@ import jade.wrapper.ControllerException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.AbstractAction;
 import java.awt.event.ActionEvent;
 import javax.swing.Action;
+import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
+
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -92,7 +96,8 @@ public class CarsFrame extends JFrame {
 			}
 		};
 		table.setModel(tableModel);
-
+		AddCarTypeComboBox();
+		
 		panel = new JPanel();
 		GridBagConstraints gbc_panel = new GridBagConstraints();
 		gbc_panel.fill = GridBagConstraints.BOTH;
@@ -214,5 +219,24 @@ public class CarsFrame extends JFrame {
 			carids.add((String) table.getValueAt(i, 0));
 		}
 		return carids;
+	}
+	private void AddCarTypeComboBox()
+	{
+		JComboBox comboBox = new JComboBox();
+	    DefaultComboBoxModel model = new DefaultComboBoxModel();
+	    for(CarType carT : CarType.values())
+	    {
+	    	model.addElement(carT.toString());
+	    }
+	    comboBox.setModel(model);
+	    TableColumn CarTypeColumn = table.getColumn("Car Type");
+	    CarTypeColumn.setCellEditor(new DefaultCellEditor(comboBox));
+	}
+	public void ResetCarStatus()
+	{
+		for(int i = 0; i < table.getRowCount();i++)
+		{
+			ChangeCarStatus(i,"Nothing Sent");
+		}
 	}
 }

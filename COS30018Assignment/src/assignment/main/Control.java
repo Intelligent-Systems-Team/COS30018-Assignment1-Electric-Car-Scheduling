@@ -207,7 +207,7 @@ public class Control implements ActionListener {
 
 				// Reset UI
 				mainFrame.StopDisplay(this);
-
+				carFrame.ResetCarStatus();
 				UpdateCurrentSchedule(null);
 
 			}
