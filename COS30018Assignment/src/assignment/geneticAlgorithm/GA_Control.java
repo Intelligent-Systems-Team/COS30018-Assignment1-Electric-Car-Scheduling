@@ -355,9 +355,9 @@ public class GA_Control implements AgentInteraction {
 				CalculateFitnessV3(s);
 			}
 		} else {
-			
-			CalculateFitnessV3(s); //Our chosen fitness function
-			
+
+			CalculateFitnessV3(s); // Our chosen fitness function
+
 		}
 
 	}
@@ -395,43 +395,73 @@ public class GA_Control implements AgentInteraction {
 			for (int i = 0; i < newScheduleStation.registeredCars.size(); i++) {
 				int r = random.nextInt(100);
 
-				// Mutate up or down?
+				// Mutate??
 				if (r <= chance) {
+					
 					CarSlot car = newScheduleStation.registeredCars.get(i);
-					float moveHours = ((float) (random.nextInt(6)));
+					
+					r = random.nextInt(5);
+					if (r != 1) {
+						
+						//Mutate hours
+						float moveHours = ((float) (random.nextInt(6)));
 
-					if ((moveHours < 0 && (car.startTime + moveHours >= car.startRequested))
-							|| (moveHours > 0 && (car.startTime + car.duration + moveHours <= car.finishRequired))) {
+						if ((moveHours < 0 && (car.startTime + moveHours >= car.startRequested)) || (moveHours > 0
+								&& (car.startTime + car.duration + moveHours <= car.finishRequired))) {
 
-						boolean spotTaken = true;
-						while (spotTaken) {
+							boolean spotTaken = true;
+							while (spotTaken) {
 
-							spotTaken = false;
-							for (int t2 = 0; t2 < newScheduleStation.registeredCars.size(); t2++) {
-								CarSlot test = newScheduleStation.registeredCars.get(t2);
-								if (car != test && CheckClash(car, car.startTime + moveHours, test)) {
-									spotTaken = true;
+								spotTaken = false;
+								for (int test = 0; test < newScheduleStation.registeredCars.size(); test++) {
+									CarSlot testCar = newScheduleStation.registeredCars.get(test);
+									if (car != testCar && CheckClash(car, car.startTime + moveHours, testCar)) {
+										spotTaken = true;
+										break;
+									}
+								}
+
+								if (spotTaken) {
+									moveHours *= 0.5;
+								} // Half move hours if jump was too big
+								if (Math.abs(moveHours) < 0.1) {
 									break;
+								} // Break when moveHours gets too close to 0
+							}
+
+							if (!spotTaken) {
+								car.startTime = SnapToTime(car.startTime + moveHours); // Mutate start time
+								if (car.startTime < car.startRequested) {
+									car.startTime += (INTERVAL_SNAP / 60);
 								}
 							}
 
-							if (spotTaken) {
-								moveHours *= 0.5;
-							} // Half move hours if jump was too big
-							if (Math.abs(moveHours) < 0.1) {
-								break;
-							} // Break when moveHours gets too close to 0
 						}
 
-						if (!spotTaken) {
-							car.startTime = SnapToTime(car.startTime + moveHours); // Mutate start time
-							if (car.startTime < car.startRequested) {
-								car.startTime += (INTERVAL_SNAP / 60);
+					} else {
+						
+						//Mutate to different station
+						for (int t2 = 0; t2 < NUMBER_OF_STATIONS; t2++) {
+							if (t2 != t) {
+								StationSlot stationMutatingTo = schedule.stations.get(t2);
+							
+								boolean spotTaken = false;
+								for (int test = 0; test < stationMutatingTo.registeredCars.size(); test++) {
+									CarSlot testCar = stationMutatingTo.registeredCars.get(test);
+									if (car != testCar && CheckClash(car, car.startTime, testCar)) {
+										spotTaken = true;
+										break;
+									}
+								}
+
+								if (!spotTaken) {
+									stationMutatingTo.registeredCars.add(car);
+									newScheduleStation.registeredCars.remove(car);
+									break;
+								}
 							}
 						}
-
 					}
-
 				} else {
 
 					// Small chance it could try jumping to the start requested now
