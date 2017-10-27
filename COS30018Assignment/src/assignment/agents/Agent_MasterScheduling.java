@@ -204,8 +204,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 			carNameList.add(c);
 
 			ga.Generate();
-			while (!ga.scheduleReady) {
-			}
+			while (!ga.scheduleReady) {}
 
 			boolean couldAddCar = ga.GetCurrentSchedule().CarExist(c.id);
 
@@ -233,12 +232,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 																// priority)
 			}
 
-			// (needs more parameters/preferences)
-			if (!AddCar(prefernceMessage)) {
-				return false;
-			} // Adds the car with new parameters
-
-			return true;
+			return AddCar(prefernceMessage);
 
 		}
 
