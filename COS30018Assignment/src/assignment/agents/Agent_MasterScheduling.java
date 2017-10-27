@@ -230,7 +230,9 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 			case Toyota_Mirai:
 				return 0.5f;
 			case Volkswagen_eGolf:
-				return 1.25f;
+				return 1.5f;
+			case Kia_SoulEV:
+				return 4f;
 			default:
 				return 0;
 			}
