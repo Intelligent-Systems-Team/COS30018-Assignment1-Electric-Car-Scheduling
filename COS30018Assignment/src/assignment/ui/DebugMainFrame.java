@@ -310,7 +310,7 @@ public class DebugMainFrame extends JFrame implements MainFrameInterface {
 	private void ClearTable() {
 		for (int station = 1; station <= 4; station++) {
 			for (int i = 0; i < dtm.getRowCount(); i++) {
-				dtm.setValueAt("", i, station);
+				dtm.setValueAt("", i, station-1);
 			}
 		}
 	}
