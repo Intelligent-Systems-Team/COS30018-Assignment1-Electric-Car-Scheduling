@@ -9,9 +9,10 @@ import assignment.main.CarPreferenceData;
 import assignment.main.Control;
 import assignment.ui.DebugMainFrame;
 import jade.core.behaviours.Behaviour;
+
 /**
  * 
- * @author Matthew Ward 
+ * @author Matthew Ward
  *
  */
 public class GA_Control implements AgentInteraction {
@@ -20,7 +21,7 @@ public class GA_Control implements AgentInteraction {
 	private final int INTERVAL_SNAP = 30; // Interval time to snap to (e.g. 30 = 30 minute interval)
 	private final int NUMBER_OF_STATIONS = 4;
 	private final float FITNESS_THRESHOLD = 10f;
-	
+
 	private float MUTATION_CHANCE = 0.65f;
 	private int MAX_GENERATIONS = 10; // Must be at least 1
 	private int SAMPLE_SIZE = 1000;
@@ -61,32 +62,34 @@ public class GA_Control implements AgentInteraction {
 		}
 
 		if (listOfCarPrefData.size() > 0) {
-			
+
 			System.out.println("--- Genetic Algorithm: Generation 1 ---");
-			
+
 			previousSchedule = currentSchedule;
 			scheduleReady = false; // Lets master scheduler know schedule is being calculated
 
-			//Remove the car from the current schedule
+			// Remove the car from the current schedule
 			if (idToRemoveOrUpdate > -1 && currentSchedule != null) {
 				boolean removed = false;
 				for (int s = 0; s < NUMBER_OF_STATIONS; s++) {
 					StationSlot station = currentSchedule.stations.get(s);
 					for (int c = 0; c < station.registeredCars.size(); c++) {
 						int tid = station.registeredCars.get(c).id;
-						
+
 						if (tid == idToRemoveOrUpdate) {
 							station.registeredCars.remove(c);
 							removed = true;
 							break;
 						}
 					}
-					
-					if (removed) {break;}
+
+					if (removed) {
+						break;
+					}
 				}
-				
+
 			}
-			
+
 			GeneratePopulation(null); // Generate first population
 			currentSchedule = GetHighestSchedule(population); // Get the highest fitness member as current schedule
 			control.UpdateCurrentSchedule(currentSchedule); // Send it to the control to be displayed
@@ -94,12 +97,14 @@ public class GA_Control implements AgentInteraction {
 			int generations = 1;
 			while (generations < MAX_GENERATIONS) { // TODO: Make function for below comment
 
-				System.out.println("--- Genetic Algorithm: Generation " + (generations+1) +" ---");
-				
+				System.out.println("--- Genetic Algorithm: Generation " + (generations + 1) + " ---");
+
 				String calculating = "Calculating";
-				for (int ca = 0; ca < generations; ca++) { calculating += ".";}
+				for (int ca = 0; ca < generations; ca++) {
+					calculating += ".";
+				}
 				PrintToSystem("Genetic Algorithm: " + calculating);
-				
+
 				GeneratePopulation(population); // Use existing list
 				currentSchedule = GetHighestSchedule(population); // Get the highest fitness member as current schedule
 				control.UpdateCurrentSchedule(currentSchedule); // Send it to the control to be displayed
@@ -161,8 +166,18 @@ public class GA_Control implements AgentInteraction {
 			int size = SAMPLE_SIZE;
 
 			// Create population
-			for (int i = 0; i < size; i++) {
-				population.add((CreateASchedule()));
+			if (currentSchedule == null) {
+				for (int i = 0; i < size; i++) {
+					population.add((CreateASchedule()));
+				}
+			} else {
+				for (int i = 0; i < size; i++) {
+					Schedule clone = currentSchedule.Clone();
+					clone = MutationFunction(clone, 1);
+					AddNewestCar(clone);
+					ChooseFitnessFunction(clone);
+					population.add(clone);
+				}
 			}
 
 		} else {
@@ -196,11 +211,11 @@ public class GA_Control implements AgentInteraction {
 
 			LinkedList<Schedule> newPop = new LinkedList<Schedule>();
 
-			// Add elites to new population
+			// Elites
 			Schedule highest = GetHighestSchedule(population);
-			AddNewCars(highest); // Can fit any more cars?
+			AddNewestCar(highest);
 			Schedule secondHighest = GetSecondHighestSchedule(population, highest);
-			AddNewCars(secondHighest); // Can fit any more cars?
+			AddNewestCar(secondHighest);
 
 			// Adds the elites to the new population
 			newPop.add(highest);
@@ -225,7 +240,7 @@ public class GA_Control implements AgentInteraction {
 					// @Debug System.out.println("count:" + count + ", values = " + a + " | " + b);
 
 					float r2 = random.nextFloat();
-					parents[count] = (r2 < 0.7) ? ((a.fitness > b.fitness) ? a : b) : ((a.fitness > b.fitness) ? b : a); 
+					parents[count] = (r2 < 0.7) ? ((a.fitness > b.fitness) ? a : b) : ((a.fitness > b.fitness) ? b : a);
 					// Tournament Selection
 
 					count++;
@@ -245,94 +260,17 @@ public class GA_Control implements AgentInteraction {
 	private Schedule CreateASchedule() {
 		return CreateASchedule(null, null);
 	}
-	
+
 	private Schedule CreateASchedule(Schedule parent1, Schedule parent2) {
 		Schedule s = new Schedule(NUMBER_OF_STATIONS);
 
 		// Schedule with parents
 		if (parent1 != null && parent2 != null) {
 
-			Schedule schedule = CrossoverFunction2(parent1, parent2); //Crossover
+			Schedule schedule = CrossoverFunction2(parent1, parent2); // Crossover
+			schedule = MutationFunction(schedule, MUTATION_CHANCE); // Mutation
 
-			for (int t = 0; t < NUMBER_OF_STATIONS; t++) {
-				StationSlot newScheduleStation = schedule.stations.get(t);
-				
-				// ****************
-				// Mutation Next
-				// ****************
-
-				float chance = MUTATION_CHANCE * 100;
-
-				for (int i = 0; i < newScheduleStation.registeredCars.size(); i++) {
-					int r = random.nextInt(100);
-
-					// Mutate up or down?
-					if (r <= chance) {
-						CarSlot car = newScheduleStation.registeredCars.get(i);
-						float moveHours = ((float) (random.nextInt(6)));
-
-						if ((moveHours < 0 && (car.startTime + moveHours >= car.startRequested)) || (moveHours > 0
-								&& (car.startTime + car.duration + moveHours <= car.finishRequired))) {
-
-							boolean spotTaken = true;
-							while (spotTaken) {
-
-								spotTaken = false;
-								for (int t2 = 0; t2 < newScheduleStation.registeredCars.size(); t2++) {
-									CarSlot test = newScheduleStation.registeredCars.get(t2);
-									if (car != test && CheckClash(car, car.startTime + moveHours, test)) {
-										spotTaken = true;
-										break;
-									}
-								}
-
-								if (spotTaken) {
-									moveHours *= 0.5;
-								} // Half move hours if jump was too big
-								if (Math.abs(moveHours) < 0.1) {
-									break;
-								} // Break when moveHours gets too close to 0
-							}
-
-							if (!spotTaken) {
-								car.startTime = SnapToTime(car.startTime + moveHours); // Mutate start time
-								if (car.startTime < car.startRequested) {
-									car.startTime += (INTERVAL_SNAP / 60);
-								}
-							}
-
-						}
-
-					} else {
-
-						// Small chance it could try jumping to the start requested now
-						r = random.nextInt(100);
-						if (r <= chance/4) {
-
-							CarSlot car = newScheduleStation.registeredCars.get(i);
-							boolean spotTaken = false;
-
-							for (int t2 = 0; t2 < newScheduleStation.registeredCars.size(); t2++) {
-								CarSlot test = newScheduleStation.registeredCars.get(t2);
-								if (car != test && CheckClash(car, car.startRequested, test)) {
-									spotTaken = true;
-									break;
-								}
-							}
-
-							if (!spotTaken) {
-								car.startTime = SnapToTime(car.startRequested); // Mutate start time
-								if (car.startTime < car.startRequested) {
-									car.startTime += (INTERVAL_SNAP / 60);
-								}
-							}
-						}
-					}
-				}
-
-				s = schedule; // schedule is the returned schedule
-
-			}
+			s = schedule; // schedule is the returned schedule
 
 			// New Schedule
 		} else {
@@ -386,6 +324,14 @@ public class GA_Control implements AgentInteraction {
 
 		s.OrderCarsByHours();
 
+		ChooseFitnessFunction(s);
+
+		return s; // Returns the new schedule
+	}
+
+	// ************************************************************************
+
+	private void ChooseFitnessFunction(Schedule s) {
 		// Debug -> Choose which fitness function to use
 		if (control.debug == true) {
 			int verINDEX = ((DebugMainFrame) control.mainFrame).fitnessCB.getSelectedIndex();
@@ -409,50 +355,124 @@ public class GA_Control implements AgentInteraction {
 				CalculateFitnessV3(s);
 			}
 		} else {
-			CalculateFitnessV3(s);
+			
+			CalculateFitnessV3(s); //Our chosen fitness function
+			
 		}
 
-		return s; // Returns the new schedule
 	}
-
-	// ************************************************************************
 
 	// Checks if a car lies within the duration of another car
 	private boolean CheckClash(CarSlot newCar, float newCarRequest, CarSlot other) {
-		
+
 		if (newCarRequest == other.startTime) {
 			return true;
 		}
 		float padding = 0; // Minimum space between cars
 
 		float start, end, middleTest;
-		if (other.startTime >= newCarRequest) 
-		{
+		if (other.startTime >= newCarRequest) {
 			start = newCarRequest;
 			end = newCarRequest + newCar.duration;
 			middleTest = other.startTime;
-		} 
-		else 
-		{
+		} else {
 			start = other.startTime;
 			end = other.startTime + other.duration;
 			middleTest = newCarRequest;
 		}
 		return (middleTest < end);
-		//return (middleTest > (start - padding) && middleTest < (end + padding));
+		// return (middleTest > (start - padding) && middleTest < (end + padding));
 
 	}
-	
+
+	private Schedule MutationFunction(Schedule schedule, float chance) {
+
+		chance *= 100;
+
+		for (int t = 0; t < NUMBER_OF_STATIONS; t++) {
+			StationSlot newScheduleStation = schedule.stations.get(t);
+
+			for (int i = 0; i < newScheduleStation.registeredCars.size(); i++) {
+				int r = random.nextInt(100);
+
+				// Mutate up or down?
+				if (r <= chance) {
+					CarSlot car = newScheduleStation.registeredCars.get(i);
+					float moveHours = ((float) (random.nextInt(6)));
+
+					if ((moveHours < 0 && (car.startTime + moveHours >= car.startRequested))
+							|| (moveHours > 0 && (car.startTime + car.duration + moveHours <= car.finishRequired))) {
+
+						boolean spotTaken = true;
+						while (spotTaken) {
+
+							spotTaken = false;
+							for (int t2 = 0; t2 < newScheduleStation.registeredCars.size(); t2++) {
+								CarSlot test = newScheduleStation.registeredCars.get(t2);
+								if (car != test && CheckClash(car, car.startTime + moveHours, test)) {
+									spotTaken = true;
+									break;
+								}
+							}
+
+							if (spotTaken) {
+								moveHours *= 0.5;
+							} // Half move hours if jump was too big
+							if (Math.abs(moveHours) < 0.1) {
+								break;
+							} // Break when moveHours gets too close to 0
+						}
+
+						if (!spotTaken) {
+							car.startTime = SnapToTime(car.startTime + moveHours); // Mutate start time
+							if (car.startTime < car.startRequested) {
+								car.startTime += (INTERVAL_SNAP / 60);
+							}
+						}
+
+					}
+
+				} else {
+
+					// Small chance it could try jumping to the start requested now
+					r = random.nextInt(100);
+					if (r <= chance / 4) {
+
+						CarSlot car = newScheduleStation.registeredCars.get(i);
+						boolean spotTaken = false;
+
+						for (int t2 = 0; t2 < newScheduleStation.registeredCars.size(); t2++) {
+							CarSlot test = newScheduleStation.registeredCars.get(t2);
+							if (car != test && CheckClash(car, car.startRequested, test)) {
+								spotTaken = true;
+								break;
+							}
+						}
+
+						if (!spotTaken) {
+							car.startTime = SnapToTime(car.startRequested); // Mutate start time
+							if (car.startTime < car.startRequested) {
+								car.startTime += (INTERVAL_SNAP / 60);
+							}
+						}
+					}
+				}
+			}
+
+		}
+
+		return schedule;
+	}
+
 	private Schedule CrossoverFunction2(Schedule parent1, Schedule parent2) {
 
 		Schedule schedule = new Schedule(NUMBER_OF_STATIONS);
-		
+
 		for (int t = 0; t < NUMBER_OF_STATIONS; t++) {
 			StationSlot stationA = parent1.stations.get(t);
 			StationSlot stationB = parent2.stations.get(t);
 			StationSlot newScheduleStation = schedule.stations.get(t);
-			
-			
+
 			// Adds cars from parent 1 to new schedule
 			for (int i = 0; i < stationA.registeredCars.size(); i++) {
 				newScheduleStation.registeredCars.add(stationA.registeredCars.get(i).Clone());
@@ -499,62 +519,70 @@ public class GA_Control implements AgentInteraction {
 					}
 				}
 			}
-					
+
 		}
-		
-		//Now, if any cars weren't added from station 2, it attempts to add them now
+
+		// Now, if any cars weren't added from station 2, it attempts to add them now
 		boolean noLostCars = true;
-		
+
 		for (int t = 0; t < NUMBER_OF_STATIONS; t++) {
 			StationSlot testParent1 = parent1.stations.get(t);
 			StationSlot testParent2 = parent2.stations.get(t);
-			
+
 			for (int i = 0; i < testParent1.registeredCars.size(); i++) {
 				CarSlot carToTest = testParent1.registeredCars.get(i);
-				
+
 				if (!schedule.CarExist(carToTest.id)) {
 					boolean success = false;
 					int attempts = 0;
-					
-					while(success == false && attempts++ < 12) {
+
+					while (success == false && attempts++ < 12) {
 						success = TryAddCarToSchedule(schedule, carToTest.Clone());
 					}
-					
-					if (!success) {noLostCars = true; break;}
-					
+
+					if (!success) {
+						noLostCars = true;
+						break;
+					}
+
 				}
 			}
-			
-			if (noLostCars == false) {break;}
-			
+
+			if (noLostCars == false) {
+				break;
+			}
+
 			for (int i = 0; i < testParent2.registeredCars.size(); i++) {
 				CarSlot carToTest = testParent2.registeredCars.get(i);
-				
+
 				if (!schedule.CarExist(carToTest.id)) {
 					boolean success = false;
 					int attempts = 0;
-					
-					while(success == false && attempts++ < 12) {
+
+					while (success == false && attempts++ < 12) {
 						success = TryAddCarToSchedule(schedule, carToTest.Clone());
 					}
-					
-					if (!success) {noLostCars = true; break;}
-					
+
+					if (!success) {
+						noLostCars = true;
+						break;
+					}
+
 				}
 			}
 		}
-		
+
 		if (noLostCars == false) {
-			schedule = (parent1.fitness >= parent2.fitness)?parent1.Clone():parent2.Clone();
+			schedule = (parent1.fitness >= parent2.fitness) ? parent1.Clone() : parent2.Clone();
 		}
-		
+
 		return schedule;
-	
+
 	}
-	
+
 	private Schedule CrossoverFunction1(Schedule parent1, Schedule parent2) {
 		Schedule schedule = new Schedule(NUMBER_OF_STATIONS);
-		
+
 		for (int t = 0; t < NUMBER_OF_STATIONS; t++) {
 			StationSlot stationA = parent1.stations.get(t);
 			StationSlot stationB = parent2.stations.get(t);
@@ -607,7 +635,7 @@ public class GA_Control implements AgentInteraction {
 				}
 			}
 		}
-		
+
 		return schedule;
 	}
 
@@ -662,7 +690,7 @@ public class GA_Control implements AgentInteraction {
 		float AmountDown = p.TimeFromRequested();
 		float TimeGap = p.TimeGap();
 		float fit = 0;
-		fit = PriorityScore*2 - TimeGap*0.5f - AmountDown*0.1f;
+		fit = PriorityScore * 2 - TimeGap * 0.5f - AmountDown * 0.1f;
 		p.fitness = fit;
 	}
 
@@ -699,34 +727,16 @@ public class GA_Control implements AgentInteraction {
 
 	// *************************************************************************
 
-	// Sees if the schedule can fit in any new cars
-	private void AddNewCars(Schedule s) {
-		for (int i = 0; i < listOfCarPrefData.size(); i++) {
-			CarSlot n = CarSlotFromData(i);
-			float nStart = n.startRequested;
+	// Sees if the schedule can fit the newest cars
+	private void AddNewestCar(Schedule s) {
+		CarSlot n = CarSlotFromData(listOfCarPrefData.size() - 1);
 
-			if (!s.CarExist(n.id)) {
-				int sta = 0;
-				while (sta < NUMBER_OF_STATIONS) {
-					StationSlot station = s.stations.get(sta);
+		if (s.CarExist(n.id) == false) {
 
-					boolean clash = false;
-					for (int t = 0; t < station.registeredCars.size(); t++) {
-						CarSlot test = station.registeredCars.get(t);
-
-						if (CheckClash(n, nStart, test)) {
-							sta++;
-							clash = true;
-							break;
-						}
-					}
-
-					if (!clash) {
-						n.startTime = nStart;
-						station.registeredCars.add(n);
-						break;
-					}
-				}
+			int attempt = 0;
+			boolean added = false;
+			while (attempt++ < 12 && !added) {
+				added = TryAddCarToSchedule(s, n);
 			}
 		}
 	}

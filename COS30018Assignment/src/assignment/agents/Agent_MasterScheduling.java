@@ -209,7 +209,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 
 			// If it couldn't fit in the car, restore to previous schedule
 			if (couldAddCar == false) {
-				ga.RestoreSchedule(true);
+				RemoveCar(preferenceMessage.id, false);
 			}
 
 			return (couldAddCar);
@@ -221,7 +221,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 		 * @param name
 		 */
 		private boolean UpdateCar(PrefernceMessage prefernceMessage) {
-			if (!RemoveCar(prefernceMessage.id)) {
+			if (!RemoveCar(prefernceMessage.id, false)) {
 				System.out.println("Failed to Remove car");
 				return false;
 			}
@@ -235,7 +235,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 
 		}
 
-		private boolean RemoveCar(int id) {
+		private boolean RemoveCar(int id, boolean regenerate) {
 			CarPreferenceData d = null;
 			for (CarPreferenceData cpd : carNameList) {
 				if (cpd.id == id) {
@@ -246,8 +246,13 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 
 			if (d != null) {
 				carNameList.remove(d);
+
 				// Remove that car form all schedules in GA
-				ga.RemoveCarFromAllSchedules(id);
+				if (regenerate) {
+					ga.Generate(id);
+				} else {
+					ga.RestoreSchedule(true);
+				}
 			}
 
 			return d != null; // Returns true if the car was found and removed

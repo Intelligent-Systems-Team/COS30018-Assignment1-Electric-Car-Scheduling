@@ -20,7 +20,7 @@ public class StationSlot {
 		StationSlot clone = new StationSlot(stationNumber);
 		
 		for (int i = 0; i < registeredCars.size(); i++) {
-			clone.registeredCars.set(i, this.registeredCars.get(i).Clone());
+			clone.registeredCars.add(this.registeredCars.get(i).Clone());
 		}
 		
 		return clone;
