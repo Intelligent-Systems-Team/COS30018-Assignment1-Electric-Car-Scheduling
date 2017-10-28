@@ -21,8 +21,8 @@ public class GA_Control implements AgentInteraction {
 	private final int INTERVAL_SNAP = 30; // Interval time to snap to (e.g. 30 = 30 minute interval)
 	private final int NUMBER_OF_STATIONS = 4;
 	private final float FITNESS_THRESHOLD = 10f;
-
 	private float MUTATION_CHANCE = 0.65f;
+	
 	private int MAX_GENERATIONS = 10; // Must be at least 1
 	private int SAMPLE_SIZE = 1000;
 
