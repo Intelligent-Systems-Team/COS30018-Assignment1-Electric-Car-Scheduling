@@ -112,18 +112,23 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 
 					if (carID >= 0 && !CarExist(carID)) {
 						// Check If Can accept the car
+						
+						boolean timeInRange = preferenceMessage.startRequested >= 0;
+						timeInRange = timeInRange && preferenceMessage.finishRequired <= 24;
+						
 						// Tries to Add car to list
-						if (AddCar(preferenceMessage, -1)) {
+						if (timeInRange && AddCar(preferenceMessage, -1)) { 
 							PrintToSystem("Car" + getLocalName() + ": " + car + " has been registered");
 							reply.setPerformative(ACLMessage.AGREE);
 							reply.setContent("Registered");
 							control.UpdateCarStatus(carID, "Registered");
 						}
+						
 						// Can't add car
 						else {
 							PrintToSystem(getLocalName() + ": " + car + " refused ");
 							reply.setPerformative(ACLMessage.REFUSE);
-							reply.setContent("Can't Registered");
+							reply.setContent("Can't Register");
 							control.UpdateCarStatus(carID, "Refused");
 						}
 						send(reply);
