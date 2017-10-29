@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.GridBagLayout;
@@ -146,7 +147,11 @@ public class CarsFrame extends JFrame {
 	 * @throws ControllerException
 	 */
 	public void SendCarChargeRequest(PrefernceMessage sendMessage) throws ControllerException {
+		if(InputValidation(sendMessage)) 
+		{
 		controller.SendPefernceToCarAgent(sendMessage);
+		}
+		else {ChangeCarStatus(sendMessage.id,"Nothing Sent");}
 	}
 
 	private class SwingAction extends AbstractAction {
@@ -173,6 +178,7 @@ public class CarsFrame extends JFrame {
 			PrefernceMessage PMdata = new PrefernceMessage(name, type, start, finish);
 			try {
 				// System.out.println("Sending Request for: " + name);
+				
 				SendCarChargeRequest(PMdata);
 
 			} catch (ControllerException e) {
@@ -238,5 +244,38 @@ public class CarsFrame extends JFrame {
 		{
 			ChangeCarStatus(i,"Nothing Sent");
 		}
+	}
+	
+	public boolean InputValidation(PrefernceMessage message)
+	{
+		if(message.startRequested < 0 || message.finishRequired < 0)
+		{
+			System.out.println("Start and Finish times can't be Negitive");
+			JOptionPane.showMessageDialog(btnSendAllRequests,"Car"+message.name+ 
+					": You can't Send Negitive Start or Finish Times");
+			return false;
+		}
+		if(message.startRequested > 24 || message.finishRequired > 24)
+		{
+			System.out.println("Start and Finish times can't be Greater then 24");
+			JOptionPane.showMessageDialog(btnSendAllRequests,"Car"+message.name+ 
+					": You can't Send times greater then 24hour Start or Finish Times");
+			return false;
+		}
+		if(message.startRequested >= message.finishRequired)
+		{
+			System.out.println("Start Time has to be before Finish Time");
+			JOptionPane.showMessageDialog(btnSendAllRequests,"Car"+message.name+ 
+					": Start Time has to be before Finish Time");
+			return false;
+		}
+		if(message.finishRequired - message.startRequested < controller.calculateDuration(message.type))
+		{
+			System.out.println("There is not enogh time to charge Car");
+			JOptionPane.showMessageDialog(btnSendAllRequests,"Car"+message.name+ 
+					": Time space is too small to charge this type of car");
+			return false;
+		}
+		return true;
 	}
 }
