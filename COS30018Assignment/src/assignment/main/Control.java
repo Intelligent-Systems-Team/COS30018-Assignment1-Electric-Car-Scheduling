@@ -283,4 +283,27 @@ public class Control implements ActionListener {
 		if (current != null)
 			carFrame.CheckCarDrop(current);
 	}
+	
+	/**
+	 * Calculates the duration to charge for, given the car type
+	 * @param type
+	 * @return
+	 */
+	public float calculateDuration(CarType type) 
+	{
+		
+		//Assuming Full charge 0% -> 100%
+		switch (type) {
+		case Nissan_Leaf:
+			return 1f;
+		case Toyota_Mirai:
+			return 0.5f;
+		case Volkswagen_eGolf:
+			return 1.5f;
+		case Kia_SoulEV:
+			return 4f;
+		default:
+			return 0;
+		}
+	}
 }
