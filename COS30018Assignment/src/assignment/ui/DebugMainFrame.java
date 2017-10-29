@@ -46,6 +46,7 @@ import java.awt.event.ActionListener;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.RowSpec;
+import javax.swing.DefaultComboBoxModel;
 
 /**
  * Exactly the same as MainFrame but at the bottom there is a bunch Options
@@ -154,6 +155,7 @@ public class DebugMainFrame extends JFrame implements MainFrameInterface {
 		String[] fitnessCals = { "Original (V1)", "PriorityScore (V2)", "Priority-Hours (V3)", "V5-Extend (V4)",
 				"Allocated/Requested (V5)" };
 		fitnessCB = new JComboBox(fitnessCals);
+		fitnessCB.setModel(new DefaultComboBoxModel(new String[] {"Original (V1)", "PriorityScore (V2)", "Priority-Hours (V3)", "V5-Extend (V4)", "Allocated/Requested - Priority(V5)", "Allocated/Requested -TimeGap(V6)"}));
 		FitSplitPane.setLeftComponent(lblFitness);
 		FitSplitPane.setRightComponent(fitnessCB);
 

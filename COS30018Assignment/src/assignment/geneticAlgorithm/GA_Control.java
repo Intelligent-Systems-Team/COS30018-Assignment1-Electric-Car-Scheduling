@@ -351,6 +351,9 @@ public class GA_Control implements AgentInteraction {
 			case 4:
 				CalculateFitnessV5(s);
 				break;
+			case 5:
+				CalculateFitnessV6(s);
+				break;
 			default:
 				CalculateFitnessV3(s);
 			}
@@ -720,7 +723,7 @@ public class GA_Control implements AgentInteraction {
 		float AmountDown = p.TimeFromRequested();
 		float TimeGap = p.TimeGap();
 		float fit = 0;
-		fit = PriorityScore * 2 - TimeGap * 0.5f - AmountDown * 0.1f;
+		fit = PriorityScore * 2 - TimeGap * 0.5f - AmountDown * 0.5f;
 		p.fitness = fit;
 	}
 
@@ -733,6 +736,18 @@ public class GA_Control implements AgentInteraction {
 		float PriorityScore = p.PriorityScore();
 
 		float fit = TotalAlloctedTime / totalRequestedTime - (1 / PriorityScore);
+		p.fitness = fit;
+	}
+	
+	/**
+	 * @author Jacques Van Niekerk, Brendan Pert
+	 */
+	private void CalculateFitnessV6(Schedule p) {
+		float TotalAlloctedTime = p.TotalAlloctedTime();
+		float totalRequestedTime = TotalRequestedTime();
+		float TimeGap = p.TimeGap();
+
+		float fit = (TotalAlloctedTime / totalRequestedTime) - (0.1f * TimeGap);
 		p.fitness = fit;
 	}
 
