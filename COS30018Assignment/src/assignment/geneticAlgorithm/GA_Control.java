@@ -720,7 +720,7 @@ public class GA_Control implements AgentInteraction {
 		float AmountDown = p.TimeFromRequested();
 		float TimeGap = p.TimeGap();
 		float fit = 0;
-		fit = PriorityScore * 2 - TimeGap * 0.5f - AmountDown * 0.1f;
+		fit = PriorityScore * 2 - TimeGap * 0.5f - AmountDown * 0.5f;
 		p.fitness = fit;
 	}
 
