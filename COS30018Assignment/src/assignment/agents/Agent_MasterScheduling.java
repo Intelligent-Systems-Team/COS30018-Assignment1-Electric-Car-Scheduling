@@ -128,8 +128,8 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 						else {
 							PrintToSystem(getLocalName() + ": " + car + " refused ");
 							reply.setPerformative(ACLMessage.REFUSE);
-							reply.setContent("Can't Register");
-							control.UpdateCarStatus(carID, "Refused");
+							reply.setContent("Not Regitered, On Waiting List");
+							control.UpdateCarStatus(carID, "On Waiting List");
 						}
 						send(reply);
 						PrintToSystem(getLocalName() + ": Sending response [\"" + reply.getContent() + "\"] to " + "Car"
