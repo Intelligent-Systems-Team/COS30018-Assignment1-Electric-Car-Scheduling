@@ -21,7 +21,7 @@ public class GA_Control implements AgentInteraction {
 	private final int INTERVAL_SNAP = 30; // Interval time to snap to (e.g. 30 = 30 minute interval)
 	private final int NUMBER_OF_STATIONS = 4;
 	private final float FITNESS_THRESHOLD = 10f;
-	private float MUTATION_CHANCE = 0.65f;
+	private float MUTATION_CHANCE = 0.7f;
 	
 	private int MAX_GENERATIONS = 10; // Must be at least 1
 	private int SAMPLE_SIZE = 1000;
@@ -355,11 +355,11 @@ public class GA_Control implements AgentInteraction {
 				CalculateFitnessV6(s);
 				break;
 			default:
-				CalculateFitnessV3(s);
+				CalculateFitnessV6(s);
 			}
 		} else {
 
-			CalculateFitnessV3(s); // Our chosen fitness function
+			CalculateFitnessV6(s); // Our chosen fitness function
 
 		}
 
@@ -403,7 +403,7 @@ public class GA_Control implements AgentInteraction {
 					
 					CarSlot car = newScheduleStation.registeredCars.get(i);
 					
-					r = random.nextInt(5); //Chance of station hoping instead of mutating hours
+					r = random.nextInt(7); //Chance of station hoping instead of mutating hours
 					if (r != 1) {
 						
 						//Mutate hours
