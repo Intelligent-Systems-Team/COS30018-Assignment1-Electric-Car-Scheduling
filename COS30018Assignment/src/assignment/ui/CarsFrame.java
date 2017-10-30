@@ -212,7 +212,7 @@ public class CarsFrame extends JFrame {
 					&& (table.getValueAt(i, 1) == "Registered" || table.getValueAt(i, 1) == "Re-Registered")) {
 				ChangeCarStatus(i, "Dropped");
 			} else if (current.CarExist(i)
-					&& (table.getValueAt(i, 1) == "Dropped" || table.getValueAt(i, 1) == "Refused")) {
+					&& (table.getValueAt(i, 1) == "Dropped" || table.getValueAt(i, 1) == "On Waiting List")) {
 				ChangeCarStatus(i, "Re-Registered");
 			}
 
