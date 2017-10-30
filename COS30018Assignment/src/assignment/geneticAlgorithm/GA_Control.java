@@ -174,7 +174,7 @@ public class GA_Control implements AgentInteraction {
 				for (int i = 0; i < size; i++) {
 					Schedule clone = currentSchedule.Clone();
 					clone = MutationFunction(clone, 1);
-					AddNewestCar(clone);
+					AddNewCar(clone);
 					ChooseFitnessFunction(clone);
 					population.add(clone);
 				}
@@ -213,9 +213,9 @@ public class GA_Control implements AgentInteraction {
 
 			// Elites
 			Schedule highest = GetHighestSchedule(population);
-			AddNewestCar(highest);
+			AddNewCar(highest);
 			Schedule secondHighest = GetSecondHighestSchedule(population, highest);
-			AddNewestCar(secondHighest);
+			AddNewCar(secondHighest);
 
 			// Adds the elites to the new population
 			newPop.add(highest);
@@ -773,15 +773,20 @@ public class GA_Control implements AgentInteraction {
 	// *************************************************************************
 
 	// Sees if the schedule can fit the newest cars
-	private void AddNewestCar(Schedule s) {
-		CarSlot n = CarSlotFromData(listOfCarPrefData.size() - 1);
+	private void AddNewCar(Schedule s) {
+		
+		int start = (control.removeCarsIfRejected)?(listOfCarPrefData.size() - 1):0;
+		
+		for (int i = start; i < listOfCarPrefData.size(); i++) {
+			CarSlot n = CarSlotFromData(i);
 
-		if (s.CarExist(n.id) == false) {
-
-			int attempt = 0;
-			boolean added = false;
-			while (attempt++ < 12 && !added) {
-				added = TryAddCarToSchedule(s, n);
+			if (s.CarExist(n.id) == false) {
+	
+				int attempt = 0;
+				boolean added = false;
+				while (attempt++ < 12 && !added) {
+					added = TryAddCarToSchedule(s, n);
+				}
 			}
 		}
 	}

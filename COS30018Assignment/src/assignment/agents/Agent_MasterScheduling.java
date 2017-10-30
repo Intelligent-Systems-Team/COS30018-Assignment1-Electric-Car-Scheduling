@@ -214,7 +214,7 @@ public class Agent_MasterScheduling extends Agent implements AgentInteraction {
 			boolean couldAddCar = ga.GetCurrentSchedule().CarExist(c.id);
 
 			// If it couldn't fit in the car, restore to previous schedule
-			if (couldAddCar == false) {
+			if (couldAddCar == false && control.removeCarsIfRejected) {
 				RemoveCar(preferenceMessage.id, false);
 			}
 

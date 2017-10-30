@@ -14,6 +14,7 @@ import assignment.geneticAlgorithm.StationSlot;
 import assignment.main.Control;
 
 import javax.swing.JSplitPane;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -31,6 +32,8 @@ import javax.swing.SwingConstants;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JList;
 
 /**
  * Mainframe is an extension of a JFrame. Inside this frame it has buttons with
@@ -55,6 +58,9 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 	private JScrollPane scrollPane_1;
 	private float CurrFitness = 0;
 	private JLabel myLabelSchedule;
+	private JTabbedPane tabbedPane;
+	private JSplitPane splitPane_2;
+	private JList<Integer> list;
 
 	/**
 	 * Create the frame.
@@ -98,22 +104,38 @@ public class MainFrame extends JFrame implements MainFrameInterface {
 		mySystemOut.setText("Latest Messages From Agents:");
 		mySystemOut.setEnabled(false);
 		scrollPane_1.setViewportView(mySystemOut);
-
-		JSplitPane splitPane_2 = new JSplitPane();
-		splitPane_2.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		splitPane_1.setLeftComponent(splitPane_2);
-
-		btnAddCar = new JButton("Add Car");
-		btnAddCar.setEnabled(false);
-		btnAddCar.setActionCommand("AddCar");
-		btnAddCar.addActionListener(controller);
-		splitPane_2.setLeftComponent(btnAddCar);
-
-		btnClearMessages = new JButton("[Clear Messages]");
-		btnClearMessages.setActionCommand("ClearMessages");
-		btnClearMessages.addActionListener(controller);
-		btnClearMessages.setEnabled(false);
-		splitPane_2.setRightComponent(btnClearMessages);
+				
+				tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+				splitPane_1.setLeftComponent(tabbedPane);
+						
+								btnClearMessages = new JButton("[Clear Messages]");
+								tabbedPane.addTab("Manage Messages", null, btnClearMessages, null);
+								btnClearMessages.setActionCommand("ClearMessages");
+								btnClearMessages.addActionListener(controller);
+								btnClearMessages.setEnabled(false);
+								
+								splitPane_2 = new JSplitPane();
+								splitPane_2.setOrientation(JSplitPane.VERTICAL_SPLIT);
+								tabbedPane.addTab("Add Cars", null, splitPane_2, null);
+								
+										btnAddCar = new JButton("Add Car");
+										splitPane_2.setLeftComponent(btnAddCar);
+										btnAddCar.setEnabled(false);
+										btnAddCar.setActionCommand("AddCar");
+										btnAddCar.addActionListener(controller);
+										
+										DefaultListModel<Integer> carsNum = new DefaultListModel();
+										carsNum.addElement(1);
+										carsNum.addElement(2);
+										carsNum.addElement(5);
+										carsNum.addElement(10);
+										carsNum.addElement(20);
+										carsNum.addElement(50);
+										carsNum.addElement(100);
+										list = new JList<Integer>();
+										list.setModel(carsNum);
+										splitPane_2.setRightComponent(list);
+										
 
 		JSplitPane splitPane_3 = new JSplitPane();
 		splitPane_3.setOrientation(JSplitPane.VERTICAL_SPLIT);

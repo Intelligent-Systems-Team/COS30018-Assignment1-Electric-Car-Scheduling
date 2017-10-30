@@ -33,9 +33,10 @@ import jade.wrapper.gateway.JadeGateway;
  * @author Brendan Pert
  */
 public class Control implements ActionListener {
-	public boolean debug = true; // @Debug
+	public boolean debug = false; // @Debug
 	public MainFrameInterface mainFrame;
 
+	public boolean removeCarsIfRejected = false;
 	private JADEController jController;
 	private CarsFrame carFrame;
 	private boolean simulating = false;
